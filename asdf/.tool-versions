@@ -1,0 +1,8 @@
+elixir 1.15.6-otp-26
+erlang 26.1.1
+neovim nightly
+python 3.11.5
+lazygit 0.40.2
+bottom 0.9.6
+ripgrep 13.0.0
+zellij 0.39.0

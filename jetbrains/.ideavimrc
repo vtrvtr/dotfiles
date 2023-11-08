@@ -1,0 +1,98 @@
+let mapleader = " "
+
+map <leader>f <Plug>(easymotion-f)
+
+" Reloads
+nnoremap \e :e "~/.ideavimrc"
+nnoremap \r :action IdeaVim.ReloadVimRc.reload<CR>
+echo "reloaded!"
+
+" Distraction free mode
+nnoremap <C-z> :action ToggleDistractionFreeMode<CR>
+
+" Terminal
+" nnoremap <leader>T :action ActivateTerminalToolWindow<CR>
+" nnoremap <leader>t :action Terminal.OpenInTerminal<CR>
+
+nnoremap <C-j> :action Down<CR>
+" General
+nnoremap <C-e> :action RecentLocations<CR>
+
+" Not telescope
+nnoremap <leader>tf :action GotoFile<CR>
+nnoremap <leader>ts :action GotoSymbol<CR>
+nnoremap <leader>ta :action GotoAction<CR>
+vnoremap <leader>ta :action GotoAction<CR>
+nnoremap <leader>tw :action FindInPath<CR>
+
+" Code editing
+nnoremap zc :action CollapseRegion<CR>
+nnoremap zo :action ExpandRegion<CR>
+nnoremap <leader>zc :action CollapseAllRegions<CR>
+nnoremap <leader>zo :action ExpandAllRegions<CR>
+nnoremap ge :action GotoNextError<CR>
+nnoremap gE :action GotoPreviousError<CR>
+nnoremap go :action GotoImplementation<CR>
+nnoremap <enter><enter> :action ShowIntentionActions<CR>
+nnoremap <leader>m :action ShowPopupMenu<CR>
+xnoremap <C-m> :action ShowPopupMenu<CR>
+nnoremap <leader>q :action QuickJavaDoc<CR>
+nnoremap <leader>x :action ShowErrorDescription<CR>
+nnoremap d "_d
+xnoremap d "_d
+
+" Window
+nnoremap <leader>wC :action CloseAllEditorsButActive<CR>
+nnoremap <C-w>\ :action MoveTabRight<CR>
+nnoremap <C-w>- :action MoveTabDown<CR>
+nnoremap <C-S-w>\ :action MoveEditorToOppositeTabGroup<CR>
+nnoremap <C-w><space> :action ChangeSplitOrientation<CR>
+nnoremap <C-w>z :action MaximizeEditorInSplit<CR>
+nnoremap <C-w>c :action CloseContent<CR>
+nnoremap <C-w>v :action SplitVertically<CR>
+nnoremap <C-w>o :action SplitHorizontally<CR>
+nnoremap <C-w>u :action Unsplit<CR>
+nnoremap <C-w>U :action UnsplitAll<CR>
+
+" Git
+nnoremap <leader>gib :action Git.Branches<CR>
+nnoremap <leader>gip :action Git.Pull<CR>
+nnoremap <leader>gio :action Git.PushUpToCommit<CR>
+nnoremap <C-g>o :action Vcs.Diff.IncludeOnlyChangedLinesIntoCommit<CR>
+nnoremap <C-g>i :action Vcs.Diff.ExcludeOnlyChangedLinesIntoCommit<CR>
+nnoremap <C-g>j :action NextDiff<CR>
+nnoremap <C-g>k :action PreviousDiff<CR>
+
+" Task related
+nnoremap <C-t> :action task.actions<CR>
+
+
+" Running stuff
+nnoremap ,r :action ContextRun<CR>
+nnoremap ,u :action Rerun<CR>
+
+" Multiple cursors
+Plug 'terryma/vim-multiple-cursors'
+map mc <A-n>
+map mx <A-x>
+map mp <A-p>
+
+
+" NERDTree
+set NERDTree
+set WhichKey
+" Plug 'preservim/nerdtree`
+map <a-1> :NERDTreeFind<CR>
+map <leader>o :NERDTreeFind<CR>
+
+"" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
+"" Map \r to the Reformat Code action
+"map \r <Action>(ReformatCode)
+
+"" Map <leader>d to start debug
+"map <leader>d <Action>(Debug)
+
+"" Map \b to toggle the breakpoint on the current line
+"map \b <Action>(ToggleLineBreakpoint)
+
+" Find more examples here: https://jb.gg/share-ideavimrc
