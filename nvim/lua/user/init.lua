@@ -15,7 +15,7 @@ return {
       --   ["remote2"] = "github_user/repo", -- GitHub user/repo shortcut,
       --   ["remote3"] = "github_user", -- GitHub user assume AstroNvim fork
     },
-  },  -- add new user interface icon
+  }, -- add new user interface icon
 
   icons = {
     VimIcon = "",
@@ -68,7 +68,7 @@ return {
     },
   },
 
-  -- Set colorscheme to use
+  --; Set colorscheme to use
   colorscheme = "catppuccin-mocha",
 
   -- Diagnostics configuration (for vim.diagnostics.config({...})) when diagnostics are on
