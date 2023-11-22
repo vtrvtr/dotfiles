@@ -140,18 +140,6 @@ return {
         -- and the color to the right of the separated out section
         surround = { separator = "right", color = { main = "blank_bg", right = "file_info_bg" } },
       },
-      -- -- add the vim mode component
-      -- status.component.mode {
-      --   -- enable mode text with padding as well as an icon before it
-      --   mode_text = { icon = { kind = "VimIcon", padding = { right = 1, left = 1 } } },
-      --   -- surround the component with a separators
-      --   surround = {
-      --     -- it's a left element, so use the left separator
-      --     separator = "left",
-      --     -- set the color of the surrounding based on the current mode using astronvim.utils.status module
-      --     color = function() return { main = status.hl.mode_bg(), right = "blank_bg" } end,
-      --   },
-      -- },
       -- we want an empty space here so we can use the component builder to make a new section with just an empty string
       status.component.builder {
         { provider = "" },
@@ -159,16 +147,6 @@ return {
         -- and the color to the right of the separated out section
         surround = { separator = "left", color = { main = "blank_bg" } },
       },
-      -- -- add a section for the currently opened file information
-      -- status.component.file_info {
-      --   -- enable the file_icon and disable the highlighting based on filetype
-      --   file_icon = { padding = { left = 0 } },
-      --   filename = { fallback = "Empty" },
-      --   -- add padding
-      --   padding = { right = 1 },
-      --   -- define the section separator
-      --   surround = { separator = "left", condition = false },
-      -- },
       -- add a component for the current git branch if it exists and use no separator for the sections
       status.component.fill(),
       status.component.git_branch { surround = { separator = "none" } },
