@@ -1,4 +1,4 @@
-// Sunaku's Keymap v29 featuring the Engrammer layout with Miryoku
+// Based on Sunaku's Keymap v29 
 // - https://github.com/sunaku/glove80-keymaps
 
 behaviors {
@@ -26,7 +26,7 @@ behaviors {
     // (i.e. "register" them) for mod-click mouse usage (e.g. Ctrl-Click).
     //
     #ifndef HOMEY_HOLDING_TIME
-    #define HOMEY_HOLDING_TIME 270 // TAPPING_TERM + ALLOW_CROSSOVER_AFTER
+    #define HOMEY_HOLDING_TIME 200 // TAPPING_TERM + ALLOW_CROSSOVER_AFTER
     #endif
 
     //
@@ -110,7 +110,7 @@ behaviors {
     // a thumb key to activate a layer.  Shorter holds are treated as taps.
     //
     #ifndef THUMB_HOLDING_TIME
-    #define THUMB_HOLDING_TIME 200
+    #define THUMB_HOLDING_TIME 230
     #endif
 
     //
