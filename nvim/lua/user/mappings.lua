@@ -124,6 +124,11 @@ return {
       "<c-w><c-l>",
       desc = "Go to right split",
     },
+    -- Telescope 
+    ["/"] = {
+      "<cmd>Telescope current_buffer_fuzzy_find<cr>",
+      desc = "Fuzzy search with Telescope",
+    },
 
     -- quick save
     -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
