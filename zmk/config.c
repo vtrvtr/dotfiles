@@ -126,7 +126,7 @@ behaviors {
     // the space thumb key to activate.  Shorter holds are treated as taps.
     //
     #ifndef SPACE_HOLDING_TIME
-    #define SPACE_HOLDING_TIME 170
+    #define SPACE_HOLDING_TIME 370
     #endif
 
     //
@@ -176,6 +176,17 @@ behaviors {
                           71 54   55 72
 
     // vtr custom
+    thumb_to: thumb_to_layer {
+        compatible = "zmk,behavior-hold-tap";
+        label = "MIRYOKU_THUMB_LAYER";
+        flavor = THUMB_HOLDING_TYPE;
+        tapping-term-ms = <THUMB_HOLDING_TIME>;
+        quick-tap-ms = <THUMB_REPEAT_DECAY>; // enable repeat
+        //global-quick-tap; // no typing streak
+        //retro-tap; // don't allow slow (hold-like) taps
+        #binding-cells = <2>;
+        bindings = <&to>, <&kp>;
+    };
 
     // Home row mod-tap keys for all except index fingers
     //
