@@ -263,6 +263,7 @@ behaviors {
         flavor = THUMB_HOLDING_TYPE;
         tapping-term-ms = <SPACE_HOLDING_TIME>;
         quick-tap-ms = <SPACE_REPEAT_DECAY>; // enable repeat
+        require-prior-idle-ms = <SHIFT_STREAK_DECAY>;
         //global-quick-tap; // no typing streak
         retro-tap; // allow slow (hold-like) taps
         #binding-cells = <2>;
