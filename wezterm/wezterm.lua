@@ -28,6 +28,7 @@ config.color_scheme = "Catppuccin Mocha"
 config.font = wezterm.font("Monaspace Radon")
 config.hide_tab_bar_if_only_one_tab = true
 config.default_domain = "WSL:Debian"
+config.default_cursor_style = "BlinkingUnderline"
 
 config.keys = {
 	{
