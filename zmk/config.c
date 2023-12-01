@@ -308,9 +308,77 @@ behaviors {
 
 };
 
+    // |------------------------|------------------------|
+    // | LEFT_HAND_KEYS         |        RIGHT_HAND_KEYS |
+    // |                        |                        |
+    // |  0  1  2  3  4         |          5  6  7  8  9 |
+    // | 10 11 12 13 14 15      |      16 17 18 19 20 21 |
+    // | 22 23 24 25 26 27      |      28 29 30 31 32 33 |
+    // | 34 35 36 37 38 39      |      40 41 42 43 44 45 |
+    // | 46 47 48 49 50 51      |      58 59 60 61 62 63 |
+    // | 64 65 66 67 68         |         75 76 77 78 79 |
+    // |                69 52   |   57 74                |
+    // |                 70 53  |  56 73                 |
+    // |                  71 54 | 55 72                  |
+    // |------------------------|------------------------|
+    //
+combos {
+    compatible = "zmk,combos";
+    combo_special_e {
+            timeout-ms = <100>;
+            key-positions = <45 25>;
+            bindings = <&kp RA(E)>;
+    };
+              //ê
+    combo_special_e2 {
+            timeout-ms = <150>;
+            key-positions = <45 44 25>;
+            bindings = <&circun_e>;
+    };
+              //~a
+    combo_special_a2 {
+            timeout-ms = <100>;
+            key-positions = <45 35>;
+            bindings = <&tild_a>;
+    };
+              //á
+    combo_special_a {
+            timeout-ms = <100>;
+            key-positions = <45 44 35>;
+            bindings = <&kp RA(A)>;
+    };
+              //ó
+    combo_special_o {
+            timeout-ms = <100>;
+            key-positions = <45 31>;
+            bindings = <&kp RA(O)>;
+    };
+              //ç
+    combo_special_c {
+            timeout-ms = <100>;
+            key-positions = <45 49>;
+            bindings = <&kp RA(C)>;
+    };
+};
+
 macros {
 
+
     // vtr custom
+    // special letters
+              // ~a
+    ZMK_MACRO(tild_a,
+        wait-ms = <10>;
+        tap-ms = <40>;
+        bindings = <&kp LS(GRAVE) &kp A>;
+    )
+              // ê
+    ZMK_MACRO(circun_e,
+        wait-ms = <10>;
+        tap-ms = <40>;
+        bindings = <&kp LS(NUMBER_6) &kp E>;
+    )
+    // window movement
     ZMK_MACRO(alttab,
         bindings =  <&macro_press &kp LALT> // leave GUI down to keep menu up
                 , <&macro_tap &kp TAB> // combines with shift fine
