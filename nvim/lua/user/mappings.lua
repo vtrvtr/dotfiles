@@ -130,6 +130,12 @@ return {
       desc = "Fuzzy search with Telescope",
     },
 
+    -- Neogit
+    ["<leader>gg"] = {
+      function() require("neogit").open({ kind = "split_above" }) end,
+      desc = "Open neogit",
+    },
+
     -- quick save
     -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
   },
