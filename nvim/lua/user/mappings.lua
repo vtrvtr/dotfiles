@@ -124,7 +124,7 @@ return {
       "<c-w><c-l>",
       desc = "Go to right split",
     },
-    -- Telescope 
+    -- Telescope
     ["/"] = {
       "<cmd>Telescope current_buffer_fuzzy_find<cr>",
       desc = "Fuzzy search with Telescope",
