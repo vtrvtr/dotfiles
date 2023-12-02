@@ -134,7 +134,7 @@ return {
           callback = vim.schedule_wrap(function() vim.cmd "redrawstatus" end),
         },
         {
-          provider = function(self) return " %2(" .. self.mode_names[self.mode] .. "%)" end,
+          provider = function(self) return "⧨%2(" .. self.mode_names[self.mode] .. "%)" end,
         },
         -- define the surrounding separator and colors to be used inside of the component
         -- and the color to the right of the separated out section
