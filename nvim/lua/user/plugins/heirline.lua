@@ -138,7 +138,10 @@ return {
         },
         -- define the surrounding separator and colors to be used inside of the component
         -- and the color to the right of the separated out section
-        surround = { separator = "right", color = { main = "blank_bg", right = "file_info_bg" } },
+        surround = {
+          separator = "right",
+          color = { main = "blank_bg", right = "file_info_bg" },
+        },
       },
       -- we want an empty space here so we can use the component builder to make a new section with just an empty string
       status.component.builder {
@@ -149,17 +152,22 @@ return {
       },
       -- add a component for the current git branch if it exists and use no separator for the sections
       status.component.fill(),
-      status.component.git_branch { surround = { separator = "none" } },
+      status.component.git_branch {
+        padding = { left = 3 },
+        separator = "right",
+        color = { right = "file_info_bg" },
+      },
       -- add a component for the current git diff if it exists and use no separator for the sections
-      status.component.git_diff { padding = { left = 1 }, surround = { separator = "none" } },
+      status.component.git_diff { separator = "right", color = { right = "file_info_bg" } },
       -- fill the rest of the statusline
       -- the elements after this will appear in the middle of the statusline
-      status.component.fill(),
       -- add a component to display if the LSP is loading, disable showing running client names, and use no separator
-      status.component.lsp { lsp_client_names = false, surround = { separator = "left", color = "bg" } },
+      status.component.lsp {
+        lsp_client_names = false,
+        surround = { separator = "left", color = "bg" },
+      },
       -- fill the rest of the statusline
       -- the elements after this will appear on the right of the statusline
-      status.component.fill(),
       {
         status.component.builder {
           -- astronvim.get_icon gets the user interface icon for a closed folder with a space after it
@@ -167,24 +175,24 @@ return {
             provider = status.provider.macro_recording(),
           },
           -- use the right separator and define the background color
-          -- surround = { separator = "right" },
         },
       },
-      status.component.fill(),
 
       -- add a component for the current diagnostics if it exists and use the right separator for the section
       status.component.diagnostics { surround = { separator = "right" } },
       -- add a component to display LSP clients, disable showing LSP progress, and use the right separator
-      status.component.lsp { lsp_progress = false, surround = { separator = "right" } },
+      status.component.lsp {
+        lsp_progress = false,
+        surround = { separator = "right" },
+        padding = { right = 2 },
+      },
       -- all of the children of this table will be treated together as a single component
-      status.component.fill(),
       {
         -- define a simple component where the provider is just a folder icon
         status.component.builder {
           -- astronvim.get_icon gets the user interface icon for a closed folder with a space after it
           { provider = require("astronvim.utils").get_icon "FolderClosed" },
           -- add padding after icon
-          padding = { right = 1 },
           -- set the foreground color to be used for the icon
           hl = { fg = "bg" },
           -- use the right separator and define the background color
@@ -212,17 +220,6 @@ return {
       },
       status.component.fill(),
       { -- make nav section with icon border
-        -- define a custom component with just a file icon
-        status.component.builder {
-          { provider = require("astronvim.utils").get_icon "ScrollText" },
-          -- add padding after icon
-          -- padding = { right = 1 },
-          -- set the icon foreground
-          hl = { fg = "bg" },
-          -- use the right separator and define the background color
-          -- as well as the color to the left of the separator
-          surround = { separator = "right", color = { main = "nav_icon_bg", left = "file_info_bg" } },
-        },
         -- add a navigation component and just display the percentage of progress in the file
         status.component.nav {
           -- add some padding for the percentage provider
@@ -231,7 +228,7 @@ return {
           scrollbar = false,
           hl = { fg = "bg" },
           -- use no separator and define the background color
-          surround = { separator = "none", color = "nav_icon_bg" },
+          surround = { color = "nav_icon_bg" },
         },
       },
       status.component.builder {
