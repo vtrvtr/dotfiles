@@ -124,6 +124,27 @@ return {
       "<c-w><c-l>",
       desc = "Go to right split",
     },
+    ["<c-m-h>"] = {
+      function(amount) require("smart-splits").resize_left(amount) end,
+      desc = "Resize left",
+    },
+    ["<c-m-j>"] = {
+      function(amount) require("smart-splits").resize_down(amount) end,
+      desc = "Resize down",
+    },
+    ["<c-m-k>"] = {
+      function(amount) require("smart-splits").resize_up(amount) end,
+      desc = "Resize up",
+    },
+    ["ø"] = {
+      function(amount) require("smart-splits").resize_right(amount) end,
+      desc = "Resize right",
+    },
+    ["<c-m-l>"] = {
+      function(amount) require("smart-splits").resize_right(amount) end,
+      desc = "Resize right",
+    },
+
     -- Telescope
     ["/"] = {
       "<cmd>Telescope current_buffer_fuzzy_find<cr>",
@@ -132,7 +153,7 @@ return {
 
     -- Neogit
     ["<leader>gg"] = {
-      function() require("neogit").open({ kind = "split_above" }) end,
+      function() require("neogit").open { kind = "split_above" } end,
       desc = "Open neogit",
     },
 
