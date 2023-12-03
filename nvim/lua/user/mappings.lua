@@ -107,7 +107,11 @@ return {
       desc = "Toggle Terminal 4",
     },
 
-    -- Navigate with alt
+    -- Split control
+    ["<leader>w"] = {
+      "<c-w>",
+      desc = "Go to left split",
+    },
     ["<m-h>"] = {
       "<c-w><c-h>",
       desc = "Go to left split",
@@ -123,6 +127,22 @@ return {
     ["<m-l>"] = {
       "<c-w><c-l>",
       desc = "Go to right split",
+    },
+    ["<leader><space>h"] = {
+      function(amount) require("smart-splits").swap_buf_left(amount) end,
+      desc = "Swap left",
+    },
+    ["<leader><space>j"] = {
+      function(amount) require("smart-splits").swap_buf_down(amount) end,
+      desc = "Swap down",
+    },
+    ["<leader><space>k"] = {
+      function(amount) require("smart-splits").swap_buf_up(amount) end,
+      desc = "Swap up",
+    },
+    ["<leader><space>l"] = {
+      function(amount) require("smart-splits").swap_buf_right(amount) end,
+      desc = "Swap right",
     },
     ["<c-m-h>"] = {
       function(amount) require("smart-splits").resize_left(amount) end,
