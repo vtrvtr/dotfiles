@@ -110,7 +110,7 @@ return {
     -- Split control
     ["<leader>w"] = {
       "<c-w>",
-      desc = "Go to left split",
+      desc = "Window control",
     },
     ["<m-h>"] = {
       "<c-w><c-h>",
@@ -171,6 +171,10 @@ return {
       desc = "Fuzzy search with Telescope",
     },
 
+    ["<leader>faa"] = {
+      "<cmd>Telescope aerial<cr>",
+      desc = "Document symbol search",
+    },
     -- Neogit
     ["<leader>gg"] = {
       function() require("neogit").open { kind = "split_above" } end,
