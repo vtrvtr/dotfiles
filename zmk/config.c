@@ -126,7 +126,7 @@ behaviors {
     // the space thumb key to activate.  Shorter holds are treated as taps.
     //
     #ifndef SPACE_HOLDING_TIME
-    #define SPACE_HOLDING_TIME 370
+    #define SPACE_HOLDING_TIME 470
     #endif
 
     //
