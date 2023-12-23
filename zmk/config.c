@@ -246,14 +246,12 @@ behaviors {
     //
     // Thumb cluster hold-tap keys for Miryoku layers
     //
-    thumb: miryoku_thumb_layer {
+    thumb: thumb_layer_access {
         compatible = "zmk,behavior-hold-tap";
-        label = "MIRYOKU_THUMB_LAYER";
+        label = "THUMB_LAYER_ACCESS";
         flavor = THUMB_HOLDING_TYPE;
         tapping-term-ms = <THUMB_HOLDING_TIME>;
         quick-tap-ms = <THUMB_REPEAT_DECAY>; // enable repeat
-        //global-quick-tap; // no typing streak
-        //retro-tap; // don't allow slow (hold-like) taps
         #binding-cells = <2>;
         bindings = <&mo>, <&kp>;
     };
@@ -525,4 +523,3 @@ macros {
         bindings = <&kp LS(UP) &kp LS(HOME)>;
     )
 };
-
