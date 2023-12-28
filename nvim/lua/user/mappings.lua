@@ -123,6 +123,10 @@ return {
       function() require("neotest").summary.toggle() end,
       desc = "Test summary",
     },
+    ["<leader>teo"] = {
+      function() require("neotest").output_panel.toggle() end,
+      desc = "Test output",
+    },
 
 
     -- Split control
