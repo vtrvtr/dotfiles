@@ -107,10 +107,28 @@ return {
       desc = "Toggle Terminal 4",
     },
 
+    -- Neotest
+    ["<leader>te"] = {
+      name = "Tests"
+    },
+    ["<leader>ter"] = {
+      function() require("neotest").run.run(vim.fn.expand "%") end,
+      desc = "Run all tests.",
+    },
+    ["<leader>te<space>"] = {
+      function() require("neotest").run.run() end,
+      desc = "Run test under cursor.",
+    },
+    ["<leader>tes"] = {
+      function() require("neotest").summary.toggle() end,
+      desc = "Test summary",
+    },
+
+
     -- Split control
     ["<leader>w"] = {
       "<c-w>",
-      desc = "Window control",
+      name = "Window control",
     },
     ["<m-h>"] = {
       "<c-w><c-h>",
