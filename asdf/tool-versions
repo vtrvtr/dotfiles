@@ -1,5 +1,5 @@
-elixir 1.15.7-otp-26
-erlang 26.1.2
+elixir 1.16.0-otp-26
+erlang 26.2.1
 neovim nightly
 python 3.11.5
 lazygit 0.40.2
