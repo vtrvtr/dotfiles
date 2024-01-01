@@ -119,6 +119,10 @@ return {
       function() require("neotest").run.run() end,
       desc = "Run test under cursor.",
     },
+    ["<leader>tef"] = {
+      function() require("neotest").run.run_last() end,
+      desc = "Run last test.",
+    },
     ["<leader>tes"] = {
       function() require("neotest").summary.toggle() end,
       desc = "Test summary",
