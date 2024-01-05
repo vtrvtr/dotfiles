@@ -112,34 +112,6 @@ return {
           "--offset-encoding=utf-16",
         },
       },
-      elixirls = {
-        setup = {
-          filetypes = {
-            "heex",
-            "ex",
-            "exs"
-          }
-        }
-      },
-      html = {
-        setup = {
-          filetypes = {
-            "html",
-            "heex"
-          }
-        }
-      },
-      cssls = {
-        setup = {
-          filetypes = {
-            "css",
-            "scss",
-            "vue",
-            "less",
-            "heex"
-          },
-        },
-      },
     },
   },
 

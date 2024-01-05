@@ -78,11 +78,6 @@ return {
       end,
       desc = "Search recent files used backwards",
     },
-    -- Code Actions
-    ["<Enter><Enter>"] = {
-      function() vim.lsp.buf.code_action() end,
-      desc = "Show code actions",
-    },
     -- Function signature help
     ["<C-k>"] = {
       function() require("lsp_signature").toggle_float_win() end,
@@ -109,7 +104,7 @@ return {
 
     -- Neotest
     ["<leader>te"] = {
-      name = "Tests"
+      name = "Tests",
     },
     ["<leader>ter"] = {
       function() require("neotest").run.run(vim.fn.expand "%") end,
@@ -132,7 +127,6 @@ return {
       desc = "Test output",
     },
 
-
     -- Split control
     ["<leader>w"] = {
       "<c-w>",
@@ -154,19 +148,19 @@ return {
       "<c-w><c-l>",
       desc = "Go to right split",
     },
-    ["<leader><space>h"] = {
+    ["<c-w><m-h>"] = {
       function(amount) require("smart-splits").swap_buf_left(amount) end,
       desc = "Swap left",
     },
-    ["<leader><space>j"] = {
+    ["<c-w><m-j>"] = {
       function(amount) require("smart-splits").swap_buf_down(amount) end,
       desc = "Swap down",
     },
-    ["<leader><space>k"] = {
+    ["<c-w><m-k>"] = {
       function(amount) require("smart-splits").swap_buf_up(amount) end,
       desc = "Swap up",
     },
-    ["<leader><space>l"] = {
+    ["<c-w><m-l>"] = {
       function(amount) require("smart-splits").swap_buf_right(amount) end,
       desc = "Swap right",
     },
