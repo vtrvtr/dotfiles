@@ -45,7 +45,35 @@ return {
       end,
       desc = "Zen Mode",
     },
-    -- Hover
+    -- LSP
+    ["<leader>l"] = {
+      f = {
+        function() vim.lsp.buf.format() end,
+        "Format buffer",
+      },
+      R = {
+        function() require("telescope.builtin").lsp_references() end,
+        "Find all references",
+      },
+      D = {
+        function() require("telescope.builtin").diagnostics() end,
+        "Show diagonostics Telescope",
+      },
+      d = {
+        function() vim.diagnostic.open_float() end,
+        "Show diagonostics float",
+      },
+      r = {
+        function() vim.lsp.buf.rename() end,
+        "Rename symbol",
+      },
+    },
+    ["g"] = {
+      d = {
+        function() vim.lsp.buf.definition() end,
+        "Go to definition",
+      },
+    },
     ["<leader>q"] = {
       function() vim.lsp.buf.hover() end,
       desc = "Show hover info",
