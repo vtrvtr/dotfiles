@@ -8,7 +8,7 @@ return {
 
     elixir.setup {
       nextls = { enable = true },
-      credo = { enable = false },
+      credo = { enable = true },
       elixirls = {
         enable = true,
         tag = "v0.18.0",
