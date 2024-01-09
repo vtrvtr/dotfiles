@@ -18,6 +18,8 @@ return {
     },
   },
   n = {
+
+    -- Marks
     -- second key is the lefthand side of the map
     -- mappings seen under group name "Buffer"
     ["<leader>bn"] = { "<cmd>tabnew<cr>", desc = "New tab" },
@@ -222,6 +224,12 @@ return {
     ["<leader>faa"] = {
       "<cmd>Telescope aerial<cr>",
       desc = "Document symbol search",
+    },
+    ["<leader>f"] = {
+      y = {
+        function() require("telescope").extensions.neoclip.default() end,
+        "Search clipboard",
+      },
     },
     -- Neogit
     ["<leader>gg"] = {

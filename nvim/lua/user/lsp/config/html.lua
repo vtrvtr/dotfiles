@@ -3,6 +3,7 @@ return {
     "html",
     "html.heex",
     "heex",
+    "ex"
   },
 }
 
