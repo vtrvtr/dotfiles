@@ -82,7 +82,7 @@ behaviors {
     // unintended activation of home row mods when you're actively typing.
     //
     #ifndef SHIFT_STREAK_DECAY
-    #define SHIFT_STREAK_DECAY 90 // global-quick-tap-ms
+    #define SHIFT_STREAK_DECAY 50 // global-quick-tap-ms
     #endif
 
     //
@@ -135,6 +135,15 @@ behaviors {
     //
     #ifndef SPACE_REPEAT_DECAY
     #define SPACE_REPEAT_DECAY 200 // "tap then hold" for key auto-repeat
+    #endif
+
+    //
+    // SPACE_STREAK_DECAY defines how long you need to wait (milliseconds)
+    // after typing before you can use home row mods again.  It prevents
+    // unintended activation of home row mods when you're actively typing.
+    //
+    #ifndef SPACE_STREAK_DECAY
+    #define SPACE_STREAK_DECAY 200 // global-quick-tap-ms
     #endif
 
     //
@@ -261,7 +270,7 @@ behaviors {
         flavor = THUMB_HOLDING_TYPE;
         tapping-term-ms = <SPACE_HOLDING_TIME>;
         quick-tap-ms = <SPACE_REPEAT_DECAY>; // enable repeat
-        require-prior-idle-ms = <SHIFT_STREAK_DECAY>;
+        require-prior-idle-ms = <SPACE_STREAK_DECAY>;
         retro-tap; // allow slow (hold-like) taps
         #binding-cells = <2>;
         bindings = <&mo>, <&kp>;
