@@ -18,8 +18,6 @@ return {
     },
   },
   n = {
-
-    -- Marks
     -- second key is the lefthand side of the map
     -- mappings seen under group name "Buffer"
     ["<leader>bn"] = { "<cmd>tabnew<cr>", desc = "New tab" },
@@ -31,13 +29,14 @@ return {
       end,
       desc = "Pick to close",
     },
+    -- Tabs
+    ["gt"] = {
+      function() vim.cmd.tabnext() end,
+      desc = "Next tab",
+    },
     -- tables with the `name` key will be registered with which-key if it's installed
     -- this is useful for naming menus
     ["<leader>b"] = { name = "Buffers" },
-    ["gt"] = {
-      function() require("astronvim.utils.buffer").nav(vim.v.count > 0 and vim.v.count or 1) end,
-      desc = "Next buffer",
-    },
     -- Zen Mode
     ["<C-w>z"] = {
       function()
