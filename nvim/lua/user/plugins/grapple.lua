@@ -30,9 +30,8 @@ function confirm(confirm, mark)
       close = { "<Esc>", "<C-c>" },
       submit = { "<CR>", "<Space>" },
     },
-    on_close = function() print "Menu Closed!" end,
+    -- on_close = function() print "Menu Closed!" end,
     on_submit = function(item)
-      vim.print(item.text)
       if item.text == "Yes" then confirm() end
     end,
   })
@@ -41,13 +40,26 @@ function confirm(confirm, mark)
   menu:mount()
 end
 
+function exists(mark)
+  local grapple = require "grapple"
+  for _, t in ipairs(grapple.tags()) do
+    if t.key == mark then return true end
+  end
+  return false
+end
+
 function make_key(key)
   return {
     function()
-      confirm(function()
+      if exists(key) then
+        confirm(function()
+          vim.notify(string.format("🗡%s File marked.", key))
+          require("grapple").tag { key = key }
+        end, key)
+      else
         vim.notify(string.format("🗡%s File marked.", key))
         require("grapple").tag { key = key }
-      end, key)
+      end
     end,
     string.format("Mark %s", key),
   }
