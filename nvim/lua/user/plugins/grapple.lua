@@ -65,6 +65,13 @@ function make_key(key)
   }
 end
 
+function make_get_key(key)
+  return {
+    function() require("grapple").select { key = key } end,
+    string.format("Mark %s", key),
+  }
+end
+
 return {
   "cbochs/grapple.nvim",
   event = "BufEnter",
@@ -87,6 +94,10 @@ return {
         w = make_key "W",
         e = make_key "E",
         r = make_key "R",
+        q = make_key "Q",
+        t = make_key "T",
+        c = make_key "C",
+        x = make_key "X",
         f = {
           function() require("grapple").popup_tags() end,
           "All tags",
@@ -94,18 +105,13 @@ return {
       },
       [","] = {
         name = "+Go Grapple",
-        w = {
-          function() require("grapple").select { key = "W" } end,
-          "Mark W",
-        },
-        e = {
-          function() require("grapple").select { key = "E" } end,
-          "Mark E",
-        },
-        r = {
-          function() require("grapple").select { key = "R" } end,
-          "Mark R",
-        },
+        w = make_get_key "W",
+        e = make_get_key "E",
+        r = make_get_key "R",
+        q = make_get_key "Q",
+        t = make_get_key "T",
+        c = make_get_key "C",
+        x = make_get_key "X",
       },
     }
   end,
