@@ -122,28 +122,53 @@ behaviors {
     #endif
 
     //
-    // SPACE_HOLDING_TIME defines how long you need to hold (milliseconds)
-    // the space thumb key to activate.  Shorter holds are treated as taps.
+    // LSPACE_HOLDING_TIME defines how long you need to hold (milliseconds)
+    // the LSPACE thumb key to activate.  Shorter holds are treated as taps.
     //
-    #ifndef SPACE_HOLDING_TIME
-    #define SPACE_HOLDING_TIME 470
+    #ifndef LSPACE_HOLDING_TIME
+    #define LSPACE_HOLDING_TIME 270
     #endif
 
     //
-    // SPACE_REPEAT_DECAY defines how much time you have left (milliseconds)
+    // LSPACE_REPEAT_DECAY defines how much time you have left (milliseconds)
     // after tapping a key to hold it again in order to make it auto-repeat.
     //
-    #ifndef SPACE_REPEAT_DECAY
-    #define SPACE_REPEAT_DECAY 200 // "tap then hold" for key auto-repeat
+    #ifndef LSPACE_REPEAT_DECAY
+    #define LSPACE_REPEAT_DECAY 200 // "tap then hold" for key auto-repeat
     #endif
 
     //
-    // SPACE_STREAK_DECAY defines how long you need to wait (milliseconds)
+    // LSPACE_STREAK_DECAY defines how long you need to wait (milliseconds)
     // after typing before you can use home row mods again.  It prevents
     // unintended activation of home row mods when you're actively typing.
     //
-    #ifndef SPACE_STREAK_DECAY
-    #define SPACE_STREAK_DECAY 200 // global-quick-tap-ms
+    #ifndef LSPACE_STREAK_DECAY
+    #define LSPACE_STREAK_DECAY 80 // global-quick-tap-ms
+    #endif
+
+    //
+    // RSPACE_HOLDING_TIME defines how long you need to hold (milliseconds)
+    // the RSPACE thumb key to activate.  Shorter holds are treated as taps.
+    //
+    #ifndef RSPACE_HOLDING_TIME
+    #define RSPACE_HOLDING_TIME 470
+    #endif
+
+    //
+    // RSPACE_REPEAT_DECAY defines how much time you have left (milliseconds)
+    // after tapping a key to hold it again in order to make it auto-repeat.
+    //
+    #ifndef RSPACE_REPEAT_DECAY
+    #define RSPACE_REPEAT_DECAY 200 // "tap then hold" for key auto-repeat
+    #endif
+
+    //
+    // RSPACE_STREAK_DECAY defines how long you need to wait (milliseconds)
+    // after typing before you can use home row mods again.  It prevents
+    // unintended activation of home row mods when you're actively typing.
+    //
+    #ifndef RSPACE_STREAK_DECAY
+    #define RSPACE_STREAK_DECAY 200 // global-quick-tap-ms
     #endif
 
     //
@@ -264,13 +289,24 @@ behaviors {
         #binding-cells = <2>;
         bindings = <&mo>, <&kp>;
     };
-    space: miryoku_thumb_layer_spacebar {
+    lspace: miryoku_thumb_layer_lspacebar {
         compatible = "zmk,behavior-hold-tap";
-        label = "MIRYOKU_THUMB_LAYER_SPACEBAR";
+        label = "MIRYOKU_THUMB_LAYER_LSPACEBAR";
         flavor = THUMB_HOLDING_TYPE;
-        tapping-term-ms = <SPACE_HOLDING_TIME>;
-        quick-tap-ms = <SPACE_REPEAT_DECAY>; // enable repeat
-        require-prior-idle-ms = <SPACE_STREAK_DECAY>;
+        tapping-term-ms = <LSPACE_HOLDING_TIME>;
+        quick-tap-ms = <LSPACE_REPEAT_DECAY>; // enable repeat
+        require-prior-idle-ms = <LSPACE_STREAK_DECAY>;
+        retro-tap; // allow slow (hold-like) taps
+        #binding-cells = <2>;
+        bindings = <&mo>, <&kp>;
+    };
+    rspace: miryoku_thumb_layer_rspacebar {
+        compatible = "zmk,behavior-hold-tap";
+        label = "MIRYOKU_THUMB_LAYER_RSPACEBAR";
+        flavor = THUMB_HOLDING_TYPE;
+        tapping-term-ms = <RSPACE_HOLDING_TIME>;
+        quick-tap-ms = <RSPACE_REPEAT_DECAY>; // enable repeat
+        require-prior-idle-ms = <RSPACE_STREAK_DECAY>;
         retro-tap; // allow slow (hold-like) taps
         #binding-cells = <2>;
         bindings = <&mo>, <&kp>;
