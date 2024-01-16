@@ -229,6 +229,10 @@ return {
         function() require("telescope").extensions.neoclip.default() end,
         "Search clipboard",
       },
+      q = {
+        function() require("telescope").extensions.macroscope.default() end,
+        "Search macros",
+      },
     },
     -- Neogit
     ["<leader>gg"] = {
