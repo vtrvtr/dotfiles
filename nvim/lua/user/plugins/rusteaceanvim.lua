@@ -22,6 +22,8 @@ return {
       server = {
         on_attach = function(client, bufnr)
           -- Set keybindings, etc. here.
+          --
+          vim.lsp.inlay_hint.enable()
         end,
         settings = {
           -- rust-analyzer language server configuration
