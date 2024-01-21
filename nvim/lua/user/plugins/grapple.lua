@@ -98,6 +98,9 @@ return {
         t = make_key "T",
         c = make_key "C",
         x = make_key "X",
+        s = make_key "S",
+        a = make_key "A",
+        d = make_key "D",
         f = {
           function() require("grapple").popup_tags() end,
           "All tags",
@@ -112,6 +115,13 @@ return {
         t = make_get_key "T",
         c = make_get_key "C",
         x = make_get_key "X",
+        s = make_get_key "S",
+        a = make_get_key "A",
+        d = make_get_key "D",
+        f = {
+          function() require("grapple").popup_tags() end,
+          "All tags",
+        },
       },
     }
   end,
