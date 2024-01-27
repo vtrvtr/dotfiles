@@ -4,13 +4,13 @@ return {
   dependencies = {
     -- you'll need at least one of these
     { "nvim-telescope/telescope.nvim" },
-    { "kkharji/sqlite.lua",           module = "sqlite" },
+    { "kkharji/sqlite.lua", module = "sqlite" },
   },
   config = function()
     require("neoclip").setup {
-      history = 100,
+      history = 25,
       enable_persistent_history = true,
-      continuous_sync = true,
+      continuous_sync = false,
     }
   end,
 }

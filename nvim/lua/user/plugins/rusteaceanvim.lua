@@ -4,7 +4,7 @@ return {
   dependencies = {
     {
       "saecki/crates.nvim",
-      version = "stable",
+      tag = "stable",
       dependencies = {
 
         "nvim-lua/plenary.nvim",

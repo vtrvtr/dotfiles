@@ -1,6 +1,6 @@
 return {
   "echasnovski/mini.animate",
   event = "BufEnter",
-  version = "false",
+  version = false,
   opts = {},
 }
