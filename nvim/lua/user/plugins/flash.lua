@@ -3,7 +3,17 @@ return {
 
   event = "VeryLazy",
   ---@type Flash.Config
-  opts = {},
+  opts = {
+    modes = {
+      treesitter = {
+        label = {
+          rainbow = {
+            enabled = true,
+          },
+        },
+      },
+    },
+  },
   -- stylua: ignore
   keys = {
     { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end,       desc = "Flash" },
@@ -26,6 +36,7 @@ return {
         )
       end,
       desc = "Treesitter Search"
+
     },
     { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
   },

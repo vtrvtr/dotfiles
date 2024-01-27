@@ -79,33 +79,10 @@ return {
       function() vim.lsp.buf.hover() end,
       desc = "Show hover info",
     },
-    -- Search recent
-    -- ["<C-e>"] = {
-    --   function()
-    --     require("telescope.builtin").oldfiles()
-    --   end,
-    --   desc = "Search recent files used"
-    -- },
-    ["<C-e>"] = {
-      function()
-        local query = require("portal.builtin").jumplist.query()
-        require("portal.builtin").jumplist.tunnel(query)
-      end,
+    -- Recent jumps
+    ["<s-e>"] = {
+      function() require("portal.builtin").jumplist.tunnel { max_results = 10 } end,
       desc = "Search recent files used",
-    },
-    ["<C-o>"] = {
-      function()
-        local query = require("portal.builtin").jumplist.query()
-        require("portal.builtin").jumplist.tunnel_forward(query)
-      end,
-      desc = "Search recent files used forward",
-    },
-    ["<C-i>"] = {
-      function()
-        local query = require("portal.builtin").jumplist.query()
-        require("portal.builtin").jumplist.tunnel_backward(query)
-      end,
-      desc = "Search recent files used backwards",
     },
     -- Function signature help
     ["<C-k>"] = {
