@@ -70,6 +70,10 @@ return {
       },
     },
     ["g"] = {
+      D = {
+        "<cmd>vsplit | lua vim.lsp.buf.definition()<CR>",
+        "Go to definition in split",
+      },
       d = {
         function() vim.lsp.buf.definition() end,
         "Go to definition",
