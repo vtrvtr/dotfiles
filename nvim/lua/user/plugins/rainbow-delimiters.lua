@@ -1,7 +1,8 @@
 return {
     'hiphish/rainbow-delimiters.nvim',
     dependencies = "nvim-treesitter/nvim-treesitter",
-    event = "VeryLazy",
+    event = "BufEnter",
+    submodules = false,
     config = function()
         local rainbow = require 'rainbow-delimiters'
 
