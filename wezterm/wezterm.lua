@@ -29,13 +29,16 @@ config.color_scheme = "Catppuccin Mocha"
 config.font = wezterm.font("Monaspace Radon")
 config.font_size = 16
 config.hide_tab_bar_if_only_one_tab = true
-config.default_domain = "WSL:Debian"
+if os.getenv("NAME") == "DESKTOP-VS3635G" then
+	config.default_domain = "WSL:Debian"
+end
 config.default_cursor_style = "BlinkingUnderline"
 config.colors = {
 	cursor_border = "#AAAA00",
 }
 config.keys = {
-	{ key = "F11",
+	{
+		key = "F11",
 		action = wezterm.action.ToggleFullScreen,
 	},
 }
