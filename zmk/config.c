@@ -168,7 +168,7 @@ behaviors {
     // unintended activation of home row mods when you're actively typing.
     //
     #ifndef RSPACE_STREAK_DECAY
-    #define RSPACE_STREAK_DECAY 200 // global-quick-tap-ms
+    #define RSPACE_STREAK_DECAY 400 // global-quick-tap-ms
     #endif
 
     //
