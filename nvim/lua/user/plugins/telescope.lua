@@ -51,6 +51,10 @@ return {
         selection_caret = string.format("%s ", get_icon "Selected"),
         path_display = { "truncate" },
         sorting_strategy = "ascending",
+        preview = {
+          filesize_limit = 3,
+          timeout = 100,
+        },
         layout_config = {
           horizontal = {
             prompt_position = "top",
