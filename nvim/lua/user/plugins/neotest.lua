@@ -18,5 +18,19 @@ return {
         require "neotest-rust",
       },
     }
+    local wk = require "which-key"
+    wk.register({
+        t = {
+          e = {
+            d = {
+              function() require("neotest").run.run({ strategy = "dap" }) end,
+              "Test Debug",
+            },
+          }
+        }
+      },
+
+      { prefix = "<leader>" }
+    )
   end,
 }

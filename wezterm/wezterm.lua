@@ -23,7 +23,6 @@ end)
 
 -- For example, changing the color scheme:
 
-config.default_prog = { "zellij" }
 config.window_decorations = "RESIZE"
 config.color_scheme = "Catppuccin Mocha"
 config.font = wezterm.font("Monaspace Radon")
