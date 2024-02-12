@@ -20,17 +20,14 @@ return {
     }
     local wk = require "which-key"
     wk.register({
-        t = {
-          e = {
-            d = {
-              function() require("neotest").run.run({ strategy = "dap" }) end,
-              "Test Debug",
-            },
-          }
-        }
+      t = {
+        e = {
+          d = {
+            function() require("neotest").run.run { strategy = "dap" } end,
+            "Test Debug",
+          },
+        },
       },
-
-      { prefix = "<leader>" }
-    )
+    }, { prefix = "<leader>" })
   end,
 }
