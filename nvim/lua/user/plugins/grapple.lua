@@ -48,6 +48,22 @@ function exists(mark)
   return false
 end
 
+function truncate_path(path)
+  local len = string.len(path)
+  if len > 20 then
+    local begin = string.sub(path, 0, 5)
+    local finish = string.sub(path, len - 20, string.len(path))
+    return string.format("%s..%s", begin, finish)
+  end
+  return path
+end
+
+function file_name_from_tag(key)
+  local tag = require("grapple").find { key = key }
+  if tag == nil then return string.format("Mark %s", key) end
+  return string.format("Mark %s %s", key, truncate_path(tag["file_path"]))
+end
+
 function make_key(key)
   return {
     function()
@@ -61,14 +77,14 @@ function make_key(key)
         require("grapple").tag { key = key }
       end
     end,
-    string.format("Mark %s", key),
+    file_name_from_tag(key),
   }
 end
 
 function make_get_key(key)
   return {
     function() require("grapple").select { key = key } end,
-    string.format("Mark %s", key),
+    string.format("Go %s", file_name_from_tag(key)),
   }
 end
 
