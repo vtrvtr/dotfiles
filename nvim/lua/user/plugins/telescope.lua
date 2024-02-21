@@ -4,6 +4,7 @@ return {
   dependencies = {
     {
       "nvim-telescope/telescope-live-grep-args.nvim",
+      "debugloop/telescope-undo.nvim",
       -- This will not install any breaking changes.
       -- For major updates, this must be adjusted manually.
       version = "^1.0.0",
@@ -12,6 +13,7 @@ return {
 
   opts = function(_, opts)
     require("telescope").load_extension "live_grep_args"
+    require("telescope").load_extension "undo"
     local actions = require "telescope.actions"
     local get_icon = require("astronvim.utils").get_icon
     local function flash(prompt_bufnr)
@@ -39,6 +41,10 @@ return {
           function() require("telescope").extensions.live_grep_args.live_grep_args() end,
           "Search words with rg",
         },
+        u = {
+          "<cmd>Telescope undo<CR>",
+          "Undo"
+        }
       },
     }, {
       prefix = "<leader>",
@@ -81,6 +87,9 @@ return {
             s = flash,
           },
         },
+      },
+      extensions = {
+        undo = {},
       },
     }
   end,
