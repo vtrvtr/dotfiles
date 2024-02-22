@@ -10,10 +10,7 @@ return {
       version = "^1.0.0",
     },
   },
-
-  opts = function(_, opts)
-    require("telescope").load_extension "live_grep_args"
-    require("telescope").load_extension "undo"
+  config = function(_, opts)
     local actions = require "telescope.actions"
     local get_icon = require("astronvim.utils").get_icon
     local function flash(prompt_bufnr)
@@ -43,15 +40,19 @@ return {
         },
         u = {
           "<cmd>Telescope undo<CR>",
-          "Undo"
-        }
+          "Undo",
+        },
       },
     }, {
       prefix = "<leader>",
     })
 
-    return {
+    require("telescope").setup {
       defaults = {
+        set_env = {
+          LESS = "",
+          DELTA_PAGER = "less",
+        },
         git_worktrees = vim.g.git_worktrees,
         prompt_prefix = string.format("%s ", get_icon "Search"),
         selection_caret = string.format("%s ", get_icon "Selected"),
@@ -89,8 +90,19 @@ return {
         },
       },
       extensions = {
-        undo = {},
+        undo = {
+          use_delta = true,
+          side_by_side = true,
+          diff_context_lines = 3,
+          layout_strategy = "vertical",
+          layout_config = {
+            preview_height = 0.8,
+            preview_cutoff = 10,
+          },
+        },
       },
     }
+    require("telescope").load_extension "live_grep_args"
+    require("telescope").load_extension "undo"
   end,
 }
