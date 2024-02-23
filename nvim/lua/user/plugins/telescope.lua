@@ -81,10 +81,14 @@ return {
             ["<C-p>"] = actions.cycle_history_prev,
             ["<C-j>"] = actions.move_selection_next,
             ["<C-k>"] = actions.move_selection_previous,
+            ["<M-s>"] = actions.select_horizontal,
+            ["<M-v>"] = actions.select_vertical,
             ["<c-s>"] = flash,
           },
           n = {
             ["q"] = actions.close,
+            ["<C-s>"] = actions.select_horizontal,
+            ["<C-v>"] = actions.select_vertical,
             s = flash,
           },
         },
@@ -97,7 +101,6 @@ return {
           layout_strategy = "vertical",
           layout_config = {
             preview_height = 0.8,
-            preview_cutoff = 10,
           },
         },
       },
