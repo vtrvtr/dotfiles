@@ -70,21 +70,21 @@ function make_key(key)
       if exists(key) then
         confirm(function()
           vim.notify(string.format("🗡%s File marked.", key))
-          require("grapple").tag { key = key }
+          require("grapple").tag { name = key }
         end, key)
       else
         vim.notify(string.format("🗡%s File marked.", key))
-        require("grapple").tag { key = key }
+        require("grapple").tag { name = key }
       end
     end,
-    file_name_from_tag(key),
+    key,
   }
 end
 
 function make_get_key(key)
   return {
-    function() require("grapple").select { key = key } end,
-    string.format("Go %s", file_name_from_tag(key)),
+    function() require("grapple").select { name = key } end,
+    string.format("Go %s", key),
   }
 end
 
@@ -118,7 +118,7 @@ return {
         a = make_key "A",
         d = make_key "D",
         f = {
-          function() require("grapple").popup_tags() end,
+          function() require("grapple").open_tags() end,
           "All tags",
         },
       },
@@ -135,7 +135,7 @@ return {
         a = make_get_key "A",
         d = make_get_key "D",
         f = {
-          function() require("grapple").popup_tags() end,
+          function() require("grapple").open_tags() end,
           "All tags",
         },
       },
