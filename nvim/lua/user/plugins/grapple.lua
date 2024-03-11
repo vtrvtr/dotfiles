@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 function confirm(confirm, mark)
   local Menu = require "nui.menu"
   local event = require("nui.utils.autocmd").event
@@ -48,20 +49,37 @@ function exists(mark)
   return false
 end
 
-function truncate_path(path)
-  local len = string.len(path)
-  if len > 20 then
-    local begin = string.sub(path, 0, 5)
-    local finish = string.sub(path, len - 20, string.len(path))
-    return string.format("%s..%s", begin, finish)
+function sep()
+  if jit then
+    local os = string.lower(jit.os)
+    if os ~= "windows" then
+      return "/"
+    else
+      return "\\"
+    end
+  else
+    return "/"
   end
-  return path
+end
+
+function truncate_path(path)
+  local parts = vim.split(path, sep(), { trimempty = true })
+  return string.format("[%s/%s..%s/%s]", parts[1], parts[2], parts[#parts - 1], parts[#parts])
+end
+
+function find_tag(key)
+  local tags = require("grapple").tags()
+  for i = 1, #tags do
+    local tag = tags[i]
+    if tag ~= nil and key == tag.name then return tag end
+    return nil
+  end
 end
 
 function file_name_from_tag(key)
-  local tag = require("grapple").find { key = key }
+  local tag = find_tag(key)
   if tag == nil then return string.format("Mark %s", key) end
-  return string.format("Mark %s %s", key, truncate_path(tag["file_path"]))
+  return string.format("%s %s", key, truncate_path(tag["path"]))
 end
 
 function make_key(key)
@@ -77,7 +95,7 @@ function make_key(key)
         require("grapple").tag { name = key }
       end
     end,
-    key,
+    file_name_from_tag(key),
   }
 end
 
