@@ -42,6 +42,31 @@ return {
           "<cmd>Telescope undo<CR>",
           "Undo",
         },
+        p = {
+          function()
+            local function get_filename_from_bufnr(bufnr)
+              local info = vim.fn.getbufinfo(bufnr)
+              if info and info[1] and info[1].name ~= "" then return info[1].name end
+              return nil
+            end
+
+            local jumplist = vim.fn.getjumplist()[1]
+            local sorted_jumplist = {}
+            local added_files = {}
+            for i = #jumplist, 1, -1 do
+              if vim.api.nvim_buf_is_valid(jumplist[i].bufnr) then
+                local filename = get_filename_from_bufnr(jumplist[i].bufnr)
+                if not added_files[filename] and filename then
+                  table.insert(sorted_jumplist, filename)
+                  added_files[filename] = true
+                end
+              end
+            end
+
+            require("telescope").extensions.live_grep_args.live_grep_args { search_dirs = sorted_jumplist }
+          end,
+          "Grep jumplist",
+        },
       },
     }, {
       prefix = "<leader>",
