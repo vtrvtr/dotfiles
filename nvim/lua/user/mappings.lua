@@ -207,7 +207,7 @@ return {
     },
     ["<leader>f"] = {
       y = {
-        function() require("telescope").extensions.neoclip.default() end,
+        function() require("telescope").extensions.yank_history.yank_history() end,
         "Search clipboard",
       },
       q = {
