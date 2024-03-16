@@ -44,7 +44,7 @@ end
 function exists(mark)
   local grapple = require "grapple"
   for _, t in ipairs(grapple.tags()) do
-    if t.key == mark then return true end
+    if t.name == mark then return true end
   end
   return false
 end
