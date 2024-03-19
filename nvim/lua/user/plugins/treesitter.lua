@@ -6,7 +6,11 @@ return {
       "lua",
       "elixir",
       "heex",
-      "html"
+      "html",
+      "xml",
+      "http",
+      "json",
+      "graphql",
     })
   end,
 }
