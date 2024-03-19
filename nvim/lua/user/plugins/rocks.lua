@@ -9,7 +9,7 @@ return {
     local wk = require "which-key"
 
     wk.register {
-      p = {
+      ["<leader>p"] = {
         r = {
           "<Plug>RestNvim",
           "Rest nvim",
