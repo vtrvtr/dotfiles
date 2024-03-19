@@ -198,7 +198,7 @@ return {
     -- Telescope
     ["/"] = {
       "<cmd>Telescope current_buffer_fuzzy_find<cr>",
-      desc = "Fuzzy search with Telescope",
+      desc = "Search in current buffer",
     },
 
     ["<leader>faa"] = {
@@ -213,6 +213,10 @@ return {
       q = {
         function() require("telescope").extensions.macroscope.default() end,
         "Search macros",
+      },
+      ["/"] = {
+        "<cmd>MurenToggle<cr>",
+        "Muren search and replace",
       },
     },
     -- Neogit
