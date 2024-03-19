@@ -6,6 +6,6 @@ return {
     "sindrets/diffview.nvim", -- optional
     "ibhagwan/fzf-lua", -- optional
   },
-  branch = "nightly",
+  branch = "master",
   config = true,
 }
