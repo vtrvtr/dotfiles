@@ -3,6 +3,7 @@ return {
   lazy = true,
   event = "VeryLazy",
   dependencies = {
+    "nvim-neotest/nvim-nio",
     "nvim-lua/plenary.nvim",
     "jfpedroza/neotest-elixir",
     "nvim-neotest/neotest-python",

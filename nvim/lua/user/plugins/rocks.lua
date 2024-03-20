@@ -1,8 +1,8 @@
 return {
   "rest-nvim/rest.nvim",
   ft = "http",
-  version = "1.2.1",
-  dependencies = { "luarocks.nvim" },
+  version = "*",
+  dependencies = { "luarocks.nvim", { "nvim-neotest/nvim-nio" } },
   config = function()
     require("rest-nvim").setup()
 
