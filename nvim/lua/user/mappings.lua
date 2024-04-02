@@ -95,6 +95,53 @@ return {
     },
     -- Toggle TErm
 
+    ["<leader>t2"] = {
+      function()
+        local id1 = 22
+        local id2 = 11
+        local term = require "toggleterm.terminal"
+        local Terminal = require("toggleterm.terminal").Terminal
+
+        local other_terms = term.get_all()
+
+        for _, l in pairs(other_terms) do
+          local t = term.get(l.id)
+          if t.id ~= id1 and t.id ~= id2 then t:close() end
+        end
+
+        local term2 = term.get(id1)
+        if not term2 then term2 = Terminal:new { id = id1, name = "term2", direction = "vertical" } end
+
+        local term1 = term.get(id2)
+        if not term1 then term1 = Terminal:new { id = id2, name = "term1", direction = "vertical" } end
+
+        local size = vim.o.columns * 0.45
+        term1:toggle(size)
+        term2:toggle(size)
+      end,
+      desc = "Two terminals",
+    },
+    ["<leader>t1"] = {
+      function()
+        local id = 33
+        local term = require "toggleterm.terminal"
+        local Terminal = require("toggleterm.terminal").Terminal
+
+        local other_terms = term.get_all()
+
+        for _, l in pairs(other_terms) do
+          local t = term.get(l.id)
+          if t.id ~= id then t:close() end
+        end
+
+        local term1 = term.get(id)
+        if not term1 then term1 = Terminal:new { id = id, name = "term1", direction = "vertical" } end
+
+        local size = vim.o.columns * 0.45
+        term1:toggle(size)
+      end,
+      desc = "One terminal",
+    },
     ["<leader>1"] = {
       "<cmd>1ToggleTerm<cr>",
       desc = "Toggle Terminal 1",
