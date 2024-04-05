@@ -228,16 +228,23 @@ return {
           hl = { fg = "bg" },
           -- use the right separator and define the background color
           surround = { separator = "right", color = "buffer_picker_fg" },
+          padding = { right = 1 },
         },
         -- add a file information component and only show the current working directory name
         status.component.file_info {
           -- we only want filename to be used and we can change the fname
           -- function to get the current working directory name
-          filename = { fname = function(nr) return vim.fn.getcwd(nr) end, padding = { left = 1 } },
+          filename = {
+            fname = function(nr)
+              local file = vim.fn.getcwd(nr)
+              local fmt = string.format("%s★", file)
+              return fmt
+            end,
+          },
           hl = { fg = "bg" },
           -- disable all other elements of the file_info component
           file_icon = false,
-          file_modified = false,
+          file_modifiedfalse = false,
           file_read_only = false,
           -- use no separator for this part but define a background color
           surround = { separator = "none", color = "buffer_picker_fg", condition = false },
