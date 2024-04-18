@@ -5,6 +5,7 @@ return {
     {
       "nvim-telescope/telescope-live-grep-args.nvim",
       "debugloop/telescope-undo.nvim",
+      "Myzel394/jsonfly.nvim",
       -- This will not install any breaking changes.
       -- For major updates, this must be adjusted manually.
       version = "^1.0.0",
@@ -121,5 +122,6 @@ return {
     require("telescope").load_extension "live_grep_args"
     require("telescope").load_extension "undo"
     require("telescope").load_extension "yank_history"
+    require("telescope").load_extension "jsonfly"
   end,
 }
