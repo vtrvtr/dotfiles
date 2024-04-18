@@ -5,7 +5,7 @@ python 3.11.5
 lazygit 0.40.2
 bottom 0.9.6
 ripgrep 13.0.0
-zellij 0.39.0
+zellij 0.40.0
 fzf 0.44.0
 nodejs 21.2.0
 lazydocker 0.23.1

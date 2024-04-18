@@ -9,5 +9,4 @@ return {
   { import = "astrocommunity.pack.vue" },
   { import = "astrocommunity.pack.python" },
   { import = "astrocommunity.pack.python-ruff" },
-  
 }

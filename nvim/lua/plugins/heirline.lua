@@ -2,7 +2,7 @@ return {
   "rebelot/heirline.nvim",
   enabled = true,
   opts = function(_, opts)
-    local status = require "astronvim.utils.status"
+    local status = require "astroui.status"
 
     opts.tabline = { -- tabline
       { -- file tree padding
@@ -28,7 +28,7 @@ return {
           provider = status.provider.close_button { kind = "TabClose", padding = { left = 1, right = 1 } },
           hl = status.hl.get_attributes("tab_close", true),
           on_click = {
-            callback = function() require("astronvim.utils.buffer").close_tab() end,
+            callback = function() require("astrocore.buffer").close_tab() end,
             name = "heirline_tabline_close_tab_callback",
           },
         },
@@ -79,7 +79,7 @@ return {
     opts.statusline = {
       -- default highlight for the entire statusline
       hl = { fg = "fg", bg = "bg" },
-      -- each element following is a component in astronvim.utils.status module
+      -- each element following is a component in astrocore.status module
       -- Vim mode
       status.component.builder {
 
@@ -171,7 +171,7 @@ return {
         -- and the color to the right of the separated out section
         surround = {
           separator = "right",
-          color = { main = "blank_bg", right = "file_info_bg" },
+          color = { main = "bg", right = "file_info_bg" },
         },
       },
       -- we want an empty space here so we can use the component builder to make a new section with just an empty string
@@ -179,7 +179,7 @@ return {
         { provider = "" },
         -- define the surrounding separator and colors to be used inside of the component
         -- and the color to the right of the separated out section
-        surround = { separator = "left", color = { main = "blank_bg" } },
+        surround = { separator = "left", color = { main = "bg" } },
       },
       -- add a component for the current git branch if it exists and use no separator for the sections
       status.component.fill(),
@@ -222,32 +222,39 @@ return {
         -- define a simple component where the provider is just a folder icon
         status.component.builder {
           -- astronvim.get_icon gets the user interface icon for a closed folder with a space after it
-          { provider = require("astronvim.utils").get_icon "FolderClosed" },
+          { provider = require("astroui").get_icon "FolderClosed" },
           -- add padding after icon
           -- set the foreground color to be used for the icon
           hl = { fg = "bg" },
           -- use the right separator and define the background color
-          surround = { separator = "right", color = "folder_icon_bg" },
+          surround = { separator = "right", color = "buffer_picker_fg" },
+          padding = { right = 1 },
         },
         -- add a file information component and only show the current working directory name
         status.component.file_info {
           -- we only want filename to be used and we can change the fname
           -- function to get the current working directory name
-          filename = { fname = function(nr) return vim.fn.getcwd(nr) end, padding = { left = 1 } },
+          filename = {
+            fname = function(nr)
+              local file = vim.fn.getcwd(nr)
+              local fmt = string.format("%s★", file)
+              return fmt
+            end,
+          },
           hl = { fg = "bg" },
           -- disable all other elements of the file_info component
           file_icon = false,
-          file_modified = false,
+          file_modifiedfalse = false,
           file_read_only = false,
           -- use no separator for this part but define a background color
-          surround = { separator = "none", color = "folder_icon_bg", condition = false },
+          surround = { separator = "none", color = "buffer_picker_fg", condition = false },
         },
       },
       status.component.builder {
         { provider = "" },
         -- define the surrounding separator and colors to be used inside of the component
         -- and the color to the right of the separated out section
-        surround = { separator = "left", color = { main = "folder_icon_bg" } },
+        surround = { separator = "left", color = { main = "buffer_picker_fg" } },
       },
       status.component.fill(),
       { -- make nav section with icon border
@@ -259,14 +266,14 @@ return {
           scrollbar = false,
           hl = { fg = "bg" },
           -- use no separator and define the background color
-          surround = { color = "nav_icon_bg" },
+          surround = { color = "buffer_visible_fg" },
         },
       },
       status.component.builder {
         { provider = "" },
         -- define the surrounding separator and colors to be used inside of the component
         -- and the color to the right of the separated out section
-        surround = { separator = "left", color = { main = "nav_icon_bg" } },
+        surround = { separator = "left", color = { main = "buffer_visible_fg" } },
       },
     }
 
