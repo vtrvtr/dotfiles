@@ -31,6 +31,7 @@ config.hide_tab_bar_if_only_one_tab = true
 if os.getenv("NAME") == "DESKTOP-VS3635G" then
 	config.default_domain = "WSL:Debian"
 end
+config.default_prog = { 'zellij', '-l', 'welcome' }
 config.default_cursor_style = "BlinkingUnderline"
 config.colors = {
 	cursor_border = "#AAAA00",
