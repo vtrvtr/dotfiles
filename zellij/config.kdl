@@ -6,7 +6,8 @@ keybinds {
          bind "Alt p" { SwitchToMode "Pane"; }
          bind "Alt t" { SwitchToMode "Tab"; }
          bind "Alt g" { SwitchToMode "Locked"; }
-         bind "Alt s" { SwitchToMode "Search"; }
+         bind "Alt f" { SwitchToMode "EnterSearch"; }
+         bind "Alt s" { SwitchToMode "Scroll"; }
          bind "Alt o" { SwitchToMode "Session"; }
          bind "Alt r" { SwitchToMode "Resize"; }
          unbind "Ctrl p"
@@ -102,6 +103,7 @@ keybinds {
         bind "k" "Up" { ScrollUp; }
         bind "Ctrl f" "PageDown" "Right" "l" { PageScrollDown; }
         bind "Ctrl b" "PageUp" "Left" "h" { PageScrollUp; }
+        bind "s" { SwitchToMode "EnterSearch"; }
         bind "d" { HalfPageScrollDown; }
         bind "u" { HalfPageScrollUp; }
         bind "n" { Search "down"; }
