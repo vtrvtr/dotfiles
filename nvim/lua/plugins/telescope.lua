@@ -11,7 +11,9 @@ return {
       version = "^1.0.0",
     },
   },
+  commit = "a4432dfb9b0b960c4cbc8765a42dc4fe2e029e8f",
   config = function(_, opts)
+    vim.notify "Using telescope commit version, update when possible..."
     local actions = require "telescope.actions"
     local get_icon = require("astroui").get_icon
     local function flash(prompt_bufnr)
@@ -82,7 +84,11 @@ return {
         git_worktrees = vim.g.git_worktrees,
         prompt_prefix = string.format("%s ", get_icon "Search"),
         selection_caret = string.format("%s ", get_icon "Selected"),
-        path_display = { "truncate" },
+        path_display = {
+          filename_first = {
+            reverse_directories = false,
+          },
+        },
         sorting_strategy = "ascending",
         preview = {
           filesize_limit = 3,
