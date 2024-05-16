@@ -1,7 +1,6 @@
 -- lazy.nvim:
 return {
   "smoka7/multicursors.nvim",
-  event = "BufEnter",
   dependencies = {
     "smoka7/hydra.nvim",
   },
