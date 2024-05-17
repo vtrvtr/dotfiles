@@ -1,6 +1,6 @@
 elixir 1.16.0-otp-26
 erlang 26.2.1
-neovim nightly
+neovim 0.10.0
 python 3.11.5
 lazygit 0.40.2
 bottom 0.9.6
