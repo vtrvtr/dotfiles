@@ -41,6 +41,10 @@ return {
           function() require("telescope").extensions.live_grep_args.live_grep_args() end,
           "Search words with rg",
         },
+        f = {
+          function() require("telescope").extensions.smart_open.smart_open() end,
+          "Search smart open",
+        },
         u = {
           "<cmd>Telescope undo<CR>",
           "Undo",

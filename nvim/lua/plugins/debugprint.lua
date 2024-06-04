@@ -26,17 +26,6 @@ return {
       },
     }
     local wk = require "which-key"
-    wk.register({
-      d = {
-        d = {
-          name = "+Debug print",
-          v = {
-            function() vim.print "foo" end,
-            "Varible debug",
-          },
-        },
-      },
-    }, { prefix = "<leader>" })
     require("debugprint").setup(opts)
   end,
   dependencies = {
