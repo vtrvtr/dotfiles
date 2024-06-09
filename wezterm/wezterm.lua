@@ -29,7 +29,7 @@ config.font = wezterm.font("Monaspace Radon")
 config.font_size = 16
 config.hide_tab_bar_if_only_one_tab = true
 if os.getenv("NAME") == "DESKTOP-VS3635G" then
-	config.default_domain = "WSL:Debian"
+	config.default_domain = "WSL:Debian3"
 end
 config.default_prog = { 'zellij', '-l', 'welcome' }
 config.default_cursor_style = "BlinkingUnderline"
