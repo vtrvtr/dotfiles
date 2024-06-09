@@ -13,7 +13,7 @@ return {
   },
   commit = "a4432dfb9b0b960c4cbc8765a42dc4fe2e029e8f",
   config = function(_, opts)
-    vim.notify "Using telescope commit version, update when possible..."
+    vim.notify("Using telescope commit version, update when possible...", "info", { height = 400 })
     local actions = require "telescope.actions"
     local get_icon = require("astroui").get_icon
     local function flash(prompt_bufnr)
