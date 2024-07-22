@@ -190,7 +190,7 @@ return {
         -- Split control
         ["<Leader>w"] = {
           "<c-w>",
-          name = "Window control",
+          desc = "Window control",
         },
         ["<m-h>"] = {
           "<c-w><c-h>",
@@ -265,8 +265,8 @@ return {
             "Search macros",
           },
           ["/"] = {
-            "<cmd>MurenToggle<cr>",
-            "Muren search and replace",
+            "<cmd>GrugFar<cr>",
+            "Grub search and replace",
           },
         },
         -- Neogit
