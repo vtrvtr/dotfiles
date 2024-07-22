@@ -12,7 +12,7 @@ return {
     },
   },
   commit = "a4432dfb9b0b960c4cbc8765a42dc4fe2e029e8f",
-  config = function(_, opts)
+  config = function(_, _)
     vim.notify("Using telescope commit version, update when possible...", "info", { height = 400 })
     local actions = require "telescope.actions"
     local get_icon = require("astroui").get_icon
@@ -35,49 +35,45 @@ return {
 
     local wk = require "which-key"
 
-    wk.register({
-      f = {
-        w = {
-          function() require("telescope").extensions.live_grep_args.live_grep_args() end,
-          "Search words with rg",
-        },
-        f = {
-          function() require("telescope").extensions.smart_open.smart_open() end,
-          "Search smart open",
-        },
-        u = {
-          "<cmd>Telescope undo<CR>",
-          "Undo",
-        },
-        p = {
-          function()
-            local function get_filename_from_bufnr(bufnr)
-              local info = vim.fn.getbufinfo(bufnr)
-              if info and info[1] and info[1].name ~= "" then return info[1].name end
-              return nil
-            end
+    wk.add {
+      {
+        "<leader>fw",
+        function() require("telescope").extensions.live_grep_args.live_grep_args() end,
+        desc = "Search words with rg",
+      },
+      {
+        "<leader>ff",
+        function() require("telescope").extensions.smart_open.smart_open() end,
+        desc = "Search smart open",
+      },
+      { "<leader>fu", "<cmd>Telescope undo<CR>", desc = "Undo" },
+      {
+        "<leader>fp",
+        function()
+          local function get_filename_from_bufnr(bufnr)
+            local info = vim.fn.getbufinfo(bufnr)
+            if info and info[1] and info[1].name ~= "" then return info[1].name end
+            return nil
+          end
 
-            local jumplist = vim.fn.getjumplist()[1]
-            local sorted_jumplist = {}
-            local added_files = {}
-            for i = #jumplist, 1, -1 do
-              if vim.api.nvim_buf_is_valid(jumplist[i].bufnr) then
-                local filename = get_filename_from_bufnr(jumplist[i].bufnr)
-                if not added_files[filename] and filename then
-                  table.insert(sorted_jumplist, filename)
-                  added_files[filename] = true
-                end
+          local jumplist = vim.fn.getjumplist()[1]
+          local sorted_jumplist = {}
+          local added_files = {}
+          for i = #jumplist, 1, -1 do
+            if vim.api.nvim_buf_is_valid(jumplist[i].bufnr) then
+              local filename = get_filename_from_bufnr(jumplist[i].bufnr)
+              if not added_files[filename] and filename then
+                table.insert(sorted_jumplist, filename)
+                added_files[filename] = true
               end
             end
+          end
 
-            require("telescope").extensions.live_grep_args.live_grep_args { search_dirs = sorted_jumplist }
-          end,
-          "Grep jumplist",
-        },
+          require("telescope").extensions.live_grep_args.live_grep_args { search_dirs = sorted_jumplist }
+        end,
+        desc = "Grep jumplist",
       },
-    }, {
-      prefix = "<leader>",
-    })
+    }
 
     require("telescope").setup {
       defaults = {
