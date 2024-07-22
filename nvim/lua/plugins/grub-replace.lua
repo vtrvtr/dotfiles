@@ -11,5 +11,6 @@ return {
       },
     }
     vim.cmd "cnoreabbrev Replace GrugFar"
+    vim.cmd "cnoreabbrev R GrugFar"
   end,
 }
