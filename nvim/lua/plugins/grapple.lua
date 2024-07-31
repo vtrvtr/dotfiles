@@ -84,6 +84,7 @@ end
 
 function make_key(key)
   return {
+    "m" .. string.lower(key),
     function()
       if exists(key) then
         confirm(function()
@@ -95,14 +96,15 @@ function make_key(key)
         require("grapple").tag { name = key }
       end
     end,
-    file_name_from_tag(key),
+    desc = file_name_from_tag(key),
   }
 end
 
 function make_get_key(key)
   return {
+    "," .. string.lower(key),
     function() require("grapple").select { name = key } end,
-    string.format("Go %s", key),
+    desc = string.format("Go %s", key),
   }
 end
 
@@ -122,41 +124,71 @@ return {
       },
     }
     local wk = require "which-key"
-    wk.register {
-      m = {
-        name = "+Mark Grapple",
-        w = make_key "W",
-        e = make_key "E",
-        r = make_key "R",
-        q = make_key "Q",
-        t = make_key "T",
-        c = make_key "C",
-        x = make_key "X",
-        s = make_key "S",
-        a = make_key "A",
-        d = make_key "D",
-        f = {
-          function() require("grapple").open_tags() end,
-          "All tags",
-        },
-      },
-      [","] = {
-        name = "+Go Grapple",
-        w = make_get_key "W",
-        e = make_get_key "E",
-        r = make_get_key "R",
-        q = make_get_key "Q",
-        t = make_get_key "T",
-        c = make_get_key "C",
-        x = make_get_key "X",
-        s = make_get_key "S",
-        a = make_get_key "A",
-        d = make_get_key "D",
-        f = {
-          function() require("grapple").open_tags() end,
-          "All tags",
-        },
-      },
+
+    wk.add {
+      { "m", group = "+Mark Grapple" },
+      make_key "Q",
+      make_key "W",
+      make_key "E",
+      make_key "R",
+      make_key "T",
+      make_key "Y",
+      make_key "A",
+      make_key "S",
+      make_key "D",
+      make_key "Z",
+      make_key "C",
+      make_key "X",
+      { ",", group = "+Go Grapple" },
+      make_get_key "Q",
+      make_get_key "W",
+      make_get_key "E",
+      make_get_key "R",
+      make_get_key "T",
+      make_get_key "Y",
+      make_get_key "A",
+      make_get_key "S",
+      make_get_key "D",
+      make_get_key "Z",
+      make_get_key "C",
+      make_get_key "X",
+      { ",f", function() require("grapple").open_tags() end, desc = "Show tags" },
     }
+    -- wk.register {
+    --   m = {
+    --     name = "+Mark Grapple",
+    --     w = make_key "W",
+    --     e = make_key "E",
+    --     r = make_key "R",
+    --     q = make_key "Q",
+    --     t = make_key "T",
+    --     c = make_key "C",
+    --     x = make_key "X",
+    --     s = make_key "S",
+    --     a = make_key "A",
+    --     d = make_key "D",
+    --     f = {
+    --       function() require("grapple").open_tags() end,
+    --       "All tags",
+    --     },
+    --   },
+    --   [","] = {
+    --     name = "+Go Grapple",
+    --     w = make_get_key "W",
+    --     e = make_get_key "E",
+    --     r = make_get_key "R",
+    --     q = make_get_key "Q",
+    --     t = make_get_key "T",
+    --     c = make_get_key "C",
+    --     x = make_get_key "X",
+    --     s = make_get_key "S",
+    --     a = make_get_key "A",
+    --     d = make_get_key "D",
+    --     f = {
+    --       function() require("grapple").open_tags() end,
+    --       "All tags",
+    --     },
+    --   },
+    -- }
   end,
 }

@@ -47,6 +47,16 @@ return {
 
     ---@diagnostic disable: missing-fields
     config = {
+      basedpyright = {
+        settings = {
+          basedpyright = {
+            analysis = {
+              reportUnknownVariableType = "none",
+              typeCheckingMode = "standard",
+            },
+          },
+        },
+      },
       clangd = {
         cmd = {
           "clangd",

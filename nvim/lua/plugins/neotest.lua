@@ -20,15 +20,39 @@ return {
       },
     }
     local wk = require "which-key"
-    wk.register({
-      t = {
-        e = {
-          d = {
-            function() require("neotest").run.run { strategy = "dap" } end,
-            "Test Debug",
-          },
-        },
+    wk.add {
+      { "<leader>te", group = "Test" },
+      {
+        "<leader>ted",
+        function() require("neotest").run.run { strategy = "dap" } end,
+        desc = "Test Debug",
       },
-    }, { prefix = "<leader>" })
+      {
+        "<leader>ter",
+        function() require("neotest").run.run(vim.fn.expand "%") end,
+        desc = "Run all tests.",
+      },
+      {
+        "<leader>te<space>",
+        function() require("neotest").run.run() end,
+        desc = "Run test under cursor.",
+      },
+      {
+        "<leader>tef",
+        function() require("neotest").run.run_last() end,
+        desc = "Run last test.",
+      },
+      {
+        "<leader>tes",
+        function() require("neotest").summary.toggle() end,
+        desc = "Test summary",
+      },
+      {
+        "<leader>teo",
+
+        function() require("neotest").output_panel.toggle() end,
+        desc = "Test output",
+      },
+    }
   end,
 }

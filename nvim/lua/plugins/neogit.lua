@@ -8,5 +8,15 @@ return {
     "ibhagwan/fzf-lua", -- optional
   },
   branch = "master",
-  config = true,
+  -- config = true,
+  opts = function(opts)
+    local wk = require "which-key"
+    wk.add {
+      {
+        "<Leader>gg",
+        function() require("neogit").open { kind = "split_above" } end,
+        desc = "Open neogit",
+      },
+    }
+  end,
 }

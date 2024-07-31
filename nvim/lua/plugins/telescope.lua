@@ -47,6 +47,7 @@ return {
         desc = "Search smart open",
       },
       { "<leader>fu", "<cmd>Telescope undo<CR>", desc = "Undo" },
+      { "<leader>fy", "<cmd>Telescope yank_history<CR>", desc = "Yank history" },
       {
         "<leader>fp",
         function()
@@ -117,17 +118,19 @@ return {
         undo = {
           use_delta = true,
           side_by_side = true,
-          diff_context_lines = 3,
-          layout_strategy = "vertical",
-          layout_config = {
-            preview_height = 0.5,
+          vim_context_opts = {
+            vim_diff_opts = { ctxlen = 3 },
+            layout_strategy = "vertical",
+            layout_config = {
+              preview_height = 0.5,
+            },
           },
         },
       },
+      require("telescope").load_extension "live_grep_args",
+      require("telescope").load_extension "undo",
+      require("telescope").load_extension "yank_history",
+      require("telescope").load_extension "jsonfly",
     }
-    require("telescope").load_extension "live_grep_args"
-    require("telescope").load_extension "undo"
-    require("telescope").load_extension "yank_history"
-    require("telescope").load_extension "jsonfly"
   end,
 }
