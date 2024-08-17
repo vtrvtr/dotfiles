@@ -57,7 +57,7 @@ return {
             if vim.loop.fs_stat(path) ~= nil then
               return path
             end
-            return ""
+            return "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6"
         end)()
       },
     },
