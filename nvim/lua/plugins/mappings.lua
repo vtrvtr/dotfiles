@@ -50,30 +50,24 @@ return {
           desc = "Zen Mode",
         },
         -- LSP
-        ["<Leader>l"] = {
-          f = {
-            function() vim.lsp.buf.format() end,
-            "Format buffer",
-          },
-          R = {
-            function() require("telescope.builtin").lsp_references() end,
-            "Find all references",
-          },
-          D = {
-            function() require("telescope.builtin").diagnostics() end,
-            "Show diagonostics Telescope",
-          },
-          d = {
-            function() vim.diagnostic.open_float() end,
-            "Show diagonostics float",
-          },
-          r = {
-            function() vim.lsp.buf.rename() end,
-            "Rename symbol",
-          },
+        ["<leader>lR"] = {
+          function() require("telescope.builtin").lsp_references() end,
+          desc = "References telescope",
+        },
+        ["<leader>lD"] = {
+          function() require("telescope.builtin").diagnostics() end,
+          desc = "Diagnostics telescope",
+        },
+        ["<leader>ld"] = {
+          function() vim.diagnostic.open_float() end,
+          desc = "Diagnostics floaty",
+        },
+        ["<leader>lr"] = {
+          function() vim.lsp.buf.rename() end,
+          desc = "Rename",
         },
         ["<leader>lf"] = {
-          function() vim.lsp.buf.format({async = true}) end,
+          function() vim.lsp.buf.format { async = true } end,
           desc = "Format",
         },
         ["gd"] = {
@@ -81,7 +75,7 @@ return {
           desc = "Go to definition",
         },
         ["gD"] = {
-            "<cmd>vsplit | lua vim.lsp.buf.definition()<CR>",
+          "<cmd>vsplit | lua vim.lsp.buf.definition()<CR>",
           desc = "Go to definition in split",
         },
         ["<Leader>q"] = {
@@ -99,7 +93,6 @@ return {
           desc = "Show function signature",
         },
         -- Toggle TErm
-
         ["<Leader>t2"] = {
           function()
             local id1 = 22
@@ -253,24 +246,36 @@ return {
           desc = "Search in current buffer",
         },
 
+        ["<Leader>fy"] = {
+          function() require("telescope").extensions.yank_history.yank_history() end,
+          desc = "Yank history",
+        },
+        ["<Leader>fq"] = {
+          function() require("telescope").extensions.macroscope.default() end,
+          desc = "Macros",
+        },
+        ["<Leader>f/"] = {
+          "<cmd>GrugFar<cr>",
+          desc = "Search and replace",
+        },
         ["<Leader>faa"] = {
           "<cmd>Telescope aerial<cr>",
           desc = "Document symbol search",
         },
-        ["<Leader>f"] = {
-          y = {
-            function() require("telescope").extensions.yank_history.yank_history() end,
-            "Search clipboard",
-          },
-          q = {
-            function() require("telescope").extensions.macroscope.default() end,
-            "Search macros",
-          },
-          ["/"] = {
-            "<cmd>GrugFar<cr>",
-            "Grub search and replace",
-          },
-        },
+        -- ["<Leader>f"] = {
+        --   y = {
+        --     function() require("telescope").extensions.yank_history.yank_history() end,
+        --     "Search clipboard",
+        --   },
+        --   q = {
+        --     function() require("telescope").extensions.macroscope.default() end,
+        --     "Search macros",
+        --   },
+        --   ["/"] = {
+        --     "<cmd>GrugFar<cr>",
+        --     "Grub search and replace",
+        --   },
+        -- },
         -- Neogit
         ["<Leader>gg"] = {
           function() require("neogit").open { kind = "split_above" } end,
