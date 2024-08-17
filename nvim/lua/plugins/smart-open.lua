@@ -6,5 +6,6 @@ return {
     "kkharji/sqlite.lua",
     -- Only required if using match_algorithm fzf
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+    { "nvim-telescope/telescope-fzy-native.nvim" },
   },
 }
