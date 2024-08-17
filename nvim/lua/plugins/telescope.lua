@@ -131,6 +131,7 @@ return {
       require("telescope").load_extension "undo",
       require("telescope").load_extension "yank_history",
       require("telescope").load_extension "jsonfly",
+      require("telescope").load_extension "projects",
     }
   end,
 }
