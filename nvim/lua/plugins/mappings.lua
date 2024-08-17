@@ -72,15 +72,17 @@ return {
             "Rename symbol",
           },
         },
-        ["g"] = {
-          D = {
+        ["<leader>lf"] = {
+          function() vim.lsp.buf.format({async = true}) end,
+          desc = "Format",
+        },
+        ["gd"] = {
+          function() vim.lsp.buf.definition() end,
+          desc = "Go to definition",
+        },
+        ["gD"] = {
             "<cmd>vsplit | lua vim.lsp.buf.definition()<CR>",
-            "Go to definition in split",
-          },
-          d = {
-            function() vim.lsp.buf.definition() end,
-            "Go to definition",
-          },
+          desc = "Go to definition in split",
         },
         ["<Leader>q"] = {
           function() vim.lsp.buf.hover() end,
