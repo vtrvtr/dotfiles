@@ -262,23 +262,17 @@ return {
           "<cmd>Telescope aerial<cr>",
           desc = "Document symbol search",
         },
-        -- ["<Leader>f"] = {
-        --   y = {
-        --     function() require("telescope").extensions.yank_history.yank_history() end,
-        --     "Search clipboard",
-        --   },
-        --   q = {
-        --     function() require("telescope").extensions.macroscope.default() end,
-        --     "Search macros",
-        --   },
-        --   ["/"] = {
-        --     "<cmd>GrugFar<cr>",
-        --     "Grub search and replace",
-        --   },
-        -- },
         -- Neogit
         ["<Leader>gg"] = {
           function() require("neogit").open { kind = "split_above" } end,
+          desc = "Open neogit",
+        },
+        -- Mini files
+        ["<Leader>e"] = {
+          function()
+            local mf = require "mini.files"
+            mf.open()
+          end,
           desc = "Open neogit",
         },
 
