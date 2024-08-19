@@ -1,7 +1,18 @@
 return {
   "danielfalk/smart-open.nvim",
-  branch = "0.2.x",
-  config = function() require("telescope").load_extension "smart_open" end,
+  branch = "main",
+  config = function()
+    local os = string.lower(jit.os)
+    if os ~= "windows" then require("telescope").load_extension "smart_open" end
+  end,
+  enabled = function()
+    local os = string.lower(jit.os)
+    if os ~= "windows" then
+      return true
+    else
+      return false
+    end
+  end,
   dependencies = {
     "kkharji/sqlite.lua",
     -- Only required if using match_algorithm fzf
