@@ -13,6 +13,14 @@ return {
           function() vim.lsp.buf.code_action() end,
           desc = "Show code actions",
         },
+        ["<Leader>rv"] = {
+          function() require("grug-far").with_visual_selection { prefills = { paths = vim.fn.expand "%" } } end,
+          desc = "Search and replace selection",
+        },
+        ["<Leader>rf"] = {
+          function() require("grug-far").open { prefills = { paths = vim.fn.expand "%" } } end,
+          desc = "Search and replace current file",
+        },
       },
       x = {
         ["<Enter><Enter>"] = {
@@ -254,12 +262,16 @@ return {
           function() require("telescope").extensions.macroscope.default() end,
           desc = "Macros",
         },
-        ["<Leader>f/"] = {
+        ["<Leader>r/"] = {
           "<cmd>GrugFar<cr>",
           desc = "Search and replace",
         },
-        ["<Leader>faa"] = {
-          "<cmd>Telescope aerial<cr>",
+        ["<Leader>rf"] = {
+          function() require("grug-far").open { prefills = { paths = vim.fn.expand "%" } } end,
+          desc = "Search and replace current file",
+        },
+        ["<leader>faa"] = {
+          "<cmd>telescope aerial<cr>",
           desc = "Document symbol search",
         },
         -- Neogit
