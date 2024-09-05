@@ -271,7 +271,7 @@ return {
           desc = "Search and replace current file",
         },
         ["<leader>faa"] = {
-          "<cmd>telescope aerial<cr>",
+          "<cmd>Telescope aerial<cr>",
           desc = "Document symbol search",
         },
         -- Neogit

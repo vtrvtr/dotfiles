@@ -132,6 +132,7 @@ return {
       require("telescope").load_extension "yank_history",
       require("telescope").load_extension "jsonfly",
       require("telescope").load_extension "projects",
+      require("telescope").load_extension "aerial",
     }
   end,
 }
