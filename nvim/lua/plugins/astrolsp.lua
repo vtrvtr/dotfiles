@@ -49,8 +49,18 @@ return {
     config = {
       basedpyright = {
         settings = {
+          python = {
+            analysis = {
+              diagnosticMode = "workspace",
+              inlayHints = {
+                variableTypes = true,
+                functionReturnTypes = true,
+              },
+            },
+          },
           basedpyright = {
             analysis = {
+              diagnosticMode = "workspace",
               reportUnknownVariableType = "none",
               typeCheckingMode = "standard",
             },
