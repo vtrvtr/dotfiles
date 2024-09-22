@@ -38,7 +38,7 @@ return {
             width = state.message.width,
             height = state.message.height,
             col = (vim.opt.columns:get() / 2) + state.message.width / 2,
-            row = 1,
+            row = 100,
             border = "double",
             style = "minimal",
             opacity = 0,
@@ -47,14 +47,14 @@ return {
         function()
           return {
             opacity = { 100 },
-            row = 1,
+            row = 100,
           }
         end,
         function()
           return {
             width = {
               1,
-              frequency = .5,
+              frequency = 0.5,
               damping = 0.4,
               complete = function(cur_width) return cur_width < 10 end,
             },
