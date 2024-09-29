@@ -283,7 +283,7 @@ return {
         ["<Leader>e"] = {
           function()
             local mf = require "mini.files"
-            mf.open()
+            mf.open(vim.api.nvim_buf_get_name(0))
           end,
           desc = "Open neogit",
         },
