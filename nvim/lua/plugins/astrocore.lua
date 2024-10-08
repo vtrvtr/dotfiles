@@ -53,15 +53,13 @@ return {
         icons_enabled = true, -- disable icons in the UI (disable if no nerd font is available, requires :PackerSync after changing)
         ui_notifications_enabled = true, -- disable notifications when toggling UI elements
         sqlite_clib_path = (function()
-          local os = string.lower(jit.os)
-          if os ~= "windows" then
+          if require("helpers").is_win() then
+            return "C:\\sqlite\\sqlite3.dll"
+          else
             local path = "/fast/sqlite/libsqlite3.so.0.8.6"
             if vim.loop.fs_stat(path) ~= nil then return path end
             return "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6"
-          else
-            return "C:\\sqlite\\sqlite3.dll"
           end
-
         end)(),
       },
     },
