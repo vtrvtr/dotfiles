@@ -63,7 +63,7 @@ return {
           desc = "References telescope",
         },
         ["<leader>lD"] = {
-          function() require("telescope.builtin").diagnostics() end,
+          function() require("telescope.builtin").diagnostics { sort_by = "severity" } end,
           desc = "Diagnostics telescope",
         },
         ["<leader>ld"] = {

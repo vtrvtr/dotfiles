@@ -89,6 +89,9 @@ return {
             reverse_directories = false,
           },
         },
+        diagnostic = {
+          sort_by = "severity",
+        },
         sorting_strategy = "ascending",
         preview = {
           filesize_limit = 3,
@@ -113,6 +116,7 @@ return {
           },
         },
       },
+      require("telescope.builtin").diagnostics { sort_by = "severity" },
       require("telescope").load_extension "live_grep_args",
       require("telescope").load_extension "yank_history",
       require("telescope").load_extension "jsonfly",

@@ -28,10 +28,27 @@ return {
     -- adjusts spacing to ensure icons are aligned
     nerd_font_variant = "normal",
 
+    trigger = {
+      completion = {
+        -- regex used to get the text when fuzzy matching
+        -- changing this may break some sources, so please report if you run into issues
+        -- todo: shouldnt this also affect the accept command? should this also be per language?
+        keyword_regex = "[%w_\\-]",
+        -- LSPs can indicate when to show the completion window via trigger characters
+        -- however, some LSPs (*cough* tsserver *cough*) return characters that would essentially
+        -- always show the window. We block these by default
+        blocked_trigger_characters = { " ", "\n", "\t", ":" },
+        -- when true, will show the completion window when the cursor comes after a trigger character when entering insert mode
+        show_on_insert_on_trigger_character = true,
+        -- list of additional trigger characters that won't trigger the completion window when the cursor comes after a trigger character when entering insert mode
+        show_on_insert_blocked_trigger_characters = { "'", '"' },
+      },
+    },
+
     -- experimental auto-brackets support
-    -- accept = { auto_brackets = { enabled = true } }
+    -- accept = { auto_brackets = { enabled = true } },
 
     -- experimental signature help support
-    -- trigger = { signature_help = { enabled = true } }
+    -- trigger = { signature_help = { enabled = true } },
   },
 }
