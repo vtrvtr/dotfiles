@@ -43,5 +43,20 @@ return {
         map_split(buf_id, "gv", "belowright vertical")
       end,
     })
+
+    local files_set_cwd = function(path)
+      -- Works only if cursor is on the valid file system entry
+      local cur_entry_path = MiniFiles.get_fs_entry().path
+      local cur_directory = vim.fs.dirname(cur_entry_path)
+      vim.notify("Cwd set to " .. cur_directory, "info")
+      vim.fn.chdir(cur_directory)
+    end
+
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "MiniFilesBufferCreate",
+      callback = function(args)
+        vim.keymap.set("n", "c", files_set_cwd, { buffer = args.data.buf_id, desc = "Set cwd" })
+      end,
+    })
   end,
 }
