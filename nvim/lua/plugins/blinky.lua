@@ -12,7 +12,8 @@ return {
 
   opts = {
     keymap = {
-      accept = "<CR>",
+      preset = "default",
+      ["<CR>"] = { "accept", "select_and_accept", "fallback" },
     },
     windows = {
       autocomplete = { border = "double" },
