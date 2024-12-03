@@ -1,18 +1,17 @@
 ---@diagnostic disable: lowercase-global
-function confirm(confirm, mark)
+function confirm(confirm, mark, path)
   local Menu = require "nui.menu"
-  local event = require("nui.utils.autocmd").event
 
   local menu = Menu({
     position = "50%",
     size = {
-      width = 25,
+      width = "50%",
       height = 2,
     },
     border = {
       style = "rounded",
       text = {
-        top = string.format("Replace mark %s?", mark),
+        top = string.format("Replace mark %s %s?", mark, path),
         top_align = "center",
       },
     },
@@ -90,7 +89,7 @@ function make_key(key)
         confirm(function()
           vim.notify(string.format("🗡%s File marked.", key))
           require("grapple").tag { name = key }
-        end, key)
+        end, key, truncate_path(require("grapple").find({ name = key })["path"]))
       else
         vim.notify(string.format("🗡%s File marked.", key))
         require("grapple").tag { name = key }
