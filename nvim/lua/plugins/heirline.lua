@@ -256,15 +256,35 @@ return {
         -- and the color to the right of the separated out section
         surround = { separator = "left", color = { main = "buffer_picker_fg" } },
       },
+      status.component.builder {
+        { provider = function(self) return " " end },
+        -- define the surrounding separator and colors to be used inside of the component
+        -- and the color to the right of the separated out section
+        -- surround = { separator = "left", color = { main = "buffer_picker_fg" } },
+      },
+      -- Grapple
+      status.component.builder {
+        -- astronvim.get_icon gets the user interface icon for a closed folder with a space after it
+        provider = function(self) return require("grapple").statusline() end,
+        -- add padding after icon
+        -- set the foreground color to be used for the icon
+        hl = { fg = "bg" },
+        -- use the right separator and define the background color
+        surround = { separator = "right", color = "buffer_picker_fg" },
+        padding = { right = 1 },
+      },
+      status.component.builder {
+        { provider = "" },
+        -- define the surrounding separator and colors to be used inside of the component
+        -- and the color to the right of the separated out section
+        surround = { separator = "left", color = { main = "buffer_picker_fg" } },
+      },
       status.component.fill(),
       { -- make nav section with icon border
-        -- add a navigation component and just display the percentage of progress in the file
         status.component.nav {
-          -- add some padding for the percentage provider
-          -- disable all other providers
           ruler = false,
           scrollbar = false,
-          hl = { fg = "bg" },
+          hl = { fg = "green" },
           -- use no separator and define the background color
           surround = { color = "buffer_visible_fg" },
         },
