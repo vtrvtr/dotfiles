@@ -26,7 +26,7 @@ end)
 config.window_decorations = "RESIZE"
 config.color_scheme = "Catppuccin Mocha"
 config.font = wezterm.font("Monaspace Radon")
-if vim.fn.hostname() == "trpc" then
+if wezterm.hostname() == "trpc" then
 	config.font_size = 12
 else
 	config.font_size = 16
