@@ -3,7 +3,7 @@ return {
   config = function()
     require("grug-far").setup {
       keymaps = {
-        replace = "<C-j>",
+        replace = ",,",
         qflist = "<C-q>",
         gotoLocation = "<enter>",
         close = "<C-x>",

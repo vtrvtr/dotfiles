@@ -29,6 +29,20 @@ return {
     -- adjusts spacing to ensure icons are aligned
     nerd_font_variant = "normal",
 
+    completion = {
+      documentation = { auto_show = true, window = { border = "double" } },
+
+      ghost_text = { enabled = true },
+
+      menu = { draw = { treesitter = { "lsp " } }, border = "single" },
+    },
+
+    signature = {
+      window = {
+        border = "double",
+      },
+    },
+
     trigger = {
       completion = {
         -- regex used to get the text when fuzzy matching
