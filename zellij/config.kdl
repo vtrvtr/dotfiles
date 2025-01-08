@@ -1,15 +1,35 @@
 // If you'd like to override the default keybindings completely, be sure to change "keybinds" to "keybinds clear-defaults=true"
+plugins {
+    // Define the "autolock" plugin.
+    autolock location="https://github.com/fresh2dev/zellij-autolock/releases/download/0.2.2/zellij-autolock.wasm" {
+        // Enabled at start?
+        is_enabled true
+        // Lock when any open these programs open.
+        triggers "nvim|vim|git|fzf|zoxide|atuin"
+        // Reaction to input occurs after this many seconds. (default=0.3)
+        // (An existing scheduled reaction prevents additional reactions.)
+        reaction_seconds "0.3"
+        // Print to Zellij log? (default=false)
+        print_to_log true
+    }
+}
+// Load this "headless" plugin on start.
+load_plugins {
+    autolock
+}
 keybinds {
     normal {
         // uncomment this and adjust key if using copy_on_select=false
-        // bind "Alt c" { Copy; }
+         bind "Alt c" { Copy; }
          bind "Alt p" { SwitchToMode "Pane"; }
-         bind "Alt t" { SwitchToMode "Tab"; }
+         bind "Alt t" { ToggleFloatingPanes; }
+         bind "Alt b" { SwitchToMode "Tab"; }
          bind "Alt g" { SwitchToMode "Locked"; }
          bind "Alt f" { SwitchToMode "EnterSearch"; }
          bind "Alt s" { SwitchToMode "Scroll"; }
          bind "Alt o" { SwitchToMode "Session"; }
          bind "Alt r" { SwitchToMode "Resize"; }
+         bind "Alt q" { NextSwapLayout; }
          unbind "Ctrl p"
          unbind "Ctrl t"
          unbind "Ctrl s"
@@ -19,7 +39,16 @@ keybinds {
          unbind "Ctrl q"
     }
     locked {
+        bind "Alt t" { ToggleFloatingPanes; }
+        bind "Alt b" { SwitchToMode "Tab"; }
+        bind "Alt p" { SwitchToMode "Pane"; }
         bind "Alt g" { SwitchToMode "Normal"; }
+        bind "Alt z" {
+            // Disable the autolock plugin.
+            MessagePlugin "autolock" {payload "toggle";};
+            // Unlock Zellij.
+            SwitchToMode "Normal";
+        }
     }
     resize {
         bind "Alt n" { SwitchToMode "Normal"; }
