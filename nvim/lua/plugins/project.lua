@@ -12,7 +12,7 @@ return {
 
     wk.add {
       {
-        "<leader>fr",
+        "<leader>fp",
         function() require("telescope").extensions.projects.projects {} end,
         desc = "Recent projects",
       },

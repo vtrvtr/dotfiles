@@ -262,6 +262,10 @@ return {
           function() require("telescope").extensions.macroscope.default() end,
           desc = "Macros",
         },
+        ["<Leader>fr"] = {
+          "<cmd>Telescope resume<cr>",
+          desc = "Resume last picker",
+        },
         ["<Leader>r/"] = {
           "<cmd>GrugFar<cr>",
           desc = "Search and replace",
