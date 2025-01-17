@@ -27,14 +27,15 @@ config.window_decorations = "RESIZE"
 config.color_scheme = "Catppuccin Mocha"
 config.font = wezterm.font("Monaspace Radon")
 if wezterm.hostname() == "trpc" then
+	config.default_domain = "WSL:Debian3"
 	config.font_size = 12
+	if wezterm.target_triplet == "x86_64-unknown-linux-gnu" then
+		config.default_prog = { "fish" }
+	end
 else
 	config.font_size = 16
 end
 config.hide_tab_bar_if_only_one_tab = true
-if os.getenv("NAME") == "DESKTOP-VS3635G" then
-	config.default_domain = "WSL:Debian3"
-end
 config.default_cursor_style = "BlinkingUnderline"
 config.colors = {
 	cursor_border = "#AAAA00",
