@@ -11,7 +11,10 @@ return {
     dashboard = { enabled = true },
     indent = { enabled = true },
     input = { enabled = true },
-    picker = { enabled = true, matcher = { frecency = true, cwd_bonus = true }, debug = { scores = true } },
+    picker = {
+      enabled = true,
+      matcher = { sort_empty = true, frecency = true, cwd_bonus = true },
+    },
     notifier = { enabled = true },
     quickfile = { enabled = true },
     scroll = { enabled = true },
