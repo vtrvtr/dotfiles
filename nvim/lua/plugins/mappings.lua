@@ -249,35 +249,39 @@ return {
         },
 
         -- Telescope
-        ["/"] = {
-          "<cmd>Telescope current_buffer_fuzzy_find<cr>",
-          desc = "Search in current buffer",
-        },
+        -- ["/"] = {
+        --   "<cmd>Telescope current_buffer_fuzzy_find<cr>",
+        --   desc = "Search in current buffer",
+        -- },
 
-        ["<Leader>fy"] = {
-          function() require("telescope").extensions.yank_history.yank_history() end,
-          desc = "Yank history",
-        },
-        ["<Leader>fq"] = {
-          function() require("telescope").extensions.macroscope.default() end,
-          desc = "Macros",
-        },
-        ["<Leader>fr"] = {
-          "<cmd>Telescope resume<cr>",
-          desc = "Resume last picker",
-        },
-        ["<Leader>r/"] = {
-          "<cmd>GrugFar<cr>",
-          desc = "Search and replace",
-        },
-        ["<Leader>rf"] = {
-          function() require("grug-far").open { prefills = { paths = vim.fn.expand "%" } } end,
-          desc = "Search and replace current file",
-        },
-        ["<leader>faa"] = {
-          "<cmd>Telescope aerial<cr>",
-          desc = "Document symbol search",
-        },
+        -- ["<Leader>ff"] = {
+        --   function() require("plugins.snacks").picker.files(opts) end,
+        --   desc = "Files",
+        -- },
+        -- ["<Leader>fy"] = {
+        --   function() require("telescope").extensions.yank_history.yank_history() end,
+        --   desc = "Yank history",
+        -- },
+        -- ["<Leader>fq"] = {
+        --   function() require("telescope").extensions.macroscope.default() end,
+        --   desc = "Macros",
+        -- },
+        -- ["<Leader>fr"] = {
+        --   "<cmd>Telescope resume<cr>",
+        --   desc = "Resume last picker",
+        -- },
+        -- ["<Leader>r/"] = {
+        --   "<cmd>GrugFar<cr>",
+        --   desc = "Search and replace",
+        -- },
+        -- ["<Leader>rf"] = {
+        --   function() require("grug-far").open { prefills = { paths = vim.fn.expand "%" } } end,
+        --   desc = "Search and replace current file",
+        -- },
+        -- ["<leader>faa"] = {
+        --   "<cmd>Telescope aerial<cr>",
+        --   desc = "Document symbol search",
+        -- },
         -- Neogit
         ["<Leader>gg"] = {
           function() require("neogit").open { kind = "split_above" } end,
