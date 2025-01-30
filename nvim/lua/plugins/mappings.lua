@@ -90,79 +90,10 @@ return {
           function() vim.lsp.buf.hover() end,
           desc = "Show hover info",
         },
-        -- Recent jumps
-        ["<s-e>"] = {
-          function() require("portal.builtin").jumplist.tunnel { max_results = 10 } end,
-          desc = "Search recent files used",
-        },
         -- Function signature help
         ["<C-k>"] = {
           function() require("lsp_signature").toggle_float_win() end,
           desc = "Show function signature",
-        },
-        -- Toggle TErm
-        ["<Leader>t2"] = {
-          function()
-            local id1 = 22
-            local id2 = 11
-            local term = require "toggleterm.terminal"
-            local Terminal = require("toggleterm.terminal").Terminal
-
-            local other_terms = term.get_all()
-
-            for _, l in pairs(other_terms) do
-              local t = term.get(l.id)
-              if t.id ~= id1 and t.id ~= id2 then t:close() end
-            end
-
-            local term2 = term.get(id1)
-            if not term2 then term2 = Terminal:new { id = id1, name = "term2", direction = "vertical" } end
-
-            local term1 = term.get(id2)
-            if not term1 then term1 = Terminal:new { id = id2, name = "term1", direction = "vertical" } end
-
-            local size = vim.o.columns * 0.45
-            term1:toggle(size)
-            term2:toggle(size)
-          end,
-          desc = "Two terminals",
-        },
-        ["<Leader>t1"] = {
-          function()
-            local id = 33
-            local term = require "toggleterm.terminal"
-            local Terminal = require("toggleterm.terminal").Terminal
-
-            local other_terms = term.get_all()
-
-            for _, l in pairs(other_terms) do
-              local t = term.get(l.id)
-              if t.id ~= id then t:close() end
-            end
-
-            local term1 = term.get(id)
-            if not term1 then term1 = Terminal:new { id = id, name = "term1", direction = "vertical" } end
-
-            local size = vim.o.columns * 0.45
-            term1:toggle(size)
-          end,
-          desc = "One terminal",
-        },
-        ["<Leader>1"] = {
-          "<cmd>1ToggleTerm<cr>",
-          desc = "Toggle Terminal 1",
-        },
-        ["<Leader>2"] = {
-          "<cmd>2ToggleTerm<cr>",
-          desc = "Toggle Terminal 2",
-        },
-        ["<Leader>3"] = {
-          "<cmd>3ToggleTerm<cr>",
-          desc = "Toggle Terminal 3",
-        },
-        ["<Leader>4"] = {
-          "<cmd>4ToggleTerm<cr>",
-          desc = "Toggle Terminal 4",
         },
 
         -- Neotest
@@ -248,45 +179,6 @@ return {
           desc = "Resize right",
         },
 
-        -- Telescope
-        -- ["/"] = {
-        --   "<cmd>Telescope current_buffer_fuzzy_find<cr>",
-        --   desc = "Search in current buffer",
-        -- },
-
-        -- ["<Leader>ff"] = {
-        --   function() require("plugins.snacks").picker.files(opts) end,
-        --   desc = "Files",
-        -- },
-        -- ["<Leader>fy"] = {
-        --   function() require("telescope").extensions.yank_history.yank_history() end,
-        --   desc = "Yank history",
-        -- },
-        -- ["<Leader>fq"] = {
-        --   function() require("telescope").extensions.macroscope.default() end,
-        --   desc = "Macros",
-        -- },
-        -- ["<Leader>fr"] = {
-        --   "<cmd>Telescope resume<cr>",
-        --   desc = "Resume last picker",
-        -- },
-        -- ["<Leader>r/"] = {
-        --   "<cmd>GrugFar<cr>",
-        --   desc = "Search and replace",
-        -- },
-        -- ["<Leader>rf"] = {
-        --   function() require("grug-far").open { prefills = { paths = vim.fn.expand "%" } } end,
-        --   desc = "Search and replace current file",
-        -- },
-        -- ["<leader>faa"] = {
-        --   "<cmd>Telescope aerial<cr>",
-        --   desc = "Document symbol search",
-        -- },
-        -- Neogit
-        ["<Leader>gg"] = {
-          function() require("neogit").open { kind = "split_above" } end,
-          desc = "Open neogit",
-        },
         -- Mini files
         ["<Leader>e"] = {
           function()
