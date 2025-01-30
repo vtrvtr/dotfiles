@@ -3,7 +3,7 @@ plugins {
     // Define the "autolock" plugin.
     autolock location="https://github.com/fresh2dev/zellij-autolock/releases/download/0.2.2/zellij-autolock.wasm" {
         // Enabled at start?
-        is_enabled true
+        is_enabled false 
         // Lock when any open these programs open.
         triggers "nvim|vim|git|fzf|zoxide|atuin"
         // Reaction to input occurs after this many seconds. (default=0.3)
@@ -12,10 +12,6 @@ plugins {
         // Print to Zellij log? (default=false)
         print_to_log true
     }
-}
-// Load this "headless" plugin on start.
-load_plugins {
-    autolock
 }
 keybinds {
     normal {
