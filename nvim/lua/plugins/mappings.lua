@@ -24,7 +24,7 @@ return {
       },
       x = {
         ["<Enter><Enter>"] = {
-          function() vim.lsp.buf.code_action() end,
+          function() vim.lsp.buk.code_action() end,
           desc = "Show code actions",
         },
       },
@@ -58,14 +58,14 @@ return {
           desc = "Zen Mode",
         },
         -- LSP
-        ["<leader>lR"] = {
-          function() require("telescope.builtin").lsp_references() end,
-          desc = "References telescope",
-        },
-        ["<leader>lD"] = {
-          function() require("telescope.builtin").diagnostics { sort_by = "severity" } end,
-          desc = "Diagnostics telescope",
-        },
+        -- ["<leader>lR"] = {
+        --   function() require("telescope.builtin").lsp_references() end,
+        --   desc = "References telescope",
+        -- },
+        -- ["<leader>lD"] = {
+        --   function() require("telescope.builtin").diagnostics { sort_by = "severity" } end,
+        --   desc = "Diagnostics telescope",
+        -- },
         ["<leader>ld"] = {
           function() vim.diagnostic.open_float() end,
           desc = "Diagnostics floaty",

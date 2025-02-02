@@ -25,6 +25,7 @@ keybinds {
          bind "Alt s" { SwitchToMode "Scroll"; }
          bind "Alt o" { SwitchToMode "Session"; }
          bind "Alt r" { SwitchToMode "Resize"; }
+         bind "Alt w" { SwitchToMode "Move"; }
          bind "Alt q" { NextSwapLayout; }
          unbind "Ctrl p"
          unbind "Ctrl t"
@@ -78,6 +79,7 @@ keybinds {
     }
     move {
         bind "Alt h" { SwitchToMode "Normal"; }
+        bind "Esc" { SwitchToMode "Normal"; }
         bind "n" "Tab" { MovePane; }
         bind "p" { MovePaneBackwards; }
         bind "h" "Left" { MovePane "Left"; }
