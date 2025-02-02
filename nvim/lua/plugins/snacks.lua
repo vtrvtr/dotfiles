@@ -29,6 +29,13 @@ return {
           layout = {
             width = 0.1,
             min_width = 100,
+            box = "vertical",
+            border = "rounded",
+            title = "{title} {live} {flags}",
+            title_pos = "center",
+            { win = "input", height = 1, border = "bottom" },
+            { win = "list", border = "none" },
+            { win = "preview", title = "{preview}", height = 0.7, border = "top" },
           },
         },
       },
