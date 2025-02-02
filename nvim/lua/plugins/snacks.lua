@@ -27,8 +27,9 @@ return {
       layouts = {
         vertical = {
           layout = {
-            width = 0.1,
+            width = 0.8,
             min_width = 100,
+            height = 0.7,
             box = "vertical",
             border = "rounded",
             title = "{title} {live} {flags}",
@@ -53,7 +54,7 @@ return {
     -- find
     { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>fc", function() Snacks.picker.files { cwd = vim.fn.stdpath "config" } end, desc = "Find Config File" },
-    { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
+    { "<leader>ff", function() Snacks.picker.smart() end, desc = "Find Files" },
     { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files" },
     { "<leader>fo", function() Snacks.picker.recent() end, desc = "Recent" },
     -- git
