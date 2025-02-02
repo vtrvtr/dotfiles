@@ -14,6 +14,16 @@ return {
     picker = {
       enabled = true,
       matcher = { sort_empty = true, frecency = true, cwd_bonus = true },
+      layout = {
+        cycle = true,
+        --- Use the default layout or vertical if the window is too narrow
+        preset = function() return vim.o.columns >= 160 and "default" or "vertical" end,
+      },
+      formatters = {
+        file = {
+          filename_first = true,
+        },
+      },
     },
     notifier = { enabled = true },
     quickfile = { enabled = true },
@@ -25,7 +35,6 @@ return {
   keys = {
     { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
-    { "<leader><space>", function() Snacks.picker.files() end, desc = "Find Files" },
     -- find
     { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>fc", function() Snacks.picker.files { cwd = vim.fn.stdpath "config" } end, desc = "Find Config File" },
