@@ -24,6 +24,14 @@ return {
           filename_first = true,
         },
       },
+      layouts = {
+        vertical = {
+          layout = {
+            width = 0.1,
+            min_width = 100,
+          },
+        },
+      },
     },
     notifier = { enabled = true },
     quickfile = { enabled = true },
