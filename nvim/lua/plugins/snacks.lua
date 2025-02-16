@@ -57,6 +57,8 @@ return {
     { "<leader>ff", function() Snacks.picker.smart() end, desc = "Find Files" },
     { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files" },
     { "<leader>fo", function() Snacks.picker.recent() end, desc = "Recent" },
+    { "<leader>fn", function() Snacks.picker.notifications() end, desc = "Notifications" },
+    { "<leader>fr", function() Snacks.picker.resume() end, desc = "Resume" },
     -- git
     { "<leader>gc", function() Snacks.picker.git_log() end, desc = "Git Log" },
     { "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
