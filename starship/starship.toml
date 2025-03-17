@@ -4,14 +4,15 @@
 format = """
 $time
 ${custom.jj}
+$singularity
 $os\
 $directory\
 $python\
 $rust\
 $package\
-$singularity\
 ${custom.rez}\
 ${env_var.furnace}\
+${env_var.ws}\
 $status
 $character
 """
@@ -24,7 +25,7 @@ add_newline = false
 success_symbol = 'ℵ(bold green)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
 
 [singularity]
-format = '[📦 \[$env\]]($style) '
+format = '[◌ּ \[$env\]]($style) '
 
 [status]
 symbol = '🔴'
@@ -223,9 +224,16 @@ symbol = " "
 
 [env_var.furnace]
 variable = "FURNACE_CONTEXT_NAME"
-format = "$symbol[$env_value]($style) "
+format = "$symbol [$env_value]($style) "
 symbol = "🏭"
 style = "red italic dimmed"
+disabled = false
+
+[env_var.ws]
+variable = "WS_CONTEXT"
+format = "$symbol [$env_value]($style) "
+symbol = "🏢"
+style = "blue italic dimmed"
 disabled = false
 
 [custom.rez]
