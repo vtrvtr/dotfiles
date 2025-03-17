@@ -13,6 +13,7 @@ $package\
 ${custom.rez}\
 ${env_var.furnace}\
 ${env_var.ws}\
+${env_var.rez}\
 $status
 $character
 """
@@ -236,8 +237,15 @@ symbol = "🏢"
 style = "blue italic dimmed"
 disabled = false
 
+[env_var.rez]
+variable = "REZ_USED_VERSION"
+format = "$symbol(white) [$env_value]($style) "
+symbol = "ƕ"
+style = "black bold dimmed"
+disabled = false
+
 [custom.rez]
-command = "echo 🧰$(rg --no-line-number -oP \"name =\\s*[\\\"']?\\K[^\\\"'\\n]+\" package.py)"
+command = "echo 🧰 $(rg --no-line-number -oP \"name =\\s*[\\\"']?\\K[^\\\"'\\n]+\" package.py)"
 style = "red bold"
 detect_files = ["package.py"]
 
