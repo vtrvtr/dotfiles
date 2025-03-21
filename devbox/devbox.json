@@ -16,7 +16,9 @@
     "difftastic@latest",
     "jless@latest",
     "fzf@latest",
-    "lla@latest"
+    "lla@latest",
+    "rust-analyzer@latest",
+    "watchexec@latest",
   ],
   "shell": {
     "init_hook": [
