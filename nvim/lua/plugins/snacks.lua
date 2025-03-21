@@ -8,9 +8,7 @@ return {
     -- or leave it empty to use the default settings
     -- refer to the configuration section below
     bigfile = { enabled = true },
-    dashboard = { enabled = true },
-    indent = { enabled = true, chunk = { enabled = true }
- },
+    indent = { enabled = true, chunk = { enabled = true } },
     input = { enabled = true },
     picker = {
       enabled = true,
@@ -61,18 +59,18 @@ return {
         { section = "keys", gap = 1, padding = 1 },
         { pane = 2, icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
         { pane = 2, icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
-        {
-          pane = 2,
-          icon = " ",
-          title = "Git Status",
-          section = "terminal",
-          enabled = function() return Snacks.git.get_root() ~= nil end,
-          cmd = "git status --short --branch --renames",
-          height = 5,
-          padding = 1,
-          ttl = 5 * 60,
-          indent = 3,
-        },
+        -- {
+        --   pane = 2,
+        --   icon = " ",
+        --   title = "Git Status",
+        --   section = "terminal",
+        --   enabled = function() return Snacks.git.get_root() ~= nil end,
+        --   cmd = "git status --short --branch --renames",
+        --   height = 5,
+        --   padding = 1,
+        --   ttl = 5 * 60,
+        --   indent = 3,
+        -- },
         { section = "startup" },
       },
     },
@@ -111,7 +109,8 @@ return {
     { "<leader>sq", function() Snacks.picker.qflist() end, desc = "Quickfix List" },
     { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
     { "<leader>qp", function() Snacks.picker.projects() end, desc = "Projects" },
-    { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
+    -- LSP
+    { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
     { "<leader>lR", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
     { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
     { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition" },

@@ -32,6 +32,13 @@ return {
               command = "clippy",
               extraArgs = { "--no-deps" },
             },
+            diagnostics = {
+              enableExperimental = true,
+              disabled = { "unresolved-proc-macro" },
+            },
+            cargo = {
+              features = "all",
+            },
           },
         },
         -- ...

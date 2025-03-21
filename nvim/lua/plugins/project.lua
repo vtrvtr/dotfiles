@@ -7,15 +7,5 @@ return {
       silent_chdir = false,
       detection_methods = { "pattern" },
     }
-
-    local wk = require "which-key"
-
-    wk.add {
-      {
-        "<leader>fp",
-        function() require("telescope").extensions.projects.projects {} end,
-        desc = "Recent projects",
-      },
-    }
   end,
 }
