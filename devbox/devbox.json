@@ -17,8 +17,12 @@
     "jless@latest",
     "fzf@latest",
     "lla@latest",
+    "uv@latest",
+    "nodejs@latest",
     "rust-analyzer@latest",
     "watchexec@latest",
+    "bottom@latest",
+    "yazi@latest"
   ],
   "shell": {
     "init_hook": [
