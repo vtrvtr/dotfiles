@@ -1,0 +1,24 @@
+[helpers]
+
+[default]
+depends = []
+
+[default.files]
+"nvim" = "~/.config/nvim"
+"wezterm/wezterm.lua" = "~/.wezterm.lua"
+"starship/starship.toml" = "~/.config/starship.toml"
+"zellij/config.kdl" = "~/.config/zellij/config.kdl"
+
+[nvim.files]
+"nvim" = "~/.config/nvim"
+
+[starship.files]
+"starship/starship.toml" = "~/.config/starship.toml"
+
+[fish.files]
+"fish/config.fish" = "~/.config/fish/config.fish"
+
+[default.variables]
+
+[settings]
+default_target_type = "automatic"
