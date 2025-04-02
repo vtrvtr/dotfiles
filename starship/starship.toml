@@ -10,10 +10,10 @@ $directory\
 $python\
 $rust\
 $package\
-${custom.rez}\
-${env_var.furnace}\
 ${env_var.ws}\
+${env_var.furnace}\
 ${env_var.rez}\
+${custom.rez}\
 $status
 $character
 """
