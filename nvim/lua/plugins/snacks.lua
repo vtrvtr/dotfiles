@@ -10,6 +10,7 @@ return {
     bigfile = { enabled = true },
     indent = { enabled = true, chunk = { enabled = true } },
     input = { enabled = true },
+    toggle = { enabled = true },
     picker = {
       enabled = true,
       matcher = { sort_empty = true, frecency = true, cwd_bonus = true },

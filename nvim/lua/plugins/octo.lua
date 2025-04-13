@@ -1,10 +1,15 @@
 return {
   "pwntester/octo.nvim",
   lazy = true,
+  cmd = "Octo",
   dependencies = {
     "nvim-lua/plenary.nvim",
-    -- OR 'ibhagwan/fzf-lua',
+    "folke/snacks.nvim",
     "nvim-tree/nvim-web-devicons",
   },
-  config = true,
+  config = function()
+    require("octo").setup {
+      picker = "snacks",
+    }
+  end,
 }
