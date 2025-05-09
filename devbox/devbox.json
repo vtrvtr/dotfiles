@@ -5,7 +5,6 @@
     "fd@latest",
     "jujutsu@latest",
     "jjui@latest",
-    "neovim@latest",
     "rustup@latest",
     "fish@latest",
     "zoxide@latest",
@@ -22,16 +21,22 @@
     "rust-analyzer@latest",
     "watchexec@latest",
     "bottom@latest",
-    "yazi@latest"
+    "yazi@latest",
+    "github:nix-community/neovim-nightly-overlay",
+    "atuin@latest",
+    "neovide@latest",
+    "bat@latest",
+    "chafa@latest",
+    "bacon@latest",
+    "erdtree@latest",
+    "aider-chat@latest",
+    "oxker@latest",
+    "gh-dash@latest"
   ],
   "shell": {
-    "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null"
-    ],
+    "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
     "scripts": {
-      "test": [
-        "echo \"Error: no test specified\" && exit 1"
-      ]
+      "test": ["echo \"Error: no test specified\" && exit 1"]
     }
   }
 }
