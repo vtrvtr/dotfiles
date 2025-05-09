@@ -3,7 +3,7 @@ return {
   enabled = require("helpers").enable_on_linux(),
   lazy = false, -- lazy loading handled internally
   -- optional: provides snippets for the snippet source
-  dependencies = "rafamadriz/friendly-snippets",
+  dependencies = { "rafamadriz/friendly-snippets", "fang2hou/blink-copilot" },
 
   -- use a release tag to download pre-built binaries
   version = "v1.*",
@@ -19,10 +19,18 @@ return {
     },
 
     sources = {
+      default = { "copilot" },
+
       providers = {
         cmdline = {
           -- ignores cmdline completions when executing shell commands
           enabled = function() return vim.fn.getcmdtype() ~= ":" or not vim.fn.getcmdline():match "^[%%0-9,'<>%-]*!" end,
+        },
+        copilot = {
+          name = "copilot",
+          module = "blink-copilot",
+          score_offset = 100,
+          async = true,
         },
       },
     },
