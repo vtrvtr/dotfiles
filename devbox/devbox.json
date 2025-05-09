@@ -31,7 +31,8 @@
     "erdtree@latest",
     "aider-chat@latest",
     "oxker@latest",
-    "gh-dash@latest"
+    "gh-dash@latest",
+    "cargo-nextest@latest"
   ],
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
