@@ -9,6 +9,10 @@ depends = []
 "starship/starship.toml" = "~/.config/starship.toml"
 "zellij/config.kdl" = "~/.config/zellij/config.kdl"
 "devbox/devbox.json" = "~/.local/share/devbox/global/default/devbox.json"
+"gh-dash/config.yml" = "~/.config/gh-dash/config.yml"
+
+[al.files]
+"atuin" = "~/.config/atuin"
 
 [nvim.files]
 "nvim" = "~/.config/nvim"
