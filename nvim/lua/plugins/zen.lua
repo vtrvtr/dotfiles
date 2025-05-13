@@ -2,9 +2,10 @@ return {
   "folke/zen-mode.nvim",
   cmd = "ZenMode",
   event = "BufEnter",
+  enabled = true,
   opts = {
     window = {
-      backdrop = 1,
+      backdrop = 0.9,
       width = function() return math.min(120, vim.o.columns * 0.75) end,
       height = 0.9,
       options = {
@@ -20,6 +21,10 @@ return {
       options = {
         cmdheight = 1,
         laststatus = 0,
+      },
+      wezterm = {
+        enabled = true,
+        font = "22",
       },
     },
     -- on_open = function() -- disable diagnostics and indent blankline

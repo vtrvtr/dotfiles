@@ -52,7 +52,6 @@ return {
         ["<C-w>z"] = {
           function()
             require("zen-mode").toggle {
-              window = {},
             }
           end,
           desc = "Zen Mode",
