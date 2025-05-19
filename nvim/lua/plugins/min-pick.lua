@@ -1,2 +1,1 @@
-return { 'echasnovski/mini.pick', version = false }
-
+return { "echasnovski/mini.pick", version = false, enabled = false }
