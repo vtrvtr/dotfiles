@@ -36,7 +36,11 @@ return {
     },
 
     completion = {
-      documentation = { auto_show = true, window = { border = "double" } },
+      documentation = {
+        auto_show = true,
+        auto_show_delay_ms = 500,
+      },
+      -- documentation = { auto_show = true, window = { border = "double" } },
 
       ghost_text = { enabled = true },
 
