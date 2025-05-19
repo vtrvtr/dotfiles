@@ -33,7 +33,10 @@
     "oxker@latest",
     "gh-dash@latest",
     "cargo-nextest@latest",
-    "presenterm@latest"
+    "presenterm@latest",
+    "hyperfine@latest",
+    "pipx@latest",
+    "vectorcode@latest"
   ],
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
