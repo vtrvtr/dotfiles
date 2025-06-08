@@ -50,19 +50,17 @@ return {
     config = {
       basedpyright = {
         settings = {
-          basedpyright = {
-            analysis = {
-              inlayHints = {
-                variableTypes = true,
-                functionReturnTypes = true,
-              },
-              diagnosticMode = "workspace",
-              reportUnknownVariableType = "none",
-              typeCheckingMode = "standard",
-              exclude = {
-                "**/build/**",
-                "**/.venv/**",
-              },
+          analysis = {
+            inlayHints = {
+              variableTypes = true,
+              functionReturnTypes = true,
+            },
+            diagnosticMode = "workspace",
+            reportUnknownVariableType = "none",
+            typeCheckingMode = "standard",
+            exclude = {
+              "**/build/**",
+              "**/.venv/**",
             },
           },
         },

@@ -31,6 +31,8 @@ return {
       n = {
         -- second key is the lefthand side of the map
         -- mappings seen under group name "Buffer"
+
+        -- Disable default, define in fff
         ["<Leader>ff"] = false,
         ["<Leader>bn"] = { "<cmd>tabnew<cr>", desc = "New tab" },
         ["<Leader>bD"] = {
@@ -51,10 +53,7 @@ return {
         ["<Leader>b"] = { name = "Buffers" },
         -- Zen Mode
         ["<C-w>z"] = {
-          function()
-            require("zen-mode").toggle {
-            }
-          end,
+          function() require("zen-mode").toggle {} end,
           desc = "Zen Mode",
         },
         -- LSP
