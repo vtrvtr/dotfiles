@@ -2,8 +2,8 @@
   "lockfile_version": "1",
   "packages": {
     "dotter@latest": {
-      "last_modified": "2025-03-11T17:52:14Z",
-      "resolved": "github:NixOS/nixpkgs/0d534853a55b5d02a4ababa1d71921ce8f0aee4c#dotter",
+      "last_modified": "2025-07-13T22:45:35Z",
+      "resolved": "github:NixOS/nixpkgs/a421ac6595024edcfbb1ef950a3712b89161c359#dotter",
       "source": "devbox-search",
       "version": "0.13.3",
       "systems": {
@@ -11,46 +11,47 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/11362gbf9fdnaii5bxdnnbs62rpagqwx-dotter-0.13.3",
+              "path": "/nix/store/1nvw2wsnwmllrfwa16n37jw1v1hpdky4-dotter-0.13.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/11362gbf9fdnaii5bxdnnbs62rpagqwx-dotter-0.13.3"
+          "store_path": "/nix/store/1nvw2wsnwmllrfwa16n37jw1v1hpdky4-dotter-0.13.3"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/n9xpj6lgnc56ls3akxzsy4rspifgqc34-dotter-0.13.3",
+              "path": "/nix/store/ikp1sd5r1a7v6nafsxa281b7xaw2saqg-dotter-0.13.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/n9xpj6lgnc56ls3akxzsy4rspifgqc34-dotter-0.13.3"
+          "store_path": "/nix/store/ikp1sd5r1a7v6nafsxa281b7xaw2saqg-dotter-0.13.3"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/4wsrygigdq35x0q0cvzajcncswbgm4mf-dotter-0.13.3",
+              "path": "/nix/store/waa4x5j5lzhx0slngrp1livsjwmdkb3s-dotter-0.13.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/4wsrygigdq35x0q0cvzajcncswbgm4mf-dotter-0.13.3"
+          "store_path": "/nix/store/waa4x5j5lzhx0slngrp1livsjwmdkb3s-dotter-0.13.3"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/zsj60fk83acvv1k8vf6di78pkzaqaiqb-dotter-0.13.3",
+              "path": "/nix/store/j76nmi8bqhc482dgqny4ipzmm7fvk25q-dotter-0.13.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/zsj60fk83acvv1k8vf6di78pkzaqaiqb-dotter-0.13.3"
+          "store_path": "/nix/store/j76nmi8bqhc482dgqny4ipzmm7fvk25q-dotter-0.13.3"
         }
       }
     },
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
-      "resolved": "github:NixOS/nixpkgs/b7ba7f9f45c5cd0d8625e9e217c28f8eb6a19a76?lastModified=1743568003&narHash=sha256-ZID5T65E8ruHqWRcdvZLsczWDOAWIE7om%2BvQOREwiX0%3D"
+      "last_modified": "2025-07-22T02:38:50Z",
+      "resolved": "github:NixOS/nixpkgs/83e677f31c84212343f4cc553bab85c2efcad60a?lastModified=1753151930&narHash=sha256-XSQy6wRKHhRe%2F%2FiVY5lS%2FZpI%2FJn6crWI8fQzl647wCg%3D"
     }
   }
 }
