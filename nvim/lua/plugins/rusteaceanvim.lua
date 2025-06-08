@@ -38,6 +38,7 @@ return {
             },
             cargo = {
               features = "all",
+              targetDir = true,
             },
           },
         },

@@ -19,8 +19,48 @@ return {
     },
     -- Diagnostics configuration (for vim.diagnostics.config({...})) when diagnostics are on
     diagnostics = {
-      virtual_text = true,
+      virtual_text = false,
+      -- virtual_lines = { current_line = false, false},
+      virtual_lines = false,
       underline = true,
+      update_in_insert = false,
+    },
+
+    autocmds = {
+      -- diagnostic_only_virtlines = {
+      --   {
+      --     event = { "CursorMoved", "DiagnosticChanged" },
+      --     callback = function()
+      --       if not require("astrocore.buffer").is_valid() then return end
+      --       if og_virt_line == nil then og_virt_line = vim.diagnostic.config().virtual_lines end
+      --
+      --       -- ignore if virtual_lines.current_line is disabled
+      --       if not (og_virt_line and og_virt_line.current_line) then
+      --         if og_virt_text then
+      --           vim.diagnostic.config { virtual_text = og_virt_text }
+      --           og_virt_text = nil
+      --         end
+      --         return
+      --       end
+      --
+      --       if og_virt_text == nil then og_virt_text = vim.diagnostic.config().virtual_text end
+      --
+      --       local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+      --
+      --       if vim.tbl_isempty(vim.diagnostic.get(0, { lnum = lnum })) then
+      --         vim.diagnostic.config { virtual_text = og_virt_text }
+      --       else
+      --         vim.diagnostic.config { virtual_text = false }
+      --       end
+      --     end,
+      --   },
+      --   {
+      --     event = "ModeChanged",
+      --     callback = function()
+      --       if require("astrocore.buffer").is_valid() then pcall(vim.diagnostic.show) end
+      --     end,
+      --   },
+      -- },
     },
     -- vim options can be configured here
     options = {
@@ -81,17 +121,6 @@ return {
         -- },
 
         -- mappings seen under group name "Buffer"
-        ["<Leader>bD"] = {
-          function()
-            require("astroui.status.heirline").buffer_picker(
-              function(bufnr) require("astrocore.buffer").close(bufnr) end
-            )
-          end,
-          desc = "Pick to close",
-        },
-        -- tables with just a `desc` key will be registered with which-key if it's installed
-        -- this is useful for naming menus
-        ["<Leader>b"] = { desc = "Buffers" },
         -- quick save
         -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
       },

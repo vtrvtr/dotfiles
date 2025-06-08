@@ -33,8 +33,8 @@ keybinds {
         bind "d" { NewPane "down"; SwitchToMode "normal"; }
         bind "e" { TogglePaneEmbedOrFloating; SwitchToMode "normal"; }
         bind "f" { ToggleFocusFullscreen; SwitchToMode "normal"; }
-        bind "h" { MoveFocus "left"; }
         bind "i" { TogglePanePinned; SwitchToMode "normal"; }
+        bind "h" { MoveFocus "left"; }
         bind "j" { MoveFocus "down"; }
         bind "k" { MoveFocus "up"; }
         bind "l" { MoveFocus "right"; }
@@ -157,6 +157,7 @@ keybinds {
         bind "Alt b" { SwitchToMode "tab"; }
         bind "Alt p" { SwitchToMode "pane"; }
         bind "Alt t" { ToggleFloatingPanes; }
+        bind "Alt s" { SwitchToMode "scroll"; }
     }
     shared_except "locked" {
         bind "Alt left" { MoveFocusOrTab "left"; }
@@ -169,10 +170,6 @@ keybinds {
         bind "Alt [" { PreviousSwapLayout; }
         bind "Alt ]" { NextSwapLayout; }
         bind "Ctrl g" { SwitchToMode "locked"; }
-        bind "Alt i" { MoveTab "left"; }
-        bind "Alt j" { MoveFocus "down"; }
-        bind "Alt k" { MoveFocus "up"; }
-        bind "Alt l" { MoveFocusOrTab "right"; }
         bind "Ctrl Alt q" { Quit; }
     }
     shared_except "locked" "move" {

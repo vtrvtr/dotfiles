@@ -3,6 +3,8 @@ return {
   dependencies = {
     {
       "igorlfs/nvim-dap-view",
+      -- This is causing problems on the newest commit on main, revert when fixed.
+      commit = "21ae3b522e1ee4ec82f3e3624abd621e578aabc6",
       config = function(plugin, opts)
         opts.winbar = {
           show = true,

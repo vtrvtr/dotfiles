@@ -1,7 +1,7 @@
 return {
-  "echasnovski/mini.animate",
+  "echasnovski/mini.diff",
   event = "BufEnter",
   version = false,
-  enabled = false,
+  enabled = true,
   opts = {},
 }

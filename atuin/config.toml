@@ -23,7 +23,7 @@ session_path = "/fast/tools/atuin/session"
 # timezone = "local"
 
 ## enable or disable automatic sync
-auto_sync = false 
+auto_sync = false
 
 ## enable or disable automatic update checks
 update_check = false
@@ -120,7 +120,7 @@ show_preview = true
 ## Configure whether or not to show the help row, which includes the current Atuin
 ## version (and whether an update is available), a keymap hint, and the total
 ## amount of commands in your history.
-# show_help = true
+show_help = true
 
 ## Configure whether or not to show tabs for search and inspect
 # show_tabs = true
@@ -150,11 +150,11 @@ enter_accept = false
 ## "{blink,steady}-{block,underline,bar}".
 # keymap_cursor = { emacs = "blink-block", vim_insert = "blink-block", vim_normal = "steady-block" }
 
-network_connect_timeout = 50
-network_timeout = 50
+network_connect_timeout = 5
+network_timeout = 5
 
 ## Timeout (in seconds) for acquiring a local database connection (sqlite)
-local_timeout = 50
+local_timeout = 5
 
 ## Set this to true and Atuin will minimize motion in the UI - timers will not update live, etc.
 ## Alternatively, set env NO_MOTION=true
