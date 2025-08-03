@@ -1,6 +1,7 @@
 includes = []
-packages = ["default", "fish"]
+packages = ["default", "fish", "zsh"]
 
 [files]
 
 [variables]
+vtr_bashrc = "$HOME/.zshrc"

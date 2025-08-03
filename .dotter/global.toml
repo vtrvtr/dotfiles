@@ -4,15 +4,46 @@
 depends = []
 
 [default.files]
-"nvim" = "~/.config/nvim"
+"nvim" = { target = "~/.config/nvim", type = "symbolic" }
 "wezterm/wezterm.lua" = "~/.wezterm.lua"
 "starship/starship.toml" = "~/.config/starship.toml"
 "zellij/config.kdl" = "~/.config/zellij/config.kdl"
 "devbox/devbox.json" = "~/.local/share/devbox/global/default/devbox.json"
 "gh-dash/config.yml" = "~/.config/gh-dash/config.yml"
 
+[bash]
+depends = []
+
+[zsh]
+depends = []
+
+[bash.files]
+"bash/add_vtr_bash.sh" = "~/.config/dotter/bin/add_vtr_bash.sh"
+# templated form: provide a table with supported keys
+"bash/post_dotter.sh.tmpl" = { target = "~/.config/dotter/bin/post_dotter.sh", type = "template" }
+"bash/aliases.sh" = "~/.vtr_bash/aliases.sh"                                                       # A tiny post step rendered with your chosen bashrc baked in# Deploy your helper as a symlink (make sure the source file is executable in git)
+"bash/zoxide_bash.sh" = "~/.vtr_bash/zoxide.sh"
+"bash/atuin_bash.sh" = "~/.vtr_bash/atuin.sh"
+"bash/starship.sh" = "~/.vtr_bash/starship.sh"
+"bash/vtr_bash.sh" = "~/.vtr_bash/vtr_bash.sh"
+"bash/devbox.sh" = "~/.vtr_bash/devbox.sh"
+
+[zsh.files]
+"bash/add_vtr_bash.sh" = "~/.config/dotter/bin/add_vtr_bash.sh"
+# templated form: provide a table with supported keys
+"bash/post_dotter.sh.tmpl" = { target = "~/.config/dotter/bin/post_dotter.sh", type = "template" }
+"bash/aliases.sh" = "~/.vtr_bash/aliases.sh"                                                       # A tiny post step rendered with your chosen bashrc baked in# Deploy your helper as a symlink (make sure the source file is executable in git)
+"bash/zoxide_zsh.sh" = "~/.vtr_bash/zoxide.sh"
+"bash/atuin_zsh.sh" = "~/.vtr_bash/atuin.sh"
+"bash/starship_zsh.sh" = "~/.vtr_bash/starship.sh"
+"bash/vtr_bash.sh" = "~/.vtr_bash/vtr_bash.sh"
+"bash/devbox.sh" = "~/.vtr_bash/devbox.sh"
+
 [al.files]
 "atuin" = "~/.config/atuin"
+
+[atuin_mac.files]
+"atuin_mac" = "~/.config/atuin"
 
 [nvim.files]
 "nvim" = "~/.config/nvim"
@@ -23,6 +54,8 @@ depends = []
 [fish.files]
 "fish/config.fish" = "~/.config/fish/config.fish"
 
+
+# no post_hook key here; the hook is the repo file .dotter/post_deploy.sh
 [default.variables]
 
 [settings]
