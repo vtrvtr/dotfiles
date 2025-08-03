@@ -4,7 +4,7 @@
 depends = []
 
 [default.files]
-"nvim" = "~/.config/nvim"
+"nvim" = {target = "~/.config/nvim", type = "symbolic"}
 "wezterm/wezterm.lua" = "~/.wezterm.lua"
 "starship/starship.toml" = "~/.config/starship.toml"
 "zellij/config.kdl" = "~/.config/zellij/config.kdl"
@@ -13,6 +13,9 @@ depends = []
 
 [al.files]
 "atuin" = "~/.config/atuin"
+
+[atuin_mac.files]
+"atuin_mac" = "~/.config/atuin" 
 
 [nvim.files]
 "nvim" = "~/.config/nvim"
