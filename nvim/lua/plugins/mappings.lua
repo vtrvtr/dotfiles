@@ -31,6 +31,7 @@ return {
       n = {
         -- second key is the lefthand side of the map
         -- mappings seen under group name "Buffer"
+        ["<Leader>ff"] = false,
         ["<Leader>bn"] = { "<cmd>tabnew<cr>", desc = "New tab" },
         ["<Leader>bD"] = {
           function()
