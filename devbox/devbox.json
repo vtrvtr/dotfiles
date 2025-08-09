@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.0/.schema/devbox.schema.json",
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
   "packages": [
     "ripgrep@latest",
     "fd@latest",
@@ -17,7 +17,6 @@
     "fzf@latest",
     "lla@latest",
     "uv@latest",
-    "rust-analyzer@latest",
     "watchexec@latest",
     "bottom@latest",
     "yazi@latest",
@@ -42,16 +41,22 @@
     "ast-grep@latest",
     "mermaid-cli@latest",
     "wrkflw@latest",
-    "github:ravitemer/mcp-hub/v4.2.0",
-    "github:NixOS/nixpkgs/nixos-unstable#claude-code",
+    "ruff@latest",
+    "claude-code@latest",
+    "github:ravitemer/mcp-hub/v4.2.1",
     "github:davidlattimore/wild",
     "github:alexpasmantier/television",
-    "ruff@latest"
+    "python313Packages.chromadb_0@latest",
+    "vectorcode@latest"
   ],
   "shell": {
-    "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
+    "init_hook": [
+      "echo 'Welcome to devbox!' > /dev/null"
+    ],
     "scripts": {
-      "test": ["echo \"Error: no test specified\" && exit 1"]
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
     }
   }
 }
