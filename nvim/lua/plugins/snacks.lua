@@ -82,6 +82,13 @@ return {
     -- find
     { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>fc", function() Snacks.picker.files { cwd = vim.fn.stdpath "config" } end, desc = "Find Config File" },
+    {
+      "<leader>ff",
+      function()
+        require("fff").find_files() -- or find_in_git_root() if you only want git files
+      end,
+      desc = "Find Files",
+    },
     { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files" },
     { "<leader>fo", function() Snacks.picker.recent() end, desc = "Recent" },
     { "<leader>fn", function() Snacks.picker.notifications() end, desc = "Notifications" },
