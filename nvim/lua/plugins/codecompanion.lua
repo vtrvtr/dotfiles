@@ -12,7 +12,7 @@ return {
         },
         vectorcode = {
           -- TODO: vectorcode (mb chromadb) is a pita to install
-          enabled = true,
+          enabled = false,
           ---@type VectorCode.CodeCompanion.ExtensionOpts
           opts = {
             tool_group = {
@@ -118,17 +118,19 @@ return {
       },
       show_defaults = false,
       adapters = {
-        copilot = function()
-          local adapters = require "codecompanion.adapters"
-          return adapters.extend("copilot", {
-            schema = {
-              model = {
-                default = "claude-sonnet-4",
-                -- default = "o4-mini",
+        http = {
+          copilot = function()
+            local adapters = require "codecompanion.adapters"
+            return adapters.extend("copilot", {
+              schema = {
+                model = {
+                  default = "claude-sonnet-4",
+                  -- default = "o4-mini",
+                },
               },
-            },
-          })
-        end,
+            })
+          end,
+        },
       },
       display = {
         chat = {
