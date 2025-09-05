@@ -245,13 +245,12 @@ You must answer the questions based on the current repository. You're allowed to
 
     local wk = require "which-key"
     wk.add {
-      mode = { "n" },
-      { "<leader>aa", "<cmd>CodeCompanionChat Toggle<CR>" },
+      { "<leader>a7", "<cmd>CodeCompanionChat Toggle<CR>" },
       desc = "Code companion Chat",
     }
     wk.add {
       mode = { "n" },
-      { "<leader>ac", "<cmd>CodeCompanionActions<CR>" },
+      { "<leader>a8", "<cmd>CodeCompanionActions<CR>" },
       desc = "Code Companion actions",
     }
     return opts
@@ -284,9 +283,20 @@ You must answer the questions based on the current repository. You're allowed to
       cmd = "Copilot",
       build = ":Copilot auth",
       event = "BufReadPost",
-      dependencies = {},
+      dependencies = {
+        "copilotlsp-nvim/copilot-lsp", -- (optional) for NES functionality
+      },
+      init = function() vim.g.copilot_nes_debounce = 500 end,
       opts = function(opts)
         opts = {
+          nes = {
+            enabled = true,
+            keymap = {
+              accept_and_goto = "<leader>p",
+              accept = false,
+              dismiss = "<Esc>",
+            },
+          },
           suggestion = { enabled = false },
           panel = { enabled = false },
           filetypes = {

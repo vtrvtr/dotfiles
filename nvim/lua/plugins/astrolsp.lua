@@ -41,7 +41,8 @@ return {
     },
     -- enable servers that you already have installed without mason
     servers = {
-      -- "pyright"
+      -- "pyright",
+      "basedpyright",
       "clangd",
     },
 
@@ -49,17 +50,19 @@ return {
     config = {
       basedpyright = {
         settings = {
-          analysis = {
-            inlayHints = {
-              variableTypes = true,
-              functionReturnTypes = true,
-            },
-            diagnosticMode = "workspace",
-            reportUnknownVariableType = "none",
-            typeCheckingMode = "standard",
-            exclude = {
-              "**/build/**",
-              "**/.venv/**",
+          basedpyright = {
+            analysis = {
+              inlayHints = {
+                variableTypes = true,
+                functionReturnTypes = true,
+              },
+              diagnosticMode = "workspace",
+              reportUnknownVariableType = "none",
+              typeCheckingMode = "standard",
+              exclude = {
+                "**/build/**",
+                "**/.venv/**",
+              },
             },
           },
         },
@@ -80,6 +83,16 @@ return {
       -- the key is the server that is being setup with `lspconfig`
       -- rust_analyzer = false, -- setting a handler to false will disable the set up of that language server
       -- pyright = function(_, opts) require("lspconfig").pyright.setup(opts) end -- or a custom handler function can be passed
+      basedpyright = function(_, opts)
+        -- Dynamically set Python path based on current environment
+        local python_path = vim.fn.system("which python"):gsub("\n", "")
+        opts.settings = opts.settings or {}
+        opts.settings.basedpyright = opts.settings.basedpyright or {}
+        opts.settings.basedpyright.analysis = opts.settings.basedpyright.analysis or {}
+        opts.settings.basedpyright.analysis.pythonPath = python_path
+
+        require("lspconfig").basedpyright.setup(opts)
+      end,
     },
     -- Configure buffer local auto commands to add when attaching a language server
     autocmds = {

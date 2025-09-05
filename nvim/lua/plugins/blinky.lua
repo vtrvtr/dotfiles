@@ -16,6 +16,12 @@ return {
       ["<CR>"] = { "accept", "select_and_accept", "fallback" },
       ["<Up>"] = { "select_prev", "fallback" },
       ["<Down>"] = { "select_next", "fallback" },
+      ["<Tab>"] = {
+        "snippet_forward",
+        function() -- sidekick next edit suggestion
+          return require("sidekick").nes_jump_or_apply()
+        end,
+      },
     },
 
     sources = {
