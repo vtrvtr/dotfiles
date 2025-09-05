@@ -42,12 +42,15 @@
     "mermaid-cli@latest",
     "wrkflw@latest",
     "ruff@latest",
-    "claude-code@latest",
     "github:ravitemer/mcp-hub/v4.2.1",
     "github:davidlattimore/wild",
     "github:alexpasmantier/television",
     "python313Packages.chromadb_0@latest",
-    "vectorcode@latest"
+    "claude-code@latest",
+    "vectorcode@latest",
+    "binsider@latest",
+    "angle-grinder@latest",
+    "cargo-workspaces@latest"
   ],
   "shell": {
     "init_hook": [
