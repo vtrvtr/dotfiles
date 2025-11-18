@@ -2,7 +2,12 @@ return {
   "mfussenegger/nvim-dap-python",
   ft = "python",
   lazy = true,
+  -- Luarocks broke this?
+  enabled = false,
   event = "BufEnter",
+  -- opts = {
+  --   rocks = { enabled = false, hererocks = true },
+  -- },
   config = function()
     if os.getenv "USER" == "vitorh" then
       if os.getenv "MAYA_LOCATION" ~= nil then

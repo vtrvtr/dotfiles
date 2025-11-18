@@ -42,25 +42,60 @@ return {
     -- enable servers that you already have installed without mason
     servers = {
       -- "pyright",
-      "basedpyright",
+      -- "ty",
+      -- "basedpyright",
       "clangd",
+      -- "zuban",
+      "pyrefly",
     },
 
     ---@diagnostic disable: missing-fields
     config = {
+      pyrefly = {
+        cmd = { "pyrefly", "lsp" },
+        root_dir = function(fname)
+          return require("lspconfig.util").find_git_ancestor(fname) or vim.fn.getcwd()
+        end,
+        settings = {
+          pyrefly = {
+            typeCheckingMode = "strict",
+          },
+        },
+        filetypes = { "python" },
+      },
+      zuban = {
+        cmd = { "zuban", "server" },
+        settings = {
+          zuban = {
+            -- zuban language server settings go here
+          },
+        },
+        filetypes = { "python", "py" },
+      },
+      ty = {
+        cmd = { "ty", "server" },
+        settings = {
+          ty = {
+            -- ty language server settings go here
+          },
+        },
+        filetypes = { "python", "py" },
+      },
       basedpyright = {
         settings = {
-          analysis = {
-            inlayHints = {
-              variableTypes = true,
-              functionReturnTypes = true,
-            },
-            diagnosticMode = "workspace",
-            reportUnknownVariableType = "none",
-            typeCheckingMode = "standard",
-            exclude = {
-              "**/build/**",
-              "**/.venv/**",
+          basedpyright = {
+            analysis = {
+              inlayHints = {
+                variableTypes = true,
+                functionReturnTypes = true,
+              },
+              diagnosticMode = "workspace",
+              reportUnknownVariableType = "none",
+              typeCheckingMode = "standard",
+              exclude = {
+                "**/build/**",
+                "**/.venv/**",
+              },
             },
           },
         },
@@ -75,6 +110,47 @@ return {
     -- customize language server configuration options passed to `lspconfig`
     -- customize how language servers are attached
     handlers = {
+      zuban = function(_, opts)
+        -- Dynamically set Python path based on current environment
+        vim.lsp.config("zuban", {
+          cmd = { "zuban", "server" },
+          settings = {
+            zuban = {
+              -- ty language server settings go here
+            },
+          },
+          filetypes = { "python", "py" },
+        })
+        vim.lsp.enable "zuban"
+      end,
+      pyrefly = function(_, opts)
+        -- Pyrefly configuration
+        vim.lsp.config("pyrefly", {
+          cmd = { "pyrefly", "lsp" },
+          settings = {
+            pyrefly = {
+              typeCheckingMode = "strict",
+              diagnosticMode = "workspace",
+            },
+          },
+          filetypes = { "python", "py" },
+        })
+        vim.lsp.enable "pyrefly"
+      end,
+      -- a function without a key is simply the default handler, functions take two parameters, the server name and the configured options table for that servergured options table for that server
+      ty = function(_, opts)
+        -- Dynamically set Python path based on current environment
+        vim.lsp.config("ty", {
+          cmd = { "ty", "server" },
+          settings = {
+            ty = {
+              -- ty language server settings go here
+            },
+          },
+          filetypes = { "python", "py" },
+        })
+        vim.lsp.enable "ty"
+      end,
       -- a function without a key is simply the default handler, functions take two parameters, the server name and the configured options table for that server
       -- function(server, opts) require("lspconfig")[server].setup(opts) end
 
@@ -88,8 +164,8 @@ return {
         opts.settings.basedpyright = opts.settings.basedpyright or {}
         opts.settings.basedpyright.analysis = opts.settings.basedpyright.analysis or {}
         opts.settings.basedpyright.analysis.pythonPath = python_path
-
-        require("lspconfig").basedpyright.setup(opts)
+        vim.lsp.config("basedpyright", opts)
+        vim.lsp.enable "basedpyright"
       end,
     },
     -- Configure buffer local auto commands to add when attaching a language server
