@@ -34,7 +34,6 @@
     "hyperfine@latest",
     "pipx@latest",
     "neovim@latest",
-    "ghostty@latest",
     "nodejs_24@latest",
     "nodejs_22@latest",
     "basedpyright@latest",
