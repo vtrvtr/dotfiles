@@ -1,5 +1,5 @@
 includes = []
-packages = ["default", "fish", "al"]
+packages = ["default", "fish", "al", "bash"]
 
 [files]
 
