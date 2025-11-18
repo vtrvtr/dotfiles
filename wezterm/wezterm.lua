@@ -51,20 +51,27 @@ config.keys = {
 		key = "F11",
 		action = wezterm.action.ToggleFullScreen,
 	},
-}
+	-- Turn off the default CMD-m Hide action, allowing CMD-m to
+	-- be potentially recognized and handled by the tab
+	{
+		key = "t",
+		mods = "SHIFT|ALT|CMD|CTRL",
+		action = wezterm.action.DisableDefaultAssignment,
+	},
 
--- you may also use the "https://github.com/Xarvex/presentation.wez" mirror
-wezterm.plugin.require("https://gitlab.com/xarvex/presentation.wez").apply_to_config(config, {
-	font_size_multiplier = 1.3, -- sets for both "presentation" and "presentation_full"
-	presentation = {
-		keybind = { key = "t", mods = "SHIFT|ALT" }, -- setting a keybind
-	},
-	presentation_full = {
-		keybind = { key = "t", mods = "CTRL|ALT" }, -- setting a keybind
-		font_weight = "Bold",
-		font_size_multiplier = 2.4, -- overwrites "font_size_multiplier" for "presentation_full"
-	},
-})
+	-- you may also use the "https://github.com/Xarvex/presentation.wez" mirror
+	-- wezterm.plugin.require("https://gitlab.com/xarvex/presentation.wez").apply_to_config(config, {
+	-- 	font_size_multiplier = 1.3, -- sets for both "presentation" and "presentation_full"
+	-- 	presentation = {
+	-- 		keybind = { key = "t", mods = "SHIFT|ALT" }, -- setting a keybind
+	-- 	},
+	-- 	presentation_full = {
+	-- 		keybind = { key = "t", mods = "CTRL|ALT" }, -- setting a keybind
+	-- 		font_weight = "Bold",
+	-- 		font_size_multiplier = 2.4, -- overwrites "font_size_multiplier" for "presentation_full"
+	-- 	},
+	-- }),
+}
 
 -- and finally, return the configuration to wezterm
 
