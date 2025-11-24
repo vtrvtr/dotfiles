@@ -25,7 +25,6 @@ end)
 
 config.window_decorations = "RESIZE"
 config.color_scheme = "Catppuccin Mocha"
-config.font = wezterm.font("Monaspace Radon")
 if wezterm.hostname() == "trpc" then
 	config.default_domain = "WSL:Debian3"
 	config.font_size = 12
@@ -35,10 +34,10 @@ if wezterm.hostname() == "trpc" then
 else
 	config.font_size = 16
 end
-main_font = "VictorMono NF"
 config.font = wezterm.font_with_fallback({
-	main_font,
-	"OpenDyslexicAlt Nerd Font",
+	"VictorMono NF",
+	"DejaVu Sans Mono",
+	"Twitter Color Emoji",
 })
 -- config.font = wezterm.font("VeraMono")
 config.hide_tab_bar_if_only_one_tab = true
