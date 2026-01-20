@@ -24,6 +24,9 @@ return {
 	event = "LspAttach",
 	opts = function()
 		vim.keymap.set({ "n", "x" }, "<enter><enter>", function()
+			if vim.bo.filetype == "qf" then
+				return
+			end
 			require("tiny-code-action").code_action()
 		end, { noremap = true, silent = true })
 

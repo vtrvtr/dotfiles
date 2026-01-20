@@ -50,7 +50,9 @@
     "simplescreenrecorder@latest",
     "just@latest",
     "tree-sitter@latest",
-    "lla@latest"
+    "lla@latest",
+    "dust@latest",
+    "github:anomalyco/opencode"
   ],
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
