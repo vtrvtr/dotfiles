@@ -35,6 +35,7 @@ return {
   },
   lazy = true,
   opts = {
+    automatic_setup = true,
     handlers = {},
   },
 }
