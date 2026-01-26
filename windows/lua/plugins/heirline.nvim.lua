@@ -38,6 +38,16 @@ return {
 			end,
 		})
 
+		-- Track debug mode state
+		local dmode_enabled = false
+		vim.api.nvim_create_autocmd("User", {
+			pattern = "DebugModeChanged",
+			callback = function(args)
+				dmode_enabled = args.data.enabled
+				vim.cmd("redrawstatus") -- Force statusline refresh
+			end,
+		})
+
 		local function is_ignored()
 			local buftype = vim.bo.buftype
 			local filetype = vim.bo.filetype
@@ -88,6 +98,15 @@ return {
 			hl = function(self)
 				return { fg = "fg", bold = true }
 			end,
+		}
+
+		local DebugMode = {
+			condition = function()
+				return dmode_enabled
+			end,
+			provider = " 🐛 DEBUG ",
+			hl = { fg = "bg", bg = "red", bold = true },
+			update = { "User" },
 		}
 
 		local FileName = {
@@ -369,15 +388,16 @@ return {
 				end,
 				update = "ModeChanged",
 			},
-			-- Main statusline content
-			FileIcon,
-			FileName,
-			GitDiff,
-			Macro,
-			Align,
-			Diagnostics,
-			Grapple,
-			VersionControl,
+		-- Main statusline content
+		FileIcon,
+		FileName,
+		GitDiff,
+		Macro,
+		DebugMode,
+		Align,
+		Diagnostics,
+		Grapple,
+		VersionControl,
 		}
 
 		-- Statusline for ignored buffers
