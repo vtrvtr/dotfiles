@@ -39,9 +39,6 @@
     "mermaid-cli@latest",
     "wrkflw@latest",
     "ruff@latest",
-    "github:ravitemer/mcp-hub/v4.2.1",
-    "github:davidlattimore/wild/0.7.0",
-    "github:alexpasmantier/television",
     "claude-code@latest",
     "binsider@latest",
     "angle-grinder@latest",
@@ -52,8 +49,10 @@
     "tree-sitter@latest",
     "lla@latest",
     "dust@latest",
+    "python310Packages.debugpy@latest",
     "github:anomalyco/opencode",
-    "python310Packages.debugpy@latest"
+    "github:davidlattimore/wild/0.7.0",
+    "github:alexpasmantier/television"
   ],
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],

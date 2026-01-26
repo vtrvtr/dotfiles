@@ -63,21 +63,56 @@ return {
 
 			local group = vim.api.nvim_create_augroup("TreesitterSetup", { clear = true })
 
-			local ignore_filetypes = {
-				"checkhealth",
-				"lazy",
-				"mason",
-				"snacks_dashboard",
-				"snacks_notif",
-				"snacks_win",
+			-- Only enable treesitter for common buffer types (allowlist approach)
+			local allowed_filetypes = {
+				"rust",
+				"astro",
+				"bash",
+				"sh",
+				"c",
+				"cpp",
+				"css",
+				"diff",
+				"go",
+				"gomod",
+				"gowork",
+				"gosum",
+				"graphql",
+				"html",
+				"javascript",
+				"javascriptreact",
+				"jsdoc",
+				"json",
+				"jsonc",
+				"json5",
+				"lua",
+				"luadoc",
+				"luap",
+				"markdown",
+				"python",
+				"query",
+				"regex",
+				"toml",
+				"tsx",
+				"typescript",
+				"typescriptreact",
+				"vim",
+				"help",
+				"yaml",
+				"ruby",
 			}
+			local allowed_set = {}
+			for _, ft in ipairs(allowed_filetypes) do
+				allowed_set[ft] = true
+			end
+
 			local ts = require("nvim-treesitter")
-			-- Auto-install parsers and enable highlighting on FileType
+			-- Auto-enable highlighting only for allowed filetypes
 			vim.api.nvim_create_autocmd("FileType", {
 				group = group,
 				desc = "Enable treesitter highlighting and indentation",
 				callback = function(event)
-					if vim.tbl_contains(ignore_filetypes, event.match) then
+					if not allowed_set[event.match] then
 						return
 					end
 

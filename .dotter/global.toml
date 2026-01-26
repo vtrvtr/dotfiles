@@ -11,6 +11,7 @@ depends = []
 "zellij/config.kdl" = "~/.config/zellij/config.kdl"
 "devbox/devbox.json" = "~/.local/share/devbox/global/default/devbox.json"
 "gh-dash/config.yml" = "~/.config/gh-dash/config.yml"
+"yazi/yazi.toml" = "~/.config/yazi/yazi.toml"
 
 [bash]
 depends = []

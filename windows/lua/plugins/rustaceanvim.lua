@@ -40,7 +40,13 @@ return {
 					},
 				},
 			},
-			dap = {},
+			dap = {
+				adapter = {
+					type = "executable",
+					command = "lldb-vscode",
+					name = "lldb",
+				},
+			},
 		}
 	end,
 }

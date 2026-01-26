@@ -175,36 +175,53 @@ function StatusLine.get_mode(buff_id)
 	return parts
 end
 
-function StatusLine.get_jj_description()
-	-- Cache the result for performance (5 second cache)
-	if StatusLine._jj_cache and (vim.loop.now() - StatusLine._jj_cache.time) < 5000 then
-		return StatusLine._jj_cache.result
+-- Async jj cache (persists across calls, updated asynchronously)
+StatusLine._jj_async_cache = {
+	text = "",
+	has_jj = false,
+	updating = false,
+	last_update = 0,
+}
+
+-- Async function to update jj info in the background
+function StatusLine.update_jj_async()
+	local cache = StatusLine._jj_async_cache
+	if cache.updating then
+		return
 	end
 
-	local text = ""
-	local has_jj = false
+	local now = vim.uv and vim.uv.now() or vim.loop.now()
+	-- Only update every 5 seconds
+	if (now - cache.last_update) < 5000 then
+		return
+	end
 
-	-- First check if we're in a jj repository
-	local jj_check = io.popen("jj root 2>/dev/null")
-	if jj_check then
-		local jj_root = jj_check:read("*a")
-		jj_check:close()
+	cache.updating = true
+	cache.last_update = now
 
-		if jj_root and jj_root ~= "" then
-			-- We're in a jj repo, always show the widget
-			has_jj = true
-			text = " 󰘬"
+	-- First check if we're in a jj repo (async)
+	vim.system({ "jj", "root" }, { text = true }, function(jj_root_result)
+		if jj_root_result.code ~= 0 or not jj_root_result.stdout or jj_root_result.stdout == "" then
+			-- Not a jj repo
+			cache.has_jj = false
+			cache.text = ""
+			cache.updating = false
+			vim.schedule(StatusLine.update)
+			return
+		end
 
-			-- Get both bookmark and description
-			local handle = io.popen(
-				"jj log -r @ --no-graph --template 'concat(bookmarks, \"\\n\", description.first_line())' 2>/dev/null"
-			)
-			if handle then
-				local output = handle:read("*a")
-				handle:close()
-				if output and output ~= "" then
+		-- We're in a jj repo, get the log info
+		cache.has_jj = true
+
+		vim.system(
+			{ "jj", "log", "-r", "@", "--no-graph", "--template", "concat(bookmarks, \"\\n\", description.first_line())" },
+			{ text = true },
+			function(log_result)
+				local text = " 󰘬"
+
+				if log_result.code == 0 and log_result.stdout and log_result.stdout ~= "" then
 					local lines = {}
-					for line in output:gmatch("[^\n]+") do
+					for line in log_result.stdout:gmatch("[^\n]+") do
 						table.insert(lines, line)
 					end
 
@@ -243,18 +260,28 @@ function StatusLine.get_jj_description()
 						text = text .. " (new change)"
 					end
 				end
+
+				text = text .. " "
+				cache.text = text
+				cache.updating = false
+
+				-- Schedule statusline redraw on main thread
+				vim.schedule(StatusLine.update)
 			end
+		)
+	end)
+end
 
-			text = text .. " "
-		end
-	end
+function StatusLine.get_jj_description()
+	-- Trigger async update (non-blocking)
+	StatusLine.update_jj_async()
 
-	local result = {
-		{ text = text, group = "StatusLineGitBranch" },
-		has_jj = has_jj,
+	-- Return cached result immediately
+	local cache = StatusLine._jj_async_cache
+	return {
+		{ text = cache.text, group = "StatusLineGitBranch" },
+		has_jj = cache.has_jj,
 	}
-	StatusLine._jj_cache = { time = vim.loop.now(), result = result }
-	return result
 end
 
 function StatusLine.get_file_info(buf_id)

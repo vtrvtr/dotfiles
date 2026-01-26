@@ -48,6 +48,9 @@ return {
 			on_attach = on_attach,
 			capabilities = capabilities,
 			filetypes = { "python" },
+			settings = { python = {
+				pyrefly = { displayTypeError = true },
+			} },
 		})
 
 		vim.lsp.config("ty", {
@@ -103,7 +106,8 @@ return {
 
 		-- Enable the configured servers
 		vim.lsp.enable("lua_ls")
-		vim.lsp.enable("ty")
+		-- vim.lsp.enable("pyrefly")
+		-- vim.lsp.enable("ty")
 		-- vim.lsp.enable("basedpyright")
 	end,
 }

@@ -1,3 +1,5 @@
 local.toml
 cache.toml
 cache/
+*nfs*
+

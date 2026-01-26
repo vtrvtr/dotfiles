@@ -50,6 +50,27 @@ config.keys = {
 		key = "F11",
 		action = wezterm.action.ToggleFullScreen,
 	},
+	-- Disable default tab/window creation since we use Zellij
+	{
+		key = "t",
+		mods = "CTRL|SHIFT",
+		action = wezterm.action.DisableDefaultAssignment,
+	},
+	{
+		key = "t",
+		mods = "SUPER",
+		action = wezterm.action.DisableDefaultAssignment,
+	},
+	{
+		key = "n",
+		mods = "CTRL|SHIFT",
+		action = wezterm.action.DisableDefaultAssignment,
+	},
+	{
+		key = "n",
+		mods = "SUPER",
+		action = wezterm.action.DisableDefaultAssignment,
+	},
 	-- Turn off the default CMD-m Hide action, allowing CMD-m to
 	-- be potentially recognized and handled by the tab
 	{

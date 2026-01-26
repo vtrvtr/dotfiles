@@ -1,6 +1,7 @@
 return {
 	"nvim-treesitter/nvim-treesitter-textobjects",
 	branch = "main",
+	enabled = true,
 	dependencies = { "nvim-treesitter/nvim-treesitter" },
 	event = { "BufReadPost", "BufNewFile" },
 	config = function()

@@ -388,16 +388,16 @@ return {
 				end,
 				update = "ModeChanged",
 			},
-		-- Main statusline content
-		FileIcon,
-		FileName,
-		GitDiff,
-		Macro,
-		DebugMode,
-		Align,
-		Diagnostics,
-		Grapple,
-		VersionControl,
+			-- Main statusline content
+			FileIcon,
+			FileName,
+			GitDiff,
+			Macro,
+			DebugMode,
+			Align,
+			Diagnostics,
+			Grapple,
+			VersionControl,
 		}
 
 		-- Statusline for ignored buffers

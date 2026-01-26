@@ -11,7 +11,7 @@ return {
           -- You can add a "console" section to merge the terminal with the other views
           sections = { "watches", "scopes", "exceptions", "breakpoints", "threads", "repl", "console" },
           -- Must be one of the sections declared above
-          default_section = "watches",
+          default_section = "console",
         }
 
         winbar = {
@@ -19,7 +19,7 @@ return {
           -- You can add a "console" section to merge the terminal with the other views
           sections = { "watches", "scopes", "exceptions", "breakpoints", "threads", "repl", "console" },
           -- Must be one of the sections declared above
-          default_section = "watches",
+          default_section = "console",
         }
 
         local dap, dv = require "dap", require "dap-view"
