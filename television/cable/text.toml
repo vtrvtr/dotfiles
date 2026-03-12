@@ -1,0 +1,31 @@
+[metadata]
+name = "text"
+description = "A channel to find and select text from files"
+requirements = ["rg", "bat"]
+
+[source]
+command = "rg . --no-heading --line-number"
+display = "[{split:\\::..2}]\t{split:\\::2..}"
+output = "{split:\\::..2}"
+
+[preview]
+command = "bat -n --color=always '{split:\\::0}'"
+env = { BAT_THEME = "ansi" }
+offset = '{split:\::1}'
+
+[keybindings]
+enter = "actions:cd"
+shift-enter = "actions:edit"
+
+[actions.cd]
+description = "Jump to the file's directory"
+command = "cd $(dirname '{split:\\::0}') && $SHELL"
+mode = "execute"
+
+[actions.edit]
+description = "Open file in nvim"
+command = "NVIM_APPNAME=nvim_windows nvim '{split:\\::0}'"
+mode = "execute"
+
+[ui]
+preview_panel = { header = '{split:\::..2}' }

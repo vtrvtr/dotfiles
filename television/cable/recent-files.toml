@@ -1,0 +1,28 @@
+[metadata]
+name = "recent-files"
+description = "List recently modified files (via git or filesystem)"
+requirements = ["git", "bat"]
+
+[source]
+command = [
+  "git diff --name-only HEAD~10 HEAD 2>/dev/null || find . -type f -mtime -7 -not -path '*/.*' 2>/dev/null | head -100",
+  "find . -type f -mmin -60 -not -path '*/.*' 2>/dev/null | head -100",
+]
+
+[preview]
+command = "bat -n --color=always '{}'"
+env = { BAT_THEME = "ansi" }
+
+[keybindings]
+enter = "actions:cd"
+shift-enter = "actions:edit"
+
+[actions.cd]
+description = "Jump to the file's directory"
+command = "cd $(dirname '{}') && $SHELL"
+mode = "execute"
+
+[actions.edit]
+description = "Open file in nvim"
+command = "NVIM_APPNAME=nvim_windows nvim '{}'"
+mode = "execute"

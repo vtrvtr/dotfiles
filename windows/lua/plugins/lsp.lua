@@ -1,6 +1,7 @@
 return {
 	"neovim/nvim-lspconfig",
 	lazy = false,
+	enabled = true,
 	config = function()
 		local lsp = vim.lsp
 
@@ -106,7 +107,7 @@ return {
 
 		-- Enable the configured servers
 		vim.lsp.enable("lua_ls")
-		-- vim.lsp.enable("pyrefly")
+		vim.lsp.enable("pyrefly")
 		-- vim.lsp.enable("ty")
 		-- vim.lsp.enable("basedpyright")
 	end,

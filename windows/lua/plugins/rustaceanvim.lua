@@ -23,12 +23,12 @@ return {
 				end,
 				settings = {
 					["rust-analyzer"] = {
-						checkOnSave = true,
-						-- checkOnSave = {
-						-- 	allFeatures = true,
-						-- 	command = "clippy",
-						-- 	extraArgs = { "--no-deps" },
-						-- },
+						-- checkOnSave = true,
+						checkOnSave = {
+							allFeatures = true,
+							command = "clippy",
+							extraArgs = { "--no-deps" },
+						},
 						diagnostics = {
 							enableExperimental = true,
 							disabled = { "unresolved-proc-macro" },
