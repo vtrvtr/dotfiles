@@ -1,24 +1,20 @@
 return {
-  "mfussenegger/nvim-dap-python",
-  ft = "python",
-  lazy = true,
-  -- Luarocks broke this?
-  enabled = false,
-  event = "BufEnter",
-  -- opts = {
-  --   rocks = { enabled = false, hererocks = true },
-  -- },
-  config = function()
-    if os.getenv "USER" == "vitorh" then
-      if os.getenv "MAYA_LOCATION" ~= nil then
-        require("dap-python").setup(os.getenv "MAYA_LOCATION" .. "/bin/python-bin")
-        vim.notify "Loading maya python interpreter"
-      else
-        vim.notify "Loading python interpreter"
-        require("dap-python").setup(os.getenv "PYTHON_EXE")
-      end
-    else
-      require("dap-python").setup "python"
-    end
-  end,
+	"mfussenegger/nvim-dap-python",
+	ft = "python",
+	lazy = true,
+	enabled = true,
+	command = "DapViewOpen",
+	config = function()
+		if os.getenv("USER") == "vitorh" then
+			if os.getenv("MAYA_LOCATION") ~= nil then
+				require("dap-python").setup(os.getenv("MAYA_LOCATION") .. "/bin/python-bin")
+				vim.notify("Loading maya python interpreter")
+			else
+				vim.notify("Loading python interpreter")
+				require("dap-python").setup(os.getenv("PYTHON_EXE"))
+			end
+		else
+			require("dap-python").setup("python")
+		end
+	end,
 }

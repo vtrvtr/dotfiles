@@ -1,4 +1,7 @@
 return {
   "mfussenegger/nvim-dap",
-  config = function(plugin, opts) require "astronvim.plugins.configs.nvim-dap"(plugin, opts) end,
+  lazy = true,
+  dependencies = {
+    "jay-babu/mason-nvim-dap.nvim",
+  },
 }
