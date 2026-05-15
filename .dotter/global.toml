@@ -45,6 +45,9 @@ depends = []
 
 [al.files]
 "atuin" = "~/.config/atuin"
+"bash/ld_preload_guard.sh" = "~/.vtr_bash/ld_preload_guard.sh"
+"bash/pi_mcp.sh" = "~/.vtr_bash/pi_mcp.sh"
+"bash/pi_confluence_token.sh" = "~/.vtr_bash/pi_confluence_token.sh"
 
 [atuin_mac.files]
 "atuin_mac" = "~/.config/atuin"
