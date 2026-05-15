@@ -33,8 +33,13 @@ return {
 		-- { "theHamsta/nvim-dap-virtual-text", opts = {} },
 	},
 	lazy = true,
-	init = function()
-		-- Register lldb adapter early for rustaceanvim and launch.json
+	keys = {
+		{ "<leader>d", desc = "Dap" },
+	},
+	config = function(_, opts)
+		-- Register lldb adapter for rustaceanvim and launch.json. Deferred here
+		-- (was an eager `init`) so the blocking `rustc --print sysroot` call no
+		-- longer runs on every startup / file open — only when DAP loads.
 		local dap = require("dap")
 
 		-- Get Rust sysroot for LLDB formatters
@@ -85,6 +90,8 @@ return {
 				args = {},
 			},
 		}
+
+		require("mason-nvim-dap").setup(opts)
 	end,
 	opts = {
 		handlers = {

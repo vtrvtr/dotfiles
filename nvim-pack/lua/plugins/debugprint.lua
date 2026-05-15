@@ -1,6 +1,15 @@
 
 return {
   "andrewferrier/debugprint.nvim",
+  keys = {
+    { "<leader>ddp", desc = "Debug print below" },
+    { "<leader>ddP", desc = "Debug print above" },
+    { "<leader>ddv", mode = { "n", "x" }, desc = "Debug variable below" },
+    { "<leader>ddV", mode = { "n", "x" }, desc = "Debug variable above" },
+    { "<leader>ddo", desc = "Debug textobj below" },
+    { "<leader>ddO", desc = "Debug textobj above" },
+  },
+  cmd = { "ToggleCommentDebugPrints", "DeleteDebugPrints" },
   dependencies = {
     "echasnovski/mini.nvim",
     "nvim-treesitter/nvim-treesitter",

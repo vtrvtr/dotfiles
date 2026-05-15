@@ -3,6 +3,7 @@
 
 return {
 	"nicolasgb/jj.nvim",
+	event = "VeryLazy",
 	dependencies = {
 		"folke/snacks.nvim", -- Optional, only needed if you use pickers
 

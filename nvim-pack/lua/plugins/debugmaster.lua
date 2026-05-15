@@ -3,6 +3,9 @@ return {
   {
     "miroshQa/debugmaster.nvim",
     dependencies = { "mfussenegger/nvim-dap", "jbyuki/one-small-step-for-vimkind" },
+    keys = {
+      { "<leader>ds", desc = "Toggle debug mode", mode = { "n", "v" } },
+    },
     config = function()
       local dm = require("debugmaster")
       vim.keymap.set({ "n", "v" }, "<leader>ds", dm.mode.toggle, { nowait = true })

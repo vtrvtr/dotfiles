@@ -1,5 +1,6 @@
 return {
 	"rafikdraoui/jj-diffconflicts",
+	cmd = "JJDiffConflicts",
 
 	-- opts = {
 	--   -- your configuration comes here

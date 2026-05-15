@@ -3,7 +3,9 @@
 
 return {
 	"mrjones2014/smart-splits.nvim",
-	event = "VeryLazy",
+	keys = {
+		{ "<leader>w", desc = "Window mode" },
+	},
 	config = function(_, opts)
 		local wk = require("which-key")
 		require("layers").setup({})

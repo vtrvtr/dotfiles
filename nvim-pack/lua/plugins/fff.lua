@@ -3,6 +3,7 @@
 
 return {
 	"dmtrKovalenko/fff.nvim",
+	enabled = true,
 	build = function()
 		-- this will download prebuild binary or try to use existing rustup toolchain to build from source
 		-- (if you are using lazy you can use gb for rebuilding a plugin if needed)
@@ -12,8 +13,8 @@ return {
 	-- build = "nix run .#release",
 	opts = { -- (optional)
 		debug = {
-			enabled = true, -- we expect your collaboration at least during the beta
-			show_scores = true, -- to help us optimize the scoring system, feel free to share your scores!
+			enabled = false, -- we expect your collaboration at least during the beta
+			show_scores = false, -- to help us optimize the scoring system, feel free to share your scores!
 		},
 	},
 	-- No need to lazy-load with lazy.nvim.

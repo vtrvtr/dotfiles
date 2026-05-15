@@ -3,7 +3,7 @@
 
 return {
     "rachartier/tiny-inline-diagnostic.nvim",
-    event = "VeryLazy",
+    event = { "BufReadPost", "BufNewFile" },
     priority = 1000,
     config = function()
         require(

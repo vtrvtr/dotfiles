@@ -1,5 +1,7 @@
 return {
     "selimacerbas/markdown-preview.nvim",
+    ft = "markdown",
+    cmd = { "MarkdownPreview", "MarkdownPreviewRefresh", "MarkdownPreviewStop" },
     dependencies = {
         "selimacerbas/live-server.nvim"
     },

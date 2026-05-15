@@ -3,5 +3,6 @@
 
 return {
     "suliatis/Jumppack.nvim",
+    event = "VeryLazy",
     config = true
 }

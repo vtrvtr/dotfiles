@@ -1,1 +1,1 @@
-return { "HiPhish/rainbow-delimiters.nvim", event = "VeryLazy" }
+return { "HiPhish/rainbow-delimiters.nvim", event = { "BufReadPost", "BufNewFile" } }

@@ -28,28 +28,6 @@ return {
 		local resolved_file = vim.fn.resolve(absolute_file) -- Resolve symlinks
 		local plugins_dir = vim.fn.fnamemodify(resolved_file, ":h") -- Get directory
 
-		-- Hook into Store command to disable/enable blink.pairs
-		local original_store_open = store.open
-		store.open = function(...)
-			-- Disable blink.pairs when Store opens
-			local ok, blink_pairs = pcall(require, "blink.pairs.mappings")
-			if ok then
-				blink_pairs.disable()
-			end
-			return original_store_open(...)
-		end
-
-		-- Create an autocmd to re-enable blink.pairs when Store buffer is closed
-		vim.api.nvim_create_autocmd("BufUnload", {
-			pattern = "Store",
-			callback = function()
-				local ok, blink_pairs = pcall(require, "blink.pairs.mappings")
-				if ok then
-					blink_pairs.enable()
-				end
-			end,
-		})
-
 		local err = store.setup({
 			plugins_folder = plugins_dir,
 		})

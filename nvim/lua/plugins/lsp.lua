@@ -50,7 +50,7 @@ return {
 			capabilities = capabilities,
 			filetypes = { "python" },
 			settings = { python = {
-				pyrefly = { displayTypeError = true },
+				pyrefly = { displayTypeErrors = "force-on" },
 			} },
 		})
 

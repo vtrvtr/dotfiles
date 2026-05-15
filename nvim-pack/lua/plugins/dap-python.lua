@@ -1,9 +1,11 @@
 return {
 	"mfussenegger/nvim-dap-python",
-	ft = "python",
 	lazy = true,
 	enabled = true,
 	cmd = "DapViewOpen",
+	keys = {
+		{ "<leader>d", desc = "Dap" },
+	},
 	config = function()
 		if os.getenv("USER") == "vitorh" then
 			if os.getenv("MAYA_LOCATION") ~= nil then

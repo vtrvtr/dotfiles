@@ -4,7 +4,14 @@
 return {
 	"nvim-neotest/neotest",
 	lazy = true,
-	event = "VeryLazy",
+	keys = {
+		{ "<leader>ted", desc = "Test Debug" },
+		{ "<leader>ter", desc = "Run all tests" },
+		{ "<leader>te<space>", desc = "Run test under cursor" },
+		{ "<leader>tef", desc = "Run last test" },
+		{ "<leader>tes", desc = "Test summary" },
+		{ "<leader>teo", desc = "Test output" },
+	},
 	dependencies = {
 		"nvim-neotest/nvim-nio",
 		"nvim-lua/plenary.nvim",

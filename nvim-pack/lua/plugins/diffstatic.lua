@@ -3,10 +3,10 @@
 return {
 	"clabby/difftastic.nvim",
 	dependencies = { "MunifTanjim/nui.nvim" },
+	cmd = { "Difft", "DifftClose", "DifftUpdate", "DifftPick", "DifftPickRange" },
 	config = function()
 		require("difftastic-nvim").setup({
 			download = true, -- Auto-download pre-built binary
 		})
 	end,
-	-- lazy = "VeryLazy",
 }

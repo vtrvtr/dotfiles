@@ -119,7 +119,10 @@ end
 
 return {
 	"cbochs/grapple.nvim",
-	event = "BufEnter",
+	keys = {
+		{ "m", desc = "+Mark Grapple" },
+		{ ",", desc = "+Go Grapple" },
+	},
 	dependencies = {
 		{ "nvim-lua/plenary.nvim" },
 		{ "MunifTanjim/nui.nvim" },

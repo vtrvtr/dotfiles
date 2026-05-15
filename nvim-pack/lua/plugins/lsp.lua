@@ -1,6 +1,7 @@
 return {
 	"neovim/nvim-lspconfig",
-	lazy = false,
+	-- Load when a real file buffer is opened so dashboard-only sessions stay light.
+	event = { "BufReadPre", "BufNewFile" },
 	enabled = true,
 	config = function()
 		local lsp = vim.lsp
@@ -25,8 +26,12 @@ return {
 			map("n", "<leader>rn", lsp.buf.rename, "Rename symbol")
 			map("n", "<leader>ca", lsp.buf.code_action, "Code action")
 
-			map("n", "[d", vim.diagnostic.goto_prev, "Prev diagnostic")
-			map("n", "]d", vim.diagnostic.goto_next, "Next diagnostic")
+			map("n", "[d", function()
+				vim.diagnostic.jump({ count = -1, float = true })
+			end, "Prev diagnostic")
+			map("n", "]d", function()
+				vim.diagnostic.jump({ count = 1, float = true })
+			end, "Next diagnostic")
 			map("n", "<leader>ld", vim.diagnostic.open_float, "Line diagnostics")
 		end
 
@@ -60,49 +65,13 @@ return {
 			filetypes = { "python" },
 		})
 
-		-- Basedpyright with full configuration
-		local python_path = vim.fn.system("which python"):gsub("\n", "")
-
+		-- basedpyright (experimental; enable via vim.lsp.enable below). For richer
+		-- settings (pythonPath, analysis, inlayHints, exclude, ...), add a `settings`
+		-- table here as documented at basedpyright's LSP settings reference.
 		vim.lsp.config("basedpyright", {
 			on_attach = on_attach,
 			capabilities = capabilities,
 			filetypes = { "python" },
-			-- settings = {
-			-- 	python = {
-			-- 		pythonPath = python_path,
-			-- 		analysis = {
-			-- 			autoSearchPaths = true,
-			-- 			useLibraryCodeForTypes = true,
-			-- 			diagnosticMode = "workspace",
-			-- 			typeCheckingMode = "standard",
-			-- 		},
-			-- 	},
-			-- 	basedpyright = {
-			-- 		analysis = {
-			-- 			pythonPath = python_path,
-			-- 			inlayHints = {
-			-- 				variableTypes = true,
-			-- 				functionReturnTypes = true,
-			-- 			},
-			-- 			diagnosticMode = "workspace",
-			-- 			reportUnknownVariableType = "none",
-			-- 			typeCheckingMode = "standard",
-			-- 			-- Properly exclude folders
-			-- 			exclude = {
-			-- 				"**/build",
-			-- 				"**/build/**",
-			-- 				"**/.venv",
-			-- 				"**/.venv/**",
-			-- 				"**/node_modules",
-			-- 				"**/__pycache__",
-			-- 			},
-			-- 			ignore = {
-			-- 				"**/build",
-			-- 				"**/build/**",
-			-- 			},
-			-- 		},
-			-- 	},
-			-- },
 		})
 
 		-- Enable the configured servers
