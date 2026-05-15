@@ -11,10 +11,18 @@ keybinds {
         bind "Alt s" { SwitchToMode "scroll"; }
         bind "Alt w" { SwitchToMode "move"; }
         bind "Ctrl Alt q" { Quit; }
+	bind "Ctrl p" {
+	      LaunchOrFocusPlugin "zellij_nav" {
+                  in_place true
+                  close_replaced_pane false
+                  skip_cache true
+	      }
+	  }
     }
     locked {
         bind "Ctrl g" { SwitchToMode "normal"; }
         bind "Alt g" { SwitchToMode "normal"; }
+        bind "Alt p" { SwitchToMode "pane"; }
         bind "Alt z" {
             MessagePlugin "autolock" {
                 name "autolock"
@@ -23,6 +31,13 @@ keybinds {
             }
             SwitchToMode "normal"
         }
+	bind "Ctrl p" {
+	      LaunchOrFocusPlugin "zellij_nav" {
+                  in_place true
+                  close_replaced_pane false
+                  skip_cache true
+	      }
+	}
     }
     pane {
         bind "left" { MoveFocus "left"; }
@@ -275,6 +290,7 @@ keybinds {
 // changing these requires a restart to take effect
 plugins {
     about location="zellij:about"
+    zellij_nav location="file:~/.config/zellij/plugins/zellij_nav.wasm"
     autolock location="https://github.com/fresh2dev/zellij-autolock/releases/download/0.2.2/zellij-autolock.wasm" {
         is_enabled false
         print_to_log true
