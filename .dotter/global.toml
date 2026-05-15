@@ -23,23 +23,25 @@ depends = []
 "bash/add_vtr_bash.sh" = "~/.config/dotter/bin/add_vtr_bash.sh"
 # templated form: provide a table with supported keys
 "bash/post_dotter.sh.tmpl" = { target = "~/.config/dotter/bin/post_dotter.sh", type = "template" }
-"bash/aliases.sh" = "~/.vtr_bash/aliases.sh"                                                       # A tiny post step rendered with your chosen bashrc baked in# Deploy your helper as a symlink (make sure the source file is executable in git)
+"bash/aliases.sh" = "~/.vtr_bash/aliases.sh"
 "bash/zoxide_bash.sh" = "~/.vtr_bash/zoxide.sh"
 "bash/atuin_bash.sh" = "~/.vtr_bash/atuin.sh"
 "bash/starship.sh" = "~/.vtr_bash/starship.sh"
 "bash/vtr_bash.sh" = "~/.vtr_bash/vtr_bash.sh"
 "bash/devbox.sh" = "~/.vtr_bash/devbox.sh"
+"bash/devbox_flake_update.sh" = "~/.vtr_bash/devbox_flake_update.sh"
 
 [zsh.files]
 "bash/add_vtr_bash.sh" = "~/.config/dotter/bin/add_vtr_bash.sh"
 # templated form: provide a table with supported keys
 "bash/post_dotter.sh.tmpl" = { target = "~/.config/dotter/bin/post_dotter.sh", type = "template" }
-"bash/aliases.sh" = "~/.vtr_bash/aliases.sh"                                                       # A tiny post step rendered with your chosen bashrc baked in# Deploy your helper as a symlink (make sure the source file is executable in git)
+"bash/aliases.sh" = "~/.vtr_bash/aliases.sh"
 "bash/zoxide_zsh.sh" = "~/.vtr_bash/zoxide.sh"
 "bash/atuin_zsh.sh" = "~/.vtr_bash/atuin.sh"
 "bash/starship_zsh.sh" = "~/.vtr_bash/starship.sh"
 "bash/vtr_bash.sh" = "~/.vtr_bash/vtr_bash.sh"
 "bash/devbox.sh" = "~/.vtr_bash/devbox.sh"
+"bash/devbox_flake_update.sh" = "~/.vtr_bash/devbox_flake_update.sh"
 
 [al.files]
 "atuin" = "~/.config/atuin"
