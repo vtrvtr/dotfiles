@@ -42,7 +42,9 @@ return {
 			dap = {
 				adapter = {
 					type = "executable",
-					command = "lldb-vscode",
+					-- Bare name breaks runInTerminal: lldb-vscode echoes argv[0]
+					-- back resolved against the debuggee cwd.
+					command = vim.fn.exepath("lldb-vscode"),
 					name = "lldb",
 				},
 			},

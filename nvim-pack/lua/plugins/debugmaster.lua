@@ -2,7 +2,14 @@ return {
   { "rcarriga/nvim-dap-ui", enabled = false },
   {
     "miroshQa/debugmaster.nvim",
-    dependencies = { "mfussenegger/nvim-dap", "jbyuki/one-small-step-for-vimkind" },
+    -- mason-nvim-dap owns the lldb adapter + on_config listeners (Rust
+    -- formatters, preLaunchTask). Depending on nvim-dap alone starts a session
+    -- without them, so pull in that spec too.
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "jay-babu/mason-nvim-dap.nvim",
+      "jbyuki/one-small-step-for-vimkind",
+    },
     keys = {
       { "<leader>ds", desc = "Toggle debug mode", mode = { "n", "v" } },
     },

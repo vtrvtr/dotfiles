@@ -47,33 +47,66 @@ return {
 		local rustc_sysroot = handle:read("*a"):gsub("[\n\r]", "")
 		handle:close()
 
+		-- Absolute path is required: lldb-vscode's runInTerminal reverse-request
+		-- echoes back argv[0] resolved against the debuggee cwd, so a bare name
+		-- becomes "<cwd>/lldb-vscode" and jobstart rejects it.
 		dap.adapters.lldb = {
 			type = "executable",
-			command = "lldb-vscode",
+			command = vim.fn.exepath("lldb-vscode"),
 			name = "lldb",
 		}
 
-		-- Add default initCommands for all LLDB configurations
-		-- This will be merged with any configuration that uses type="lldb"
-		local original_run = dap.run
-		dap.run = function(config)
-			if config.type == "lldb" and not config.initCommands then
-				config.initCommands = {
-					'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"',
-					'command source -s 0 "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_commands"',
-				}
-			elseif config.type == "lldb" and config.initCommands then
-				-- Prepend Rust formatters to existing initCommands
-				local rust_commands = {
-					'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"',
-					'command source -s 0 "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_commands"',
-				}
-				for _, cmd in ipairs(config.initCommands) do
-					table.insert(rust_commands, cmd)
-				end
-				config.initCommands = rust_commands
+		-- Prepend Rust LLDB formatters to every type="lldb" config. An on_config
+		-- listener rather than a dap.run wrapper: wrapping dropped run()'s second
+		-- `opts` argument, breaking restart and new-session handling.
+		dap.listeners.on_config["rust.lldb_formatters"] = function(config)
+			if config.type ~= "lldb" then
+				return config
 			end
-			return original_run(config)
+			local formatters = {
+				'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"',
+				'command source -s 0 "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_commands"',
+			}
+			return vim.tbl_extend("force", config, {
+				initCommands = vim.list_extend(formatters, config.initCommands or {}),
+			})
+		end
+
+		-- nvim-dap has no preLaunchTask support (it is a VSCode tasks.json
+		-- feature), so run it here. on_config is invoked inside a coroutine, so
+		-- blocking on the build is safe; a failed build aborts the session
+		-- rather than launching a stale binary.
+		dap.listeners.on_config["prelaunchtask"] = function(config)
+			local task = config.preLaunchTask
+			if not task then
+				return config
+			end
+
+			local cmd = type(task) == "table" and task or { "sh", "-c", task }
+			local cwd = config.cwd
+			if not cwd or cwd == "" or cwd:find("${", 1, true) then
+				cwd = vim.fn.getcwd()
+			end
+
+			local co = assert(coroutine.running(), "on_config runs in a coroutine")
+			vim.notify("preLaunchTask: " .. table.concat(cmd, " "), vim.log.levels.INFO)
+			vim.system(cmd, { cwd = cwd, text = true }, function(res)
+				vim.schedule(function()
+					coroutine.resume(co, res)
+				end)
+			end)
+			local res = coroutine.yield()
+
+			if res.code ~= 0 then
+				local out = vim.trim((res.stderr or "") .. (res.stdout or ""))
+				vim.notify(
+					("preLaunchTask failed (exit %d), not launching:\n%s"):format(res.code, out),
+					vim.log.levels.ERROR
+				)
+				return vim.tbl_extend("force", config, { preLaunchTask = dap.ABORT })
+			end
+
+			return vim.tbl_extend("force", config, { preLaunchTask = nil })
 		end
 
 		-- Configure default Rust debugging configuration
