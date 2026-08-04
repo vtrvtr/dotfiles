@@ -19,7 +19,6 @@ return {
 			end, { force = true })
 			return
 		end
-
 		local store = require("store")
 		-- Get the real absolute path dynamically
 		local info = debug.getinfo(1, "S")
