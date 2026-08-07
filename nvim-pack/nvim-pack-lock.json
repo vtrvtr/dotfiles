@@ -16,6 +16,10 @@
       "rev": "28fe6e822ae344544c379d60fcb13c9519a1f08a",
       "src": "https://github.com/stevearc/aerial.nvim"
     },
+    "atlas.nvim": {
+      "rev": "11ad962841eae47b9448dda008db7a9725c727fc",
+      "src": "https://github.com/emrearmagan/atlas.nvim"
+    },
     "auto-save.nvim": {
       "rev": "979b6c82f60cfa80f4cf437d77446d0ded0addf0",
       "src": "https://github.com/Pocco81/auto-save.nvim"
@@ -54,9 +58,17 @@
       "src": "https://github.com/andrewferrier/debugprint.nvim",
       "version": ">=0.0.0"
     },
+    "diffbandit.nvim": {
+      "rev": "207ef5718edb74161897eafb1cbe6f7832cda28b",
+      "src": "https://github.com/CoreyKaylor/diffbandit.nvim"
+    },
     "difftastic.nvim": {
       "rev": "c39bbe1c60eec06ad7d141bd09bb910fac4d2436",
       "src": "https://github.com/clabby/difftastic.nvim"
+    },
+    "diffview.nvim": {
+      "rev": "4516612fe98ff56ae0415a259ff6361a89419b0a",
+      "src": "https://github.com/sindrets/diffview.nvim"
     },
     "fff.nvim": {
       "rev": "3a0ce85c54875563bc55888b6b9829b44aeca911",
@@ -240,6 +252,10 @@
     "rainbow-delimiters.nvim": {
       "rev": "012f1480cd9a5fc99fce7678e0a536421a53fc46",
       "src": "https://github.com/HiPhish/rainbow-delimiters.nvim"
+    },
+    "render-markdown.nvim": {
+      "rev": "f422cb5c6855f150e2ddcfaf44e7157b98b34f6a",
+      "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
       "rev": "f4051fb4662c43a568ce809a37e47c0f4e3d7a31",
