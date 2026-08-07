@@ -63,22 +63,32 @@ local function add_timestamp_columns()
 	---@field _item table
 
 	---@param issue Issue
-	---@param is_child boolean
-	---@param children Issue[]|nil
+	---@param depth "root"|"child" Nesting level; the renderer indents children.
+	---@param children AtlasJiraRow[]|nil
 	---@return AtlasJiraRow
-	local function to_row(issue, is_child, children)
-		local fields = (issue._raw or {}).fields or {}
-		local row = renderer.format_row(issue, is_child)
-		row.created = utils.relative_time(fields.created)
-		row.updated = utils.relative_time(fields.updated)
+	local function build_row(issue, depth, children)
+		local raw = issue._raw
+		local fields = raw and raw.fields
+		local row = renderer.format_row(issue, depth == "child")
+		row.created = utils.relative_time(fields and fields.created)
+		row.updated = utils.relative_time(fields and fields.updated)
 		row._issue = issue
 		row._item = { kind = "issue", key = issue.key, _issue = issue }
 		row.children = children
-				and vim.tbl_map(function(child)
-					return to_row(child, true, nil)
-				end, children)
-			or nil
 		return row
+	end
+
+	---@param issue Issue
+	---@return AtlasJiraRow
+	local function to_child_row(issue)
+		return build_row(issue, "child", nil)
+	end
+
+	---@param issue Issue
+	---@param children Issue[]|nil Sub-issues to nest, or nil in compact layout.
+	---@return AtlasJiraRow
+	local function to_root_row(issue, children)
+		return build_row(issue, "root", children and vim.tbl_map(to_child_row, children) or nil)
 	end
 
 	-- table_tree deepcopies opts.columns, so one shared list is safe to reuse.
@@ -106,10 +116,10 @@ local function add_timestamp_columns()
 	return function(issue_groups, layout, opts)
 		local rows = layout == "compact"
 				and vim.tbl_map(function(issue)
-					return to_row(issue, false, nil)
+					return to_root_row(issue, nil)
 				end, state.issues or {})
 			or vim.tbl_map(function(group)
-				return to_row(group.issue, false, group.children)
+				return to_root_row(group.issue, group.children)
 			end, issue_groups or {})
 
 		local render_opts = {
@@ -137,6 +147,98 @@ local function add_timestamp_columns()
 
 		local lines, line_map, spans = table_tree.render(render_opts)
 		return { lines = lines, spans = spans, line_map = line_map }
+	end
+end
+
+-- jj leaves colocated repos on a detached git HEAD, so atlas.core.git's
+-- `rev-parse --abbrev-ref HEAD` yields "HEAD" and every PR command aborts with
+-- "Detached HEAD". Bookmarks in a colocated repo are real refs/heads/*, so only
+-- detection is broken: resolve the name via jj and the existing git plumbing
+-- (commit_range, push, ls-remote) keeps working untouched.
+local function resolve_jj_bookmarks()
+	local git = require("atlas.core.git")
+	local detect_branch = git.current_branch
+
+	---@param stdout string
+	---@return string[] names Deduplicated and sorted, so the pick below is
+	--- deterministic rather than dependent on jj's output order.
+	local function parse_bookmark_names(stdout)
+		local names, seen = {}, {}
+		for line in tostring(stdout):gmatch("[^\r\n]+") do
+			local name = line:match("^%s*(.-)%s*$")
+			if name ~= "" and not seen[name] then
+				seen[name] = true
+				table.insert(names, name)
+			end
+		end
+		table.sort(names)
+		return names
+	end
+
+	---@param names string[]
+	---@return string|nil branch, string|nil err
+	local function pick_bookmark(names)
+		if #names == 0 then
+			return nil, "No jj bookmark on or before @ — run `jj bookmark create <name>` first"
+		end
+		if #names > 1 then
+			-- Guessing risks opening a PR from the wrong head.
+			return nil,
+				string.format(
+					"Ambiguous jj bookmarks at @ (%s) — move or delete one to pick a PR head",
+					table.concat(names, ", ")
+				)
+		end
+		return names[1], nil
+	end
+
+	---@param root string
+	---@return string[]|nil names Bookmarks on the nearest bookmarked ancestor of
+	--- @, or nil when jj itself failed.
+	---@return string|nil err
+	local function bookmarks_at_head(root)
+		-- @ is typically an empty working-copy commit, so walk back to the
+		-- closest ancestor that carries a bookmark. --ignore-working-copy keeps
+		-- this read-only: no snapshot, no operation-log entry.
+		local res = vim
+			.system({
+				"jj",
+				"--repository",
+				root,
+				"--ignore-working-copy",
+				"--color",
+				"never",
+				"bookmark",
+				"list",
+				"-r",
+				"heads(::@ & bookmarks())",
+				"-T",
+				'name ++ "\n"',
+			}, { text = true })
+			:wait()
+		if res.code ~= 0 then
+			local stderr = tostring(res.stderr or ""):gsub("%s+", " "):match("^%s*(.-)%s*$")
+			return nil, stderr ~= "" and stderr or ("jj exited with code " .. tostring(res.code))
+		end
+		return parse_bookmark_names(res.stdout or ""), nil
+	end
+
+	---@param root string
+	---@return string|nil branch, string|nil err
+	git.current_branch = function(root)
+		local branch, err = detect_branch(root)
+		if branch then
+			return branch, nil
+		end
+		if vim.fn.executable("jj") ~= 1 or vim.fn.isdirectory(root .. "/.jj") ~= 1 then
+			return nil, err
+		end
+
+		local names, jj_err = bookmarks_at_head(root)
+		if not names then
+			return nil, "jj bookmark lookup failed: " .. tostring(jj_err)
+		end
+		return pick_bookmark(names)
 	end
 end
 
@@ -273,5 +375,6 @@ return {
 	config = function(_, opts)
 		require("atlas").setup(opts)
 		require("atlas.issues.providers.jira").capabilities.ui.render = add_timestamp_columns()
+		resolve_jj_bookmarks()
 	end,
 }
