@@ -150,6 +150,69 @@ local function add_timestamp_columns()
 	end
 end
 
+-- atlas parses the remote's host but spawns a bare `gh`, passing the repo as an
+-- unqualified `--repo owner/name`. An explicit --repo overrides gh's own remote
+-- inference, so on a self-hosted forge every call hits github.com and fails with
+-- "Could not resolve to a Repository". GH_HOST fixes both call shapes (`--repo`
+-- and `api repos/<slug>`), where a host-qualified slug would break the latter.
+-- gh reads it from the environment only, so this cannot live in git config.
+local function route_gh_to_remote_host()
+	local system = vim.system
+	local DEFAULT_HOST = "github.com"
+
+	-- Keying on cwd is wrong here: atlas spawns gh without one, and the repo
+	-- being viewed need not be the repo nvim was started in. The slug travels in
+	-- the command itself, so learn each slug's host as atlas resolves repos.
+	local host_by_slug = {}
+
+	-- atlas points gh at a repo three different ways: positionally
+	-- (`repo view <slug>`), by flag (`--repo <slug>`) and inside an API path
+	-- (`repos/<slug>/issues/1`). Rather than model each shape, look for any
+	-- known slug anywhere in the command.
+	---@param cmd string[]
+	---@param known table<string, string>
+	---@return string|nil host
+	local function host_for_command(cmd, known)
+		for _, arg in ipairs(cmd) do
+			if type(arg) == "string" then
+				if known[arg] then
+					return known[arg]
+				end
+				local embedded = arg:match("repos/([^/]+/[^/?#]+)")
+				if embedded and known[embedded] then
+					return known[embedded]
+				end
+			end
+		end
+		return nil
+	end
+
+	-- atlas resolves the remote through this one function for every repo it
+	-- touches, which is where the slug -> host mapping becomes known.
+	local git = require("atlas.core.git")
+	local local_repository = git.local_repository
+	git.local_repository = function(cwd)
+		local info = local_repository(cwd)
+		if info and info.slug and info.host and info.host ~= DEFAULT_HOST then
+			host_by_slug[info.slug] = info.host
+		end
+		return info
+	end
+
+	vim.system = function(cmd, opts, on_exit)
+		if type(cmd) == "table" and cmd[1] == "gh" then
+			local host = host_for_command(cmd, host_by_slug)
+			if host then
+				local given = opts or {}
+				opts = vim.tbl_extend("force", given, {
+					env = vim.tbl_extend("force", given.env or {}, { GH_HOST = host }),
+				})
+			end
+		end
+		return system(cmd, opts, on_exit)
+	end
+end
+
 -- jj leaves colocated repos on a detached git HEAD, so atlas.core.git's
 -- `rev-parse --abbrev-ref HEAD` yields "HEAD" and every PR command aborts with
 -- "Detached HEAD". Bookmarks in a colocated repo are real refs/heads/*, so only
@@ -376,5 +439,6 @@ return {
 		require("atlas").setup(opts)
 		require("atlas.issues.providers.jira").capabilities.ui.render = add_timestamp_columns()
 		resolve_jj_bookmarks()
+		route_gh_to_remote_host()
 	end,
 }
