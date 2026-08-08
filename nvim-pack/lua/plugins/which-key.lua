@@ -318,4 +318,13 @@ return {
 			desc = "Buffer Local Keymaps (which-key)",
 		},
 	},
+	config = function(_, opts)
+		local wk = require("which-key")
+		wk.setup(opts)
+		-- Labels only; the mappings themselves live with the plugins that own them.
+		wk.add({
+			{ "<leader>a", group = "atlas" },
+			{ "<leader>ag", group = "git" },
+		})
+	end,
 }
