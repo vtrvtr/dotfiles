@@ -19,7 +19,7 @@ return {
 				cursor_render_delay = 10, -- Adjust if cursor position isn't restoring correctly
 			},
 			diff = {
-				backend = "codediff",
+				backend = "diffview",
 			},
 			cmd = {
 				describe = {

@@ -1,6 +1,7 @@
 return {
 	"esmuellert/codediff.nvim",
 	event = "VeryLazy",
+	enabled = true,
 	-- cmd = { "CodeDiff", "VscodeDiff" },
 	opts = {
 		-- Highlight configuration
