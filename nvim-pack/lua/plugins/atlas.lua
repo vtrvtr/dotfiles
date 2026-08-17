@@ -17,6 +17,24 @@ end
 
 local BY_PRIORITY = "priority DESC, created DESC"
 local BY_UPDATED = "updated DESC"
+
+-- GitHub search. Every view wants open PRs, no archived repos, and most recent
+-- activity first, so all three live in the helper rather than per query.
+---@param clause string
+---@return string
+local function gh_search(clause)
+	return string.format("is:pr is:open archived:false %s sort:updated-desc", clause)
+end
+
+local MINE = "author:@me"
+
+-- "Somebody responded" has no direct qualifier: GitHub exposes no "commented
+-- since I last looked". `-review:none` is the closest true signal, matching PRs
+-- carrying a review of any state (approved, changes requested, or commented) and
+-- excluding the ones nobody has touched. Note `review:changes_requested,approved`
+-- looks equivalent but silently matches nothing, since `review:` takes a single
+-- value and rejects comma-OR lists.
+local REVIEWED = "-review:none"
 -- Neglect queues read oldest-first: the top row is the worst offender.
 local BY_OLDEST = "created ASC"
 local BY_STALEST = "updated ASC"
@@ -324,7 +342,33 @@ return {
 				---@type AtlasBitbucketConfig
 				bitbucket = {}, -- See configuration below
 				---@type AtlasGitHubConfig
-				github = {}, -- See configuration below
+				github = {
+					---@type AtlasGitHubViewConfig[]
+					views = {
+						{ name = "Mine", key = "1", layout = "plain", search = gh_search(MINE) },
+						{
+							name = "Answered",
+							key = "2",
+							layout = "plain",
+							search = gh_search(MINE .. " " .. REVIEWED),
+						},
+						{ name = "Review", key = "3", layout = "plain", search = gh_search("review-requested:@me") },
+						{ name = "All", key = "4", layout = "plain", search = gh_search("involves:@me") },
+					},
+
+					bookmarks = {
+						items = {
+							["Approved"] = gh_search(MINE .. " review:approved"),
+							["Awaiting review"] = gh_search(MINE .. " review:required"),
+							["Failing checks"] = gh_search(MINE .. " status:failure"),
+							["Drafts"] = gh_search(MINE .. " is:draft"),
+
+							["Reviewed by me"] = gh_search("reviewed-by:@me"),
+							["Mentions me"] = gh_search("mentions:@me"),
+							["Recently merged"] = "is:pr is:merged author:@me sort:updated-desc",
+						},
+					},
+				},
 				---@type AtlasGitLabPullsConfig
 				gitlab = {}, -- See configuration below
 			},
