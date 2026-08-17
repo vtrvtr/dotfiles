@@ -308,9 +308,9 @@ end
 return {
 	"emrearmagan/atlas.nvim",
 	keys = {
-		{ "<leader>ap", "<cmd>AtlasPulls<cr>", desc = "Pull requests" },
-		{ "<leader>at", "<cmd>AtlasIssues jira<cr>", desc = "Jira tickets" },
-		{ "<leader>agc", "<cmd>AtlasCreatePR<cr>", desc = "Create pull request" },
+		{ "<leader>ap", "<cmd>Atlas pulls<cr>", desc = "Pull requests" },
+		{ "<leader>at", "<cmd>Atlas issues jira<cr>", desc = "Jira tickets" },
+		{ "<leader>agc", "<cmd>Atlas create pr<cr>", desc = "Create pull request" },
 	},
 	dependencies = {
 		"nvim-tree/nvim-web-devicons", -- optional but recommended
