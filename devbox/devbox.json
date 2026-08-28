@@ -49,7 +49,8 @@
     "github:sadjow/claude-code-nix",
     "github:NixOS/nixpkgs/nixpkgs-unstable#brush",
     "github:NixOS/nixpkgs/nixpkgs-unstable#wild",
-    "github:lukasl-dev/pi.nix"
+    "github:lukasl-dev/pi.nix",
+    "lldb@latest"
   ],
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],

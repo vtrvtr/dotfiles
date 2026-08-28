@@ -228,6 +228,21 @@ return {
 			hl = { fg = "cyan" },
 		}
 
+		-- Set by the furnace launcher before nvim starts, so the label never changes.
+		local furnace_ctx = vim.env.FURNACE_CONTEXT_NAME
+		if furnace_ctx == "" then
+			furnace_ctx = nil
+		end
+		local furnace_label = furnace_ctx and (" " .. vim.fn.nr2char(0xf0e7) .. " " .. furnace_ctx .. " ") --  bolt
+
+		local FurnaceContext = {
+			condition = function()
+				return furnace_ctx ~= nil
+			end,
+			provider = furnace_label,
+			hl = { fg = "orange", bold = true },
+		}
+
 		local VersionControl = {
 			init = function(self)
 				local now = vim.uv and vim.uv.now() or vim.loop.now()
@@ -397,6 +412,7 @@ return {
 			Align,
 			Diagnostics,
 			Grapple,
+			FurnaceContext,
 			VersionControl,
 		}
 

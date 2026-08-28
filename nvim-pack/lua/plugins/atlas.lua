@@ -46,68 +46,18 @@ local BY_STALEST = "updated ASC"
 local ANSWERED = "numberOfComments > 0"
 local UNANSWERED = "numberOfComments = 0"
 
--- The Jira provider ships no Created/Updated columns (upstream 0.5.0 has them
--- for GitHub only), and its issue search requests a fixed field list that omits
--- both timestamps. Two seams close that gap without patching the plugin:
--- widen the search payload, then supply the provider's optional ui.render.
+-- The Jira dashboard ships Assignee/Reporter but no Created/Updated columns
+-- (upstream has them for GitHub only, and only in compact layout). The search
+-- already requests both timestamps and the mapper exposes them on the issue, so
+-- swapping Reporter for the two dates is purely a display change: mutate the
+-- provider's display table in place, which is what the dashboard reads per render.
 local function add_timestamp_columns()
-	local service = require("atlas.issues.providers.jira.api.service")
-	local renderer = require("atlas.issues.providers.jira.ui.renderer")
-	local table_tree = require("atlas.ui.components.table_tree")
+	local displays = require("atlas.issues.ui.dashboard.providers")
 	local icons = require("atlas.ui.shared.icons")
 	local utils = require("atlas.ui.shared.utils")
-	local state = require("atlas.issues.state")
 
-	local request = service.request
-	service.request = function(method, endpoint, data, on_done, ctx)
-		if endpoint == "/search/jql" and type(data) == "table" and type(data.fields) == "table" then
-			data = vim.tbl_extend("force", data, {
-				fields = vim.list_extend(vim.deepcopy(data.fields), { "created", "updated" }),
-			})
-		end
-		return request(method, endpoint, data, on_done, ctx)
-	end
-
-	---@class AtlasJiraRow
-	---@field icon string
-	---@field name string
-	---@field assignee string
-	---@field reporter string
-	---@field status string
-	---@field created string Relative age, or "-" when Jira returned no timestamp.
-	---@field updated string
-	---@field children AtlasJiraRow[]|nil
-	---@field _issue Issue
-	---@field _item table
-
-	---@param issue Issue
-	---@param depth "root"|"child" Nesting level; the renderer indents children.
-	---@param children AtlasJiraRow[]|nil
-	---@return AtlasJiraRow
-	local function build_row(issue, depth, children)
-		local raw = issue._raw
-		local fields = raw and raw.fields
-		local row = renderer.format_row(issue, depth == "child")
-		row.created = utils.relative_time(fields and fields.created)
-		row.updated = utils.relative_time(fields and fields.updated)
-		row._issue = issue
-		row._item = { kind = "issue", key = issue.key, _issue = issue }
-		row.children = children
-		return row
-	end
-
-	---@param issue Issue
-	---@return AtlasJiraRow
-	local function to_child_row(issue)
-		return build_row(issue, "child", nil)
-	end
-
-	---@param issue Issue
-	---@param children Issue[]|nil Sub-issues to nest, or nil in compact layout.
-	---@return AtlasJiraRow
-	local function to_root_row(issue, children)
-		return build_row(issue, "root", children and vim.tbl_map(to_child_row, children) or nil)
-	end
+	local jira = displays.get("jira")
+	local values, highlights = jira.values, jira.highlights
 
 	-- table_tree deepcopies opts.columns, so one shared list is safe to reuse.
 	local COLUMNS = {
@@ -124,47 +74,22 @@ local function add_timestamp_columns()
 		{ key = "status", name = " Status", can_grow = false },
 	}
 
-	local function cell_hl(row, col, ctx)
+	jira.columns = function()
+		return COLUMNS
+	end
+
+	jira.values = function(issue, is_child, layout)
+		local row = values(issue, is_child, layout)
+		row.created = utils.relative_time(issue.created_at)
+		row.updated = utils.relative_time(issue.updated_at)
+		return row
+	end
+
+	jira.highlights = function(row, col, ctx)
 		if col.key == "created" or col.key == "updated" then
 			return { { start_col = 0, end_col = #ctx.padded, hl_group = "AtlasTextMuted" } }
 		end
-		return renderer.cell_hl(row, col, ctx)
-	end
-
-	return function(issue_groups, layout, opts)
-		local rows = layout == "compact"
-				and vim.tbl_map(function(issue)
-					return to_root_row(issue, nil)
-				end, state.issues or {})
-			or vim.tbl_map(function(group)
-				return to_root_row(group.issue, group.children)
-			end, issue_groups or {})
-
-		local render_opts = {
-			width = opts.width,
-			margin = 1,
-			columns = COLUMNS,
-			rows = rows,
-			cell_hl = cell_hl,
-		}
-		if layout ~= "compact" then
-			-- Read per render, not per row: state replaces this table on reset.
-			local collapsed = state.collapsed_issue_keys or {}
-			render_opts.tree = {
-				column_key = "icon",
-				children_key = "children",
-				default_expanded = true,
-				indent = "",
-				leaf_prefix = "",
-				is_expanded = function(row)
-					local key = row._issue and tostring(row._issue.key or "") or ""
-					return key == "" or collapsed[key] ~= true
-				end,
-			}
-		end
-
-		local lines, line_map, spans = table_tree.render(render_opts)
-		return { lines = lines, spans = spans, line_map = line_map }
+		return highlights(row, col, ctx)
 	end
 end
 
@@ -326,7 +251,7 @@ end
 return {
 	"emrearmagan/atlas.nvim",
 	keys = {
-		{ "<leader>ap", "<cmd>Atlas pulls<cr>", desc = "Pull requests" },
+		{ "<leader>ap", "<cmd>Atlas pulls github<cr>", desc = "Pull requests" },
 		{ "<leader>at", "<cmd>Atlas issues jira<cr>", desc = "Jira tickets" },
 		{ "<leader>agc", "<cmd>Atlas create pr<cr>", desc = "Create pull request" },
 	},
@@ -337,156 +262,154 @@ return {
 		"sindrets/diffview.nvim", -- optional (PullRequest diff - alternative)
 	},
 	opts = {
+		-- Credentials and transport, shared by both domains. A provider is only
+		-- selectable once it has an entry here, so github needs one even though it
+		-- authenticates through `gh` and takes no options.
+		---@type AtlasProvidersConfig
+		providers = {
+			---@type AtlasGitHubConfig
+			github = {},
+			---@type AtlasJiraConfig
+			jira = {
+				token = vim.env.JIRA_TOKEN,
+				base_url = vim.env.JIRA_BASE_URL,
+				email = vim.env.JIRA_EMAIL,
+			},
+		},
 		pulls = {
-			providers = {
-				---@type AtlasBitbucketConfig
-				bitbucket = {}, -- See configuration below
-				---@type AtlasGitHubConfig
-				github = {
-					---@type AtlasGitHubViewConfig[]
-					views = {
-						{ name = "Mine", key = "1", layout = "plain", search = gh_search(MINE) },
-						{
-							name = "Answered",
-							key = "2",
-							layout = "plain",
-							search = gh_search(MINE .. " " .. REVIEWED),
-						},
-						{ name = "Review", key = "3", layout = "plain", search = gh_search("review-requested:@me") },
-						{ name = "All", key = "4", layout = "plain", search = gh_search("involves:@me") },
+			---@type AtlasGitHubPullsConfig
+			github = {
+				---@type AtlasGitHubViewConfig[]
+				views = {
+					{ name = "Mine", key = "1", layout = "plain", search = gh_search(MINE) },
+					{
+						name = "Answered",
+						key = "2",
+						layout = "plain",
+						search = gh_search(MINE .. " " .. REVIEWED),
 					},
+					{ name = "Review", key = "3", layout = "plain", search = gh_search("review-requested:@me") },
+					{ name = "All", key = "4", layout = "plain", search = gh_search("involves:@me") },
+				},
 
-					bookmarks = {
-						items = {
-							["Approved"] = gh_search(MINE .. " review:approved"),
-							["Awaiting review"] = gh_search(MINE .. " review:required"),
-							["Failing checks"] = gh_search(MINE .. " status:failure"),
-							["Drafts"] = gh_search(MINE .. " is:draft"),
+				bookmarks = {
+					items = {
+						["Approved"] = gh_search(MINE .. " review:approved"),
+						["Awaiting review"] = gh_search(MINE .. " review:required"),
+						["Failing checks"] = gh_search(MINE .. " status:failure"),
+						["Drafts"] = gh_search(MINE .. " is:draft"),
 
-							["Reviewed by me"] = gh_search("reviewed-by:@me"),
-							["Mentions me"] = gh_search("mentions:@me"),
-							["Recently merged"] = "is:pr is:merged author:@me sort:updated-desc",
-						},
+						["Reviewed by me"] = gh_search("reviewed-by:@me"),
+						["Mentions me"] = gh_search("mentions:@me"),
+						["Recently merged"] = "is:pr is:merged author:@me sort:updated-desc",
 					},
 				},
-				---@type AtlasGitLabPullsConfig
-				gitlab = {}, -- See configuration below
 			},
 		},
 		issues = {
-			providers = {
-				---@type AtlasJiraIssuesConfig
-				jira = {
-					token = vim.env.JIRA_TOKEN,
-					base_url = vim.env.JIRA_BASE_URL,
-					email = vim.env.JIRA_EMAIL,
-
-					---@type AtlasJiraViewConfig[]
-					views = {
-						{
-							name = "Priority",
-							key = "1",
-							layout = "plain",
-							jql = board_jql("priority in (High, Urgent)", BY_PRIORITY),
-						},
-						{
-							name = "Mine",
-							key = "2",
-							layout = "plain",
-							jql = board_jql("assignee = currentUser()", BY_UPDATED),
-						},
-						{
-							name = "Triage",
-							key = "3",
-							layout = "compact",
-							jql = board_jql(BACKLOG_COLUMNS .. " AND assignee is EMPTY", BY_PRIORITY),
-						},
-						{
-							name = "Backlog",
-							key = "4",
-							layout = "compact",
-							jql = board_jql(BACKLOG_COLUMNS, BY_PRIORITY),
-						},
-						{
-							name = "Active",
-							key = "5",
-							layout = "compact",
-							jql = board_jql(ACTIVE_COLUMNS, BY_UPDATED),
-						},
-						{
-							name = "Unanswered",
-							key = "6",
-							layout = "compact",
-							jql = board_jql(UNANSWERED, "priority DESC, " .. BY_OLDEST),
-						},
+			---@type AtlasJiraIssuesConfig
+			jira = {
+				---@type AtlasJiraViewConfig[]
+				views = {
+					{
+						name = "Priority",
+						key = "1",
+						layout = "plain",
+						jql = board_jql("priority in (High, Urgent)", BY_PRIORITY),
 					},
-
-					bookmarks = {
-						items = {
-							-- Board 562 quick filters, scoped to support tickets.
-							["New this week"] = board_jql("created >= -1w", "created DESC"),
-							["Stale 30d+"] = board_jql("updated < -30d", "updated ASC"),
-							["More info needed"] = board_jql('status = "More Info Needed"', BY_UPDATED),
-							["No components"] = board_jql("component is EMPTY", BY_PRIORITY),
-							["Bugs"] = board_jql("labels in (bug)", BY_PRIORITY),
-							["Feature requests"] = board_jql("labels in (feature_request, feature)", BY_PRIORITY),
-
-							["Unanswered 14d+"] = board_jql(UNANSWERED .. " AND created < -14d", BY_OLDEST),
-							["No reply 30d+"] = board_jql(ANSWERED .. " AND updated < -30d", BY_STALEST),
-							["No reply 90d+"] = board_jql(ANSWERED .. " AND updated < -90d", BY_STALEST),
-							["Barely discussed"] = board_jql("numberOfComments <= 1", "priority DESC, " .. BY_OLDEST),
-						},
+					{
+						name = "Mine",
+						key = "2",
+						layout = "plain",
+						jql = board_jql("assignee = currentUser()", BY_UPDATED),
 					},
-
-					---@type AtlasJiraProjectConfig
-					project_config = {
-						PIPE = {
-							components = {
-								name = "Component",
-								format = function(value)
-									if type(value) ~= "table" or #value == 0 then
-										return nil
-									end
-									local names = vim.tbl_map(function(component)
-										return component.name
-									end, value)
-									return table.concat(names, ", ")
-								end,
-								hl_group = "AtlasChipActive",
-								display = "chip",
-							},
-							labels = {
-								name = "Labels",
-								format = function(value)
-									if type(value) ~= "table" or #value == 0 then
-										return nil
-									end
-									return table.concat(value, ", ")
-								end,
-								hl_group = "AtlasTextMuted",
-								display = "chip",
-							},
-							customfield_10053 = {
-								name = "Impact",
-								format = function(value)
-									return type(value) == "table" and value.value or nil
-								end,
-								hl_group = "AtlasTextWarning",
-								display = "table",
-							},
-						},
+					{
+						name = "Triage",
+						key = "3",
+						layout = "compact",
+						jql = board_jql(BACKLOG_COLUMNS .. " AND assignee is EMPTY", BY_PRIORITY),
+					},
+					{
+						name = "Backlog",
+						key = "4",
+						layout = "compact",
+						jql = board_jql(BACKLOG_COLUMNS, BY_PRIORITY),
+					},
+					{
+						name = "Active",
+						key = "5",
+						layout = "compact",
+						jql = board_jql(ACTIVE_COLUMNS, BY_UPDATED),
+					},
+					{
+						name = "Unanswered",
+						key = "6",
+						layout = "compact",
+						jql = board_jql(UNANSWERED, "priority DESC, " .. BY_OLDEST),
 					},
 				},
-				---@type AtlasGitHubIssuesConfig
-				github = {}, -- See configuration below
-				---@type AtlasGitLabIssuesConfig
-				gitlab = {}, -- See configuration below
+
+				bookmarks = {
+					items = {
+						-- Board 562 quick filters, scoped to support tickets.
+						["New this week"] = board_jql("created >= -1w", "created DESC"),
+						["Stale 30d+"] = board_jql("updated < -30d", "updated ASC"),
+						["More info needed"] = board_jql('status = "More Info Needed"', BY_UPDATED),
+						["No components"] = board_jql("component is EMPTY", BY_PRIORITY),
+						["Bugs"] = board_jql("labels in (bug)", BY_PRIORITY),
+						["Feature requests"] = board_jql("labels in (feature_request, feature)", BY_PRIORITY),
+
+						["Unanswered 14d+"] = board_jql(UNANSWERED .. " AND created < -14d", BY_OLDEST),
+						["No reply 30d+"] = board_jql(ANSWERED .. " AND updated < -30d", BY_STALEST),
+						["No reply 90d+"] = board_jql(ANSWERED .. " AND updated < -90d", BY_STALEST),
+						["Barely discussed"] = board_jql("numberOfComments <= 1", "priority DESC, " .. BY_OLDEST),
+					},
+				},
+
+				---@type AtlasJiraProjectConfig
+				project_config = {
+					PIPE = {
+						components = {
+							name = "Component",
+							format = function(value)
+								if type(value) ~= "table" or #value == 0 then
+									return nil
+								end
+								local names = vim.tbl_map(function(component)
+									return component.name
+								end, value)
+								return table.concat(names, ", ")
+							end,
+							hl_group = "AtlasChipActive",
+							display = "chip",
+						},
+						labels = {
+							name = "Labels",
+							format = function(value)
+								if type(value) ~= "table" or #value == 0 then
+									return nil
+								end
+								return table.concat(value, ", ")
+							end,
+							hl_group = "AtlasTextMuted",
+							display = "chip",
+						},
+						customfield_10053 = {
+							name = "Impact",
+							format = function(value)
+								return type(value) == "table" and value.value or nil
+							end,
+						hl_group = "AtlasTextWarning",
+						display = "table",
+					},
+				},
+				},
 			},
 		},
 	},
 	config = function(_, opts)
 		require("atlas").setup(opts)
-		require("atlas.issues.providers.jira").capabilities.ui.render = add_timestamp_columns()
+		add_timestamp_columns()
 		resolve_jj_bookmarks()
 		route_gh_to_remote_host()
 	end,
