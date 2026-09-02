@@ -70,10 +70,6 @@
       "rev": "30afab604a0abe02dfd19e6fbb9153fd26fd2eb3",
       "src": "https://github.com/dlyongemallo/diffview-plus.nvim"
     },
-    "diffview.nvim": {
-      "rev": "4516612fe98ff56ae0415a259ff6361a89419b0a",
-      "src": "https://github.com/sindrets/diffview.nvim"
-    },
     "draven.nvim": {
       "rev": "ffd37fccbcf0a841ce0294296323e128df2305c1",
       "src": "https://github.com/ploMP4/draven.nvim"
@@ -101,6 +97,10 @@
     "gitsigns.nvim": {
       "rev": "eb60cc7b94c46005237fd34170d76f3a089a90aa",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
+    },
+    "gm.nvim": {
+      "rev": "b47f7b74215f47834e2894ceb9b15b810d92db61",
+      "src": "https://github.com/NnoFLy/gm.nvim"
     },
     "grapple.nvim": {
       "rev": "b41ddfc1c39f87f3d1799b99c2f0f1daa524c5f7",

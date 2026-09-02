@@ -29,6 +29,7 @@ local function exists(mark)
 	return false
 end
 
+
 local function find_tag(key)
 	local tags = require("grapple").tags()
 	for i = 1, #tags do
@@ -119,6 +120,7 @@ end
 
 return {
 	"cbochs/grapple.nvim",
+	enabled = false,
 	keys = {
 		{ "m", desc = "+Mark Grapple" },
 		{ ",", desc = "+Go Grapple" },

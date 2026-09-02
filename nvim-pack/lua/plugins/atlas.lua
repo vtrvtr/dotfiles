@@ -1,7 +1,7 @@
 -- Board parity: filter 11836 backs Jira board 562 "All Pipe" and already drops
 -- Closed/Cancelled/Resolved/Done plus on-hold items with a future due date.
 -- Referencing it keeps these views in sync when the board owners retune it.
-local PIPE_BOARD = "filter = 11836 AND issuetype = Support"
+local PIPE_BOARD = "filter = 11836"
 
 -- Board 562 column groupings, by status.
 local BACKLOG_COLUMNS = 'status in (Open, "More Info Needed", Backlog)'
@@ -15,6 +15,9 @@ local function board_jql(clause, order)
 	return PIPE_BOARD .. " AND " .. clause .. " ORDER BY " .. order
 end
 
+-- Views read newest-first. `created`, not `updated`: an automation or field bump
+-- would otherwise float an old ticket above genuinely new arrivals.
+local BY_RECENT = "created DESC"
 local BY_PRIORITY = "priority DESC, created DESC"
 local BY_UPDATED = "updated DESC"
 
@@ -93,6 +96,55 @@ local function add_timestamp_columns()
 	end
 end
 
+-- atlas 0.7.3 hardcodes `parsed.host ~= "github.com"` in the GitHub resolver, so
+-- every enterprise remote resolves to nil and each command aborts with "Could not
+-- resolve the origin repository". Earlier releases matched any host containing
+-- "github". Resolve against a spoofed github.com host, then put the real host back
+-- on the target: route_gh_to_remote_host below reads it to pick GH_HOST.
+local function resolve_github_enterprise()
+	local resolver = require("atlas.providers.github.resolve")
+	local resolve = resolver.resolve
+	local DEFAULT_HOST = "github.com"
+
+	---@param host string
+	---@return boolean
+	local function is_enterprise(host)
+		return host ~= DEFAULT_HOST and (host:find("github", 1, true) or host:find(".ghe.com", 1, true)) ~= nil
+	end
+
+	resolver.resolve = function(value, parsed)
+		if parsed == nil or not is_enterprise(parsed.host) then
+			return resolve(value, parsed)
+		end
+		local host = parsed.host
+		local target, err = resolve(value, vim.tbl_extend("force", parsed, { host = DEFAULT_HOST }))
+		if not target then
+			return nil, err
+		end
+		target.host = host
+		local default = "^https://" .. vim.pesc(DEFAULT_HOST)
+		for _, key in ipairs({ "url", "repository_url" }) do
+			if type(target[key]) == "string" then
+				target[key] = target[key]:gsub(default, "https://" .. host)
+			end
+		end
+		return target, nil
+	end
+end
+
+local DEFAULT_GH_HOST = "github.com"
+
+-- Keying on cwd is wrong here: atlas spawns gh without one, and the repo being
+-- viewed need not be the repo nvim was started in. The slug travels in the
+-- command itself, so learn each slug's host instead: from local remotes as atlas
+-- resolves them, and from search results as they arrive.
+local host_by_slug = {}
+
+-- A dashboard search names no repo, so nothing in the command reveals its host.
+-- search_github_hosts sets this immediately before spawning, and gh is spawned
+-- synchronously inside the search call, so the value is always the right one.
+local forced_gh_host = nil
+
 -- atlas parses the remote's host but spawns a bare `gh`, passing the repo as an
 -- unqualified `--repo owner/name`. An explicit --repo overrides gh's own remote
 -- inference, so on a self-hosted forge every call hits github.com and fails with
@@ -101,21 +153,17 @@ end
 -- gh reads it from the environment only, so this cannot live in git config.
 local function route_gh_to_remote_host()
 	local system = vim.system
-	local DEFAULT_HOST = "github.com"
 
-	-- Keying on cwd is wrong here: atlas spawns gh without one, and the repo
-	-- being viewed need not be the repo nvim was started in. The slug travels in
-	-- the command itself, so learn each slug's host as atlas resolves repos.
-	local host_by_slug = {}
-
-	-- atlas points gh at a repo three different ways: positionally
-	-- (`repo view <slug>`), by flag (`--repo <slug>`) and inside an API path
-	-- (`repos/<slug>/issues/1`). Rather than model each shape, look for any
-	-- known slug anywhere in the command.
+	-- atlas points gh at a repo four different ways: positionally
+	-- (`repo view <slug>`), by flag (`--repo <slug>`), inside an API path
+	-- (`repos/<slug>/issues/1`), and split across GraphQL variables
+	-- (`-f owner=x -f repo=y`). Rather than model each shape, look for any known
+	-- slug anywhere in the command, reassembling the split pair as we go.
 	---@param cmd string[]
 	---@param known table<string, string>
 	---@return string|nil host
 	local function host_for_command(cmd, known)
+		local owner, repo
 		for _, arg in ipairs(cmd) do
 			if type(arg) == "string" then
 				if known[arg] then
@@ -125,7 +173,12 @@ local function route_gh_to_remote_host()
 				if embedded and known[embedded] then
 					return known[embedded]
 				end
+				owner = arg:match("^owner=(.+)$") or owner
+				repo = arg:match("^repo=(.+)$") or repo
 			end
+		end
+		if owner and repo then
+			return known[owner .. "/" .. repo]
 		end
 		return nil
 	end
@@ -136,15 +189,15 @@ local function route_gh_to_remote_host()
 	local local_repository = git.local_repository
 	git.local_repository = function(cwd)
 		local info = local_repository(cwd)
-		if info and info.slug and info.host and info.host ~= DEFAULT_HOST then
-			host_by_slug[info.slug] = info.host
+		if info and info.repo_full_name and info.host and info.host ~= DEFAULT_GH_HOST then
+			host_by_slug[info.repo_full_name] = info.host
 		end
 		return info
 	end
 
 	vim.system = function(cmd, opts, on_exit)
 		if type(cmd) == "table" and cmd[1] == "gh" then
-			local host = host_for_command(cmd, host_by_slug)
+			local host = forced_gh_host or host_for_command(cmd, host_by_slug)
 			if host then
 				local given = opts or {}
 				opts = vim.tbl_extend("force", given, {
@@ -153,6 +206,90 @@ local function route_gh_to_remote_host()
 			end
 		end
 		return system(cmd, opts, on_exit)
+	end
+end
+
+-- Every PR view funnels through search_prs, and atlas gives it one host, so work
+-- PRs on netflix.ghe.com never appear. Run each search once per host and merge.
+-- The enterprise half is scoped to org:nas, which also keeps the two halves on
+-- distinct cache keys, since atlas derives the key from the query string.
+local GH_HOSTS = {
+	{ host = DEFAULT_GH_HOST },
+	{ host = "netflix.ghe.com", scope = "org:nas" },
+}
+
+local function search_github_hosts()
+	local api = require("atlas.pulls.providers.github.api.pullrequests")
+	local request_scope = require("atlas.core.requests")
+	local search_prs = api.search_prs
+
+	---@param pulls PullRequest[]
+	---@param host string
+	local function remember_hosts(pulls, host)
+		if host == DEFAULT_GH_HOST then
+			return
+		end
+		for _, pr in ipairs(pulls) do
+			if pr.repo_full_name then
+				host_by_slug[pr.repo_full_name] = host
+			end
+		end
+	end
+
+	---@param batches table<string, PullRequest[]>
+	---@param limit integer
+	---@return PullRequest[]
+	local function merge(batches, limit)
+		local pulls = {}
+		for _, batch in pairs(batches) do
+			vim.list_extend(pulls, batch or {})
+		end
+		-- Same sort atlas applies when it fans a view out over several queries.
+		table.sort(pulls, function(left, right)
+			if left.updated_on == right.updated_on then
+				return tostring(left.link.html) < tostring(right.link.html)
+			end
+			return left.updated_on > right.updated_on
+		end)
+		while #pulls > limit do
+			table.remove(pulls)
+		end
+		return pulls
+	end
+
+	api.search_prs = function(search, on_done, opts)
+		local scope = request_scope.new()
+		local starts = {}
+		for _, target in ipairs(GH_HOSTS) do
+			local host, query = target.host, search
+			if target.scope then
+				query = query .. " " .. target.scope
+			end
+			starts[host] = function(done)
+				forced_gh_host = host
+				local ok, handle = pcall(search_prs, query, function(pulls, errors)
+					remember_hosts(pulls or {}, host)
+					done(pulls or {}, errors and errors[1])
+				end, opts)
+				forced_gh_host = nil
+				if not ok then
+					error(handle)
+				end
+				return handle
+			end
+		end
+
+		scope.all(starts, function(values, errors)
+			local failures = {}
+			for host, err in pairs(errors) do
+				table.insert(failures, host .. ": " .. tostring(err))
+			end
+			-- A reachable host still has results worth showing, so a partial
+			-- failure reports alongside them rather than replacing them.
+			local limit = math.min(100, math.max(1, tonumber((opts or {}).limit) or 50))
+			on_done(merge(values, limit), #failures > 0 and failures or nil)
+		end)
+		return scope
 	end
 end
 
@@ -259,7 +396,9 @@ return {
 		"nvim-tree/nvim-web-devicons", -- optional but recommended
 		"MeanderingProgrammer/render-markdown.nvim", -- optional but recommended
 		"esmuellert/codediff.nvim", -- optional (PullRequest diff)
-		"sindrets/diffview.nvim", -- optional (PullRequest diff - alternative)
+		-- No upstream diffview: it shares the `diffview` Lua namespace with
+		-- diffview-plus.nvim, and whichever loads first wins per-module, so
+		-- mixed halves break the fork's layouts.
 	},
 	opts = {
 		-- Credentials and transport, shared by both domains. A provider is only
@@ -315,37 +454,37 @@ return {
 						name = "Priority",
 						key = "1",
 						layout = "plain",
-						jql = board_jql("priority in (High, Urgent)", BY_PRIORITY),
+						jql = board_jql("priority in (High, Urgent)", BY_RECENT),
 					},
 					{
 						name = "Mine",
 						key = "2",
 						layout = "plain",
-						jql = board_jql("assignee = currentUser()", BY_UPDATED),
+						jql = board_jql("assignee = currentUser()", BY_RECENT),
 					},
 					{
 						name = "Triage",
 						key = "3",
 						layout = "compact",
-						jql = board_jql(BACKLOG_COLUMNS .. " AND assignee is EMPTY", BY_PRIORITY),
+						jql = board_jql(BACKLOG_COLUMNS .. " AND assignee is EMPTY", BY_RECENT),
 					},
 					{
 						name = "Backlog",
 						key = "4",
 						layout = "compact",
-						jql = board_jql(BACKLOG_COLUMNS, BY_PRIORITY),
+						jql = board_jql(BACKLOG_COLUMNS, BY_RECENT),
 					},
 					{
 						name = "Active",
 						key = "5",
 						layout = "compact",
-						jql = board_jql(ACTIVE_COLUMNS, BY_UPDATED),
+						jql = board_jql(ACTIVE_COLUMNS, BY_RECENT),
 					},
 					{
 						name = "Unanswered",
 						key = "6",
 						layout = "compact",
-						jql = board_jql(UNANSWERED, "priority DESC, " .. BY_OLDEST),
+						jql = board_jql(UNANSWERED, BY_RECENT),
 					},
 				},
 
@@ -410,7 +549,9 @@ return {
 	config = function(_, opts)
 		require("atlas").setup(opts)
 		add_timestamp_columns()
+		resolve_github_enterprise()
 		resolve_jj_bookmarks()
 		route_gh_to_remote_host()
+		search_github_hosts()
 	end,
 }

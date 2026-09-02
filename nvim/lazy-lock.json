@@ -55,10 +55,6 @@
     "branch": "main",
     "commit": "6041ef0244b3fecf3b7f07de9af8cfbf8dbc4945"
   },
-  "diffview.nvim": {
-    "branch": "main",
-    "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a"
-  },
   "fff.nvim": {
     "branch": "main",
     "commit": "0f5ead1ab5355ea83be1171c54d8d44a65c5f7b4"
