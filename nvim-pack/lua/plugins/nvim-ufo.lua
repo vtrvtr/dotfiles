@@ -75,6 +75,29 @@ return {
 			},
 		})
 
+		-- diffview-plus folds unchanged inline-diff regions with
+		-- `foldmethod=expr`; ufo overwrites that with manual treesitter folds,
+		-- including on the working-tree side (an ordinary file buffer, so a
+		-- provider_selector can't recognise it).
+		vim.api.nvim_create_autocmd("User", {
+			pattern = "DiffviewViewOpened",
+			callback = function()
+				require("ufo").disable()
+			end,
+		})
+		vim.api.nvim_create_autocmd("User", {
+			pattern = "DiffviewViewClosed",
+			callback = function()
+				require("ufo").enable()
+			end,
+		})
+		-- ufo loads on BufRead, which a diffview buffer can trigger: the view is
+		-- then already open and `DiffviewViewOpened` has been and gone.
+		local has_view, lib = pcall(require, "diffview.lib")
+		if has_view and lib.get_current_view() then
+			require("ufo").disable()
+		end
+
 		-- Key mappings for folding
 		vim.keymap.set("n", "zR", require("ufo").openAllFolds, { desc = "Open all folds" })
 		vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { desc = "Close all folds" })

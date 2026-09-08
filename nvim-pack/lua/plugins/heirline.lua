@@ -218,12 +218,88 @@ return {
 				if not ok or not grapple.statusline then
 					return false
 				end
-				local status = grapple.statusline and grapple.statusline() or ""
-				return status ~= ""
+				return grapple.statusline() ~= ""
 			end,
 			provider = function()
-				local grapple = require("grapple")
-				return " " .. grapple.statusline()
+				return " " .. require("grapple").statusline()
+			end,
+			hl = { fg = "cyan" },
+		}
+
+		-- gm.nvim exposes no statusline API, so read gm.store directly.
+		-- heirline runs `condition` and `provider` on every redraw, so the read
+		-- and the rendered string are cached and refreshed from autocmds plus the
+		-- User GmChanged event.
+		local gm_icon = vim.fn.nr2char(0xf02e) -- 
+		local gm_marks = {}
+		local gm_rendered = ""
+
+		---@return { key: string, path: string, row: integer? }[]?, string?
+		local function gm_read()
+			local ok, store = pcall(require, "gm.store")
+			if not ok then
+				return nil, "module unavailable"
+			end
+			local marks, err = store.get_all()
+			if err then
+				return nil, err
+			end
+			local built = {}
+			for key, mark in pairs(marks) do
+				built[#built + 1] = {
+					key = key,
+					path = store.to_absolute(mark.path),
+					row = mark.cursor_position and mark.cursor_position.row,
+				}
+			end
+			table.sort(built, function(a, b)
+				return a.key < b.key
+			end)
+			return built, nil
+		end
+
+		local function gm_render(marks, current)
+			if #marks == 0 then
+				return ""
+			end
+			local out = {}
+			for _, mark in ipairs(marks) do
+				local label = mark.row and (mark.key .. ":" .. mark.row) or mark.key
+				out[#out + 1] = string.format(mark.path == current and "[%s]" or " %s ", label)
+			end
+			return " " .. gm_icon .. " " .. table.concat(out)
+		end
+
+		local function gm_refresh()
+			local marks, err = gm_read()
+			if marks then
+				gm_marks = marks
+			else
+				-- A failed read must not silently degrade to "no marks".
+				vim.notify_once("gm.store: " .. tostring(err), vim.log.levels.WARN)
+			end
+			local current = vim.api.nvim_buf_get_name(0)
+			gm_rendered = gm_render(gm_marks, current ~= "" and vim.fs.normalize(current) or nil)
+		end
+
+		gm_refresh()
+		-- BufEnter carries the store re-read because gm.nvim rewrites gm.txt on
+		-- every BufLeave (cursor persistence) and its gm.txt float saves via
+		-- BufWriteCmd, so no event reliably signals "marks changed".
+		vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "DirChanged" }, {
+			callback = gm_refresh,
+		})
+		vim.api.nvim_create_autocmd("User", {
+			pattern = "GmChanged",
+			callback = gm_refresh,
+		})
+
+		local Gm = {
+			condition = function()
+				return gm_rendered ~= ""
+			end,
+			provider = function()
+				return gm_rendered
 			end,
 			hl = { fg = "cyan" },
 		}
@@ -343,37 +419,6 @@ return {
 			["\19"] = "orange",
 			ic = "yellow",
 			R = "violet",
-			Rv = "violet",
-			cv = "red",
-			ce = "red",
-			r = "cyan",
-			rm = "cyan",
-			["r?"] = "cyan",
-			["!"] = "red",
-			t = "red",
-		}
-
-		-- Mode indicator line (simulating the border)
-		local ModeIndicator = {
-			provider = "▔",
-			hl = function()
-				local mode = vim.fn.mode()
-				local color = mode_colors_map[mode] or "blue"
-				return { fg = color, bg = "NONE" }
-			end,
-			update = "ModeChanged",
-		}
-
-		-- Fill/Align component
-		local Align = { provider = "%=" }
-
-		-- Mode-colored full-width separator
-		local ModeSeparator = {
-			provider = function()
-				-- Use a repeating pattern to create a visual separator
-				local width = vim.api.nvim_win_get_width(0) - 2
-				return string.rep("─", width)
-			end,
 			hl = function()
 				local mode = vim.fn.mode()
 				local color = mode_colors_map[mode] or "blue"
@@ -412,6 +457,7 @@ return {
 			Align,
 			Diagnostics,
 			Grapple,
+			Gm,
 			FurnaceContext,
 			VersionControl,
 		}

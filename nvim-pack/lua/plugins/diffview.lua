@@ -14,6 +14,10 @@ return {
 			default = { layout = "diff1_inline", winbar_info = true },
 			merge_tool = { layout = "diff3_mixed", winbar_info = true },
 			file_history = { layout = "diff1_inline", winbar_info = true },
+			foldlevel = 0,
+			-- `foldlevel` only sets the level; diff1_inline needs this to build
+			-- the folds at all.
+			inline = { fold_unchanged = true },
 		},
 	},
 	config = function(_, opts)
