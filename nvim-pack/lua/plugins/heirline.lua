@@ -430,7 +430,8 @@ return {
 			},
 		}
 
-		-- Complete statusline
+		local Align = { provider = "%=" }
+
 		local StatusLine = {
 			condition = function()
 				return not is_ignored()
