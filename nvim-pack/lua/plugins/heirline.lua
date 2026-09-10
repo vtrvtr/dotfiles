@@ -264,7 +264,10 @@ return {
 			end
 			local out = {}
 			for _, mark in ipairs(marks) do
-				local label = mark.row and (mark.key .. ":" .. mark.row) or mark.key
+				local label = mark.key .. " → " .. vim.fn.fnamemodify(mark.path, ":.")
+				if mark.row then
+					label = label .. ":" .. mark.row
+				end
 				out[#out + 1] = string.format(mark.path == current and "[%s]" or " %s ", label)
 			end
 			return " " .. gm_icon .. " " .. table.concat(out)
@@ -296,7 +299,7 @@ return {
 
 		local Gm = {
 			condition = function()
-				return gm_rendered ~= ""
+				return not is_ignored() and gm_rendered ~= ""
 			end,
 			provider = function()
 				return gm_rendered
@@ -458,7 +461,6 @@ return {
 			Align,
 			Diagnostics,
 			Grapple,
-			Gm,
 			FurnaceContext,
 			VersionControl,
 		}
@@ -478,6 +480,7 @@ return {
 				IgnoredStatusLine,
 				StatusLine,
 			},
+			winbar = Gm,
 			opts = {
 				colors = setup_colors(),
 			},
