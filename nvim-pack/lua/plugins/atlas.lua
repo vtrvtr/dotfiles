@@ -395,7 +395,7 @@ return {
 	},
 	dependencies = {
 		"nvim-tree/nvim-web-devicons", -- optional but recommended
-		"MeanderingProgrammer/render-markdown.nvim", -- optional but recommended
+		{ "MeanderingProgrammer/render-markdown.nvim", opts = {} },
 		"esmuellert/codediff.nvim", -- optional (PullRequest diff)
 		-- No upstream diffview: it shares the `diffview` Lua namespace with
 		-- diffview-plus.nvim, and whichever loads first wins per-module, so

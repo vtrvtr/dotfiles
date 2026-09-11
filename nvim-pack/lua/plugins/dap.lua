@@ -282,6 +282,7 @@ return {
 					command = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python",
 					args = { "-m", "debugpy.adapter" },
 				}
+				dap.adapters.debugpy = dap.adapters.python
 				dap.configurations.python = {
 					{
 						type = "python",
