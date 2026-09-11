@@ -31,7 +31,7 @@ return {
 					},
 				},
 				bookmark = {
-					prefix = "feat/",
+					prefix = "",
 				},
 				keymaps = {
 					-- Log buffer keymaps (set to nil to disable)

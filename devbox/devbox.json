@@ -50,6 +50,7 @@
     "github:NixOS/nixpkgs/nixpkgs-unstable#brush",
     "github:NixOS/nixpkgs/nixpkgs-unstable#wild",
     "github:lukasl-dev/pi.nix",
+    "github:modem-dev/hunk",
     "lldb@latest"
   ],
   "shell": {

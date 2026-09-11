@@ -122,6 +122,10 @@
       "rev": "cfcd8fe8316ecc427dc98379e24e0605e91ea3e4",
       "src": "https://github.com/nicolasgb/jj.nvim"
     },
+    "jujutsu.nvim": {
+      "rev": "1d0feb306db0cc0d607618ce5152f23934f96c41",
+      "src": "https://github.com/mistweaverco/jujutsu.nvim"
+    },
     "layers.nvim": {
       "rev": "ebbb386d7aea84a04bf7eab0873975b2e9d695a5",
       "src": "https://github.com/debugloop/layers.nvim"

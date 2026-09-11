@@ -23,16 +23,63 @@ return {
 	config = function(_, opts)
 		local actions = require("diffview.actions")
 
-		-- `[[`/`]]` for hunk navigation, alongside the built-in `[c`/`]c`.
-		-- diff1_inline has `diff=false`, so native `]c` does nothing there and the
-		-- renderer's own hunk-walking actions are required. The real diff-mode
-		-- layouts use native `]c`/`[c`, wrapped with `zz` to recenter.
-		-- `]c`/`[c` never raise: at the last hunk they just leave the cursor put.
 		local function native_hunk(lhs)
-			return function()
+			return function(win)
+				local before = vim.api.nvim_win_get_cursor(win)
 				vim.cmd("normal! " .. lhs)
-				vim.cmd("normal! zz")
+				return not vim.deep_equal(before, vim.api.nvim_win_get_cursor(win))
 			end
+		end
+
+		local function inline_hunk(jump)
+			return function(win)
+				local row = jump(vim.api.nvim_win_get_buf(win), vim.api.nvim_win_get_cursor(win)[1] - 1)
+				if not row then
+					return false
+				end
+				vim.api.nvim_win_set_cursor(win, { row + 1, 0 })
+				return true
+			end
+		end
+
+		local function hunk_or_file(jump, next_file)
+			return function()
+				if jump(vim.api.nvim_get_current_win()) then
+					vim.cmd("normal! zz")
+				else
+					next_file()
+				end
+			end
+		end
+
+		local function mark_viewed()
+			local view = require("diffview.lib").get_current_view()
+			local panel = view and view.panel
+			if not (panel and panel.select_file and view.infer_cur_file and view._save_selections_now) then
+				return
+			end
+
+			local file = view:infer_cur_file()
+			local files = panel:ordered_file_list()
+			local index = require("diffview.utils").vec_indexof(files, file)
+			if index == -1 then
+				return
+			end
+
+			panel:select_file(file)
+			if not panel.hide_selected then
+				panel:toggle_hide_selected()
+			end
+			panel:render()
+			panel:redraw()
+
+			local next_file = files[index % #files + 1]
+			if next_file ~= file then
+				view:set_file(next_file, true, true)
+			else
+				panel:reconstrain_cursor()
+			end
+			view:_save_selections_now()
 		end
 
 		-- `actions.close` is only handled by the help / commit-log / option
@@ -45,14 +92,36 @@ return {
 			file_panel = { quit },
 			file_history_panel = { quit },
 			diff1_inline = {
-				{ "n", "]]", actions.next_inline_hunk, { desc = "Next hunk" } },
-				{ "n", "[[", actions.prev_inline_hunk, { desc = "Previous hunk" } },
+				{
+					"n",
+					"]]",
+					hunk_or_file(inline_hunk(require("diffview.scene.inline_diff").next_hunk_row), actions.select_next_entry),
+					{ desc = "Next hunk or file" },
+				},
+				{
+					"n",
+					"[[",
+					hunk_or_file(inline_hunk(require("diffview.scene.inline_diff").prev_hunk_row), actions.select_prev_entry),
+					{ desc = "Previous hunk or file" },
+				},
+				{ "n", "x", mark_viewed, { desc = "Mark file viewed and hide" } },
 			},
 		}
 		for _, group in ipairs({ "diff1", "diff2", "diff3", "diff4" }) do
 			keymaps[group] = {
-				{ "n", "]]", native_hunk("]c"), { desc = "Next hunk" } },
-				{ "n", "[[", native_hunk("[c"), { desc = "Previous hunk" } },
+				{
+					"n",
+					"]]",
+					hunk_or_file(native_hunk("]c"), actions.select_next_entry),
+					{ desc = "Next hunk or file" },
+				},
+				{
+					"n",
+					"[[",
+					hunk_or_file(native_hunk("[c"), actions.select_prev_entry),
+					{ desc = "Previous hunk or file" },
+				},
+				{ "n", "x", mark_viewed, { desc = "Mark file viewed and hide" } },
 			}
 		end
 
