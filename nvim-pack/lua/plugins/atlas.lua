@@ -48,6 +48,7 @@ local BY_STALEST = "updated ASC"
 -- measured recall against real comment timestamps is 99% at 30d, 90% at 90d.
 local ANSWERED = "numberOfComments > 0"
 local UNANSWERED = "numberOfComments = 0"
+local INVOLVED = "(commentedBy = currentUser() OR comment ~ currentUser())"
 
 -- The Jira dashboard ships Assignee/Reporter but no Created/Updated columns
 -- (upstream has them for GitHub only, and only in compact layout). The search
@@ -463,26 +464,32 @@ return {
 						jql = board_jql("assignee = currentUser()", BY_RECENT),
 					},
 					{
-						name = "Triage",
+						name = "Involved",
 						key = "3",
+						layout = "plain",
+						jql = board_jql(INVOLVED, BY_RECENT),
+					},
+					{
+						name = "Triage",
+						key = "4",
 						layout = "compact",
 						jql = board_jql(BACKLOG_COLUMNS .. " AND assignee is EMPTY", BY_RECENT),
 					},
 					{
 						name = "Backlog",
-						key = "4",
+						key = "5",
 						layout = "compact",
 						jql = board_jql(BACKLOG_COLUMNS, BY_RECENT),
 					},
 					{
 						name = "Active",
-						key = "5",
+						key = "6",
 						layout = "compact",
 						jql = board_jql(ACTIVE_COLUMNS, BY_RECENT),
 					},
 					{
 						name = "Unanswered",
-						key = "6",
+						key = "7",
 						layout = "compact",
 						jql = board_jql(UNANSWERED, BY_RECENT),
 					},
