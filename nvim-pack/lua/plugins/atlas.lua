@@ -26,7 +26,8 @@ local BY_UPDATED = "updated DESC"
 ---@param clause string
 ---@return string
 local function gh_search(clause)
-	return string.format("is:pr is:open archived:false %s sort:updated-desc", clause)
+	local qualifier = clause ~= "" and " " .. clause or ""
+	return string.format("is:pr is:open archived:false%s sort:updated-desc", qualifier)
 end
 
 local MINE = "author:@me"
@@ -170,7 +171,7 @@ local function route_gh_to_remote_host()
 				if known[arg] then
 					return known[arg]
 				end
-				local embedded = arg:match("repos/([^/]+/[^/?#]+)")
+				local embedded = arg:match("repos/([^/]+/[^/?#]+)") or arg:match("repo:([^%s]+)")
 				if embedded and known[embedded] then
 					return known[embedded]
 				end
@@ -421,15 +422,16 @@ return {
 			github = {
 				---@type AtlasGitHubViewConfig[]
 				views = {
-					{ name = "Mine", key = "1", layout = "plain", search = gh_search(MINE) },
+					{ name = "Repo", key = "1", layout = "plain", current_repo = true, search = gh_search("") },
+					{ name = "Mine", key = "2", layout = "plain", search = gh_search(MINE) },
 					{
 						name = "Answered",
-						key = "2",
+						key = "3",
 						layout = "plain",
 						search = gh_search(MINE .. " " .. REVIEWED),
 					},
-					{ name = "Review", key = "3", layout = "plain", search = gh_search("review-requested:@me") },
-					{ name = "All", key = "4", layout = "plain", search = gh_search("involves:@me") },
+					{ name = "Review", key = "4", layout = "plain", search = gh_search("review-requested:@me") },
+					{ name = "All", key = "5", layout = "plain", search = gh_search("involves:@me") },
 				},
 
 				bookmarks = {
