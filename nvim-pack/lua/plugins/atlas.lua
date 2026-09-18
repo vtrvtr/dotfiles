@@ -176,7 +176,7 @@ local function route_gh_to_remote_host()
 					return known[embedded]
 				end
 				owner = arg:match("^owner=(.+)$") or owner
-				repo = arg:match("^repo=(.+)$") or repo
+				repo = arg:match("^repo=(.+)$") or arg:match("^name=(.+)$") or repo
 			end
 		end
 		if owner and repo then
