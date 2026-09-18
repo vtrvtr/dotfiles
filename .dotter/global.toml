@@ -28,6 +28,7 @@ depends = []
 "bash/atuin_bash.sh" = "~/.vtr_bash/atuin.sh"
 "bash/starship.sh" = "~/.vtr_bash/starship.sh"
 "bash/vtr_bash.sh" = "~/.vtr_bash/vtr_bash.sh"
+"bash/tv.sh" = "~/.vtr_bash/tv.sh"
 "bash/devbox.sh" = "~/.vtr_bash/devbox.sh"
 "bash/devbox_flake_update.sh" = "~/.vtr_bash/devbox_flake_update.sh"
 
@@ -40,6 +41,7 @@ depends = []
 "bash/atuin_zsh.sh" = "~/.vtr_bash/atuin.sh"
 "bash/starship_zsh.sh" = "~/.vtr_bash/starship.sh"
 "bash/vtr_bash.sh" = "~/.vtr_bash/vtr_bash.sh"
+"bash/tv.sh" = "~/.vtr_bash/tv.sh"
 "bash/devbox.sh" = "~/.vtr_bash/devbox.sh"
 "bash/devbox_flake_update.sh" = "~/.vtr_bash/devbox_flake_update.sh"
 
@@ -53,6 +55,12 @@ depends = []
 
 [nvim.files]
 "nvim" = "~/.config/nvim"
+
+[television]
+depends = []
+
+[television.files]
+"television" = { target = "~/.config/television", type = "symbolic" }
 
 [starship.files]
 "starship/starship.toml" = "~/.config/starship.toml"

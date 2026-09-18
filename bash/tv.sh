@@ -361,6 +361,8 @@ __tv_path_completion() {
             # Call tv with proper arguments and process output
             matches=$(
                 tv "$dir" --autocomplete-prompt "$lbuf" --no-status-bar --inline --input "$leftover" < /dev/tty | while IFS= read -r item; do
+                    # Television 0.15.9 writes kitty keyboard probes to stdout.
+                    item="${item#$'\e[?u\e[c'}"
                     item="${item%$suffix}$suffix"
                     dirP="$dir/"
                     [[ "$dirP" == "./" ]] && dirP=""

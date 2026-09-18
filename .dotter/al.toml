@@ -1,6 +1,7 @@
 includes = []
-packages = ["default", "fish", "al", "bash"]
+packages = ["default", "fish", "al", "bash", "television"]
 
 [files]
 
 [variables]
+vtr_bashrc = "~/.al_env/bash_custom"
