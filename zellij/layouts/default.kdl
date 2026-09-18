@@ -1,0 +1,45 @@
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="zjstatus" {
+                format_left "{mode}#[fg=#cdd6f4]{tabs}"
+                format_center ""
+                format_right "{pipe_zjhints}#[fg=#cba6f7,bold] ♥ {datetime}#[fg=#89dceb] ↖ "
+                format_space ""
+
+                pipe_zjhints_format "{output}"
+                pipe_zjhints_rendermode "dynamic"
+
+                hide_frame_for_single_pane "false"
+                border_enabled "false"
+
+                mode_normal  "#[fg=#f9e2af]   "
+                mode_locked  "#[fg=#f38ba8]   "
+                mode_pane    "#[fg=#f9e2af]   "
+                mode_tab     "#[fg=#a6e3a1]   "
+                mode_resize  "#[fg=#fab387]   "
+                mode_move    "#[fg=#cba6f7]   "
+                mode_scroll  "#[fg=#94e2d5]   "
+                mode_session "#[fg=#89dceb]   "
+                mode_rename_tab "#[fg=#a6e3a1]   "
+                mode_rename_pane "#[fg=#f9e2af]   "
+
+                tab_normal "#[fg=#6c7086]{name}"
+                tab_active "#[fg=#89b4fa,bold]{name}#[fg=#f9e2af,bold]{floating_indicator}"
+                tab_normal_fullscreen "#[fg=#6c7086]{name}"
+                tab_active_fullscreen "#[fg=#89b4fa,bold]{name}#[fg=#f9e2af,bold]{fullscreen_indicator}"
+                tab_normal_sync "#[fg=#6c7086]{name}"
+                tab_active_sync "#[fg=#a6e3a1,bold]{name}#[fg=#f9e2af,bold]{sync_indicator}"
+                tab_separator "#[fg=#89dceb,bold] ⋮ "
+
+                tab_sync_indicator " "
+                tab_fullscreen_indicator " "
+                tab_floating_indicator ""
+
+                datetime "{format}"
+                datetime_format "%H:%M"
+            }
+        }
+    }
+}

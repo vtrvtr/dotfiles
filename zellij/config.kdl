@@ -10,6 +10,7 @@ keybinds {
         bind "Alt r" { SwitchToMode "resize"; }
         bind "Alt s" { SwitchToMode "scroll"; }
         bind "Alt w" { SwitchToMode "move"; }
+        bind "Alt x" { LaunchOrFocusPlugin "zextract" { floating true; }; }
         bind "Ctrl Alt q" { Quit; }
 	bind "Ctrl p" {
 	      LaunchOrFocusPlugin "zellij_nav" {
@@ -291,6 +292,28 @@ keybinds {
 plugins {
     about location="zellij:about"
     zellij_nav location="file:~/.config/zellij/plugins/zellij_nav.wasm"
+    zextract location="https://github.com/codingfragments/zellij-zextract/releases/latest/download/zextract.wasm"
+    zjstatus location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm"
+    zjhints location="https://github.com/myah-mitchell/zjhints/releases/download/zellij-0.45/zjstatus-hints.wasm" {
+        auto_width true
+        reserve_columns 48
+        hide_in_base_mode true
+        discover_hints false
+        direction_keys "letters"
+        pipe_name "zjhints"
+        key_alias_enter "↵"
+        key_alias_space "␣"
+        key_alias_esc "⎋"
+        mod_alias_ctrl "^"
+        mod_alias_alt "⌥"
+        color_black "#1e1e2e"
+        color_blue "#89b4fa"
+        color_fg "#cdd6f4"
+        color_bg "#313244"
+        key_format "#[fg=$black,bg=$blue,bold] {key} "
+        desc_format "#[fg=$fg,bg=$bg] {desc} "
+        hint_spacer "#[fg=$fg] │ "
+    }
     autolock location="https://github.com/fresh2dev/zellij-autolock/releases/download/0.2.2/zellij-autolock.wasm" {
         is_enabled false
         print_to_log true
@@ -316,6 +339,7 @@ plugins {
 // eg. "file:/path/to/my-plugin.wasm"
 // eg. "https://example.com/my-plugin.wasm"
 load_plugins {
+    zjhints
 }
 ui {
     pane_frames {

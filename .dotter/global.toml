@@ -9,6 +9,8 @@ depends = []
 "wezterm/wezterm.lua" = "~/.wezterm.lua"
 "starship/starship.toml" = "~/.config/starship.toml"
 "zellij/config.kdl" = "~/.config/zellij/config.kdl"
+"zellij/zextract.kdl" = "~/.config/zellij/zextract.kdl"
+"zellij/layouts" = { target = "~/.config/zellij/layouts", type = "symbolic" }
 "devbox/devbox.json" = "~/.local/share/devbox/global/default/devbox.json"
 "gh-dash/config.yml" = "~/.config/gh-dash/config.yml"
 "yazi/yazi.toml" = "~/.config/yazi/yazi.toml"

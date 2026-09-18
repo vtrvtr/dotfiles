@@ -1,0 +1,17 @@
+log_level "warn"
+
+ui {
+    preview "auto"
+    preview_open_width "85%"
+    preview_closed_width "65%"
+}
+
+grab {
+    default_profile "quick"
+    profiles {
+        quick {
+            source "scrollback"
+            lines 500
+        }
+    }
+}
