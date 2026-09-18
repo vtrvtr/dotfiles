@@ -15,7 +15,7 @@ return {
 			{
 				"<leader>w",
 				function()
-					WINDOWS_MODE:activate()
+					WINDOWS_MODE:toggle()
 				end,
 			},
 			desc = "Window mode",

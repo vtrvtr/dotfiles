@@ -114,6 +114,10 @@
       "rev": "fae936abb5e0345b85c3a03ecf38525b0828b992",
       "src": "https://github.com/rebelot/heirline.nvim"
     },
+    "hunk.nvim": {
+      "rev": "c8a8e7b6973576f63e5bf39aa8338d7f37f4dc53",
+      "src": "git@github.com:julienvincent/hunk.nvim"
+    },
     "jj-diffconflicts": {
       "rev": "a2aa9a247b56d2c1a6f6be81bcf41c5450cc82ff",
       "src": "https://github.com/rafikdraoui/jj-diffconflicts"
