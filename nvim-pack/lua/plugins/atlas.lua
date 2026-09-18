@@ -220,6 +220,138 @@ local GH_HOSTS = {
 	{ host = "netflix.ghe.com", scope = "org:nas" },
 }
 
+local function prompt_required_jira_fields()
+	local issues_api = require("atlas.issues.providers.jira.api.issues")
+	if issues_api.required_custom_fields_prompted then
+		return
+	end
+
+	local create_issue = issues_api.create_issue
+	local picker = require("atlas.ui.picker")
+	local service = require("atlas.issues.providers.jira.api.service")
+
+	---@param field table
+	---@return string
+	local function field_name(field)
+		return tostring(field.name or field.fieldId or "Custom field")
+	end
+
+	---@param field table
+	---@return { id: string, label: string, value: { id: string } }[]
+	local function options(field)
+		return vim.tbl_map(function(value)
+			local id = tostring(value.id or "")
+			return {
+				id = id,
+				label = tostring(value.value or value.name or id),
+				value = { id = id },
+			}
+		end, vim.tbl_filter(function(value)
+			return tostring(value.id or "") ~= ""
+		end, field.allowedValues or {}))
+	end
+
+	---@param fields table[]
+	---@param payload table
+	---@param done fun(err: string|nil)
+	local function prompt(fields, payload, done)
+		local function next_field(index)
+			local field = fields[index]
+			if not field then
+				done(nil)
+				return
+			end
+
+			local id = tostring(field.fieldId or field.key or "")
+			if id == "" or payload[id] ~= nil then
+				next_field(index + 1)
+				return
+			end
+
+			local schema = type(field.schema) == "table" and field.schema or {}
+			local values = options(field)
+			local name = field_name(field)
+			if schema.type == "option" and #values > 0 then
+				picker.select({
+					title = "Select " .. name,
+					items = values,
+					format_item = function(item)
+						return item.label
+					end,
+					on_select = function(item)
+						if not item then
+							done(name .. " is required")
+							return
+						end
+						payload[id] = item.value
+						next_field(index + 1)
+					end,
+				})
+				return
+			end
+			if schema.type == "array" and schema.items == "option" and #values > 0 then
+				picker.multi_select({
+					title = "Select " .. name,
+					items = values,
+					selected = {},
+					key = function(item)
+						return item.id
+					end,
+					format_item = function(item)
+						return item.label
+					end,
+					on_done = function(selected)
+						if #selected == 0 then
+							done(name .. " is required")
+							return
+						end
+						payload[id] = vim.tbl_map(function(item)
+							return item.value
+						end, selected)
+						next_field(index + 1)
+					end,
+				})
+				return
+			end
+			done(string.format("Required Jira field %q has unsupported type %q", name, tostring(schema.type)))
+		end
+
+		next_field(1)
+	end
+
+	issues_api.create_issue = function(fields, callback)
+		local project = tostring(((fields or {}).project or {}).key or "")
+		local issue_type = tostring(((fields or {}).issuetype or {}).id or "")
+		if project == "" or issue_type == "" then
+			return create_issue(fields, callback)
+		end
+
+		return service.request(
+			"GET",
+			string.format("/issue/createmeta/%s/issuetypes/%s", project, issue_type),
+			nil,
+			function(result, err)
+				if err then
+					callback(nil, err)
+					return
+				end
+				local required = vim.tbl_filter(function(field)
+					return field.required == true and tostring(field.fieldId or field.key or ""):match("^customfield_") ~= nil
+				end, result.fields or {})
+				prompt(required, fields, function(prompt_err)
+					if prompt_err then
+						callback(nil, prompt_err)
+						return
+					end
+					create_issue(fields, callback)
+				end)
+			end,
+			{ action = "Fetch create fields", project_key = project, issue_type_id = issue_type }
+		)
+	end
+	issues_api.required_custom_fields_prompted = true
+end
+
 local function search_github_hosts()
 	local api = require("atlas.pulls.providers.github.api.pullrequests")
 	local request_scope = require("atlas.core.requests")
@@ -558,6 +690,7 @@ return {
 	config = function(_, opts)
 		require("atlas").setup(opts)
 		add_timestamp_columns()
+		prompt_required_jira_fields()
 		resolve_github_enterprise()
 		resolve_jj_bookmarks()
 		route_gh_to_remote_host()
