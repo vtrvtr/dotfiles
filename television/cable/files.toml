@@ -15,13 +15,7 @@ env = { BAT_THEME = "ansi" }
 
 [keybindings]
 shortcut = "f1"
-enter = "actions:cd"
 shift-enter = "actions:edit"
-
-[actions.cd]
-description = "Enter directory"
-command = "if [[ -d '{}' ]]; then cd '{}'; else cd $(dirname '{}'); fi && $SHELL"
-mode = "execute"
 
 [actions.edit]
 description = "Open file in nvim"
