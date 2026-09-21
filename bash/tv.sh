@@ -455,6 +455,15 @@ tv_shell_history() {
     _enable_bracketed_paste
 }
 
+f() {
+    local target
+    target=$(tv files) || return
+    target=${target#$'\e[?u\e[c'}
+    [[ -z $target ]] && return
+    [[ -d $target ]] || target=$(dirname -- "$target")
+    builtin cd -- "$target"
+}
+
 # Bind the functions to key combinations
  bind -x '"\e[B": tv_smart_autocomplete'
 

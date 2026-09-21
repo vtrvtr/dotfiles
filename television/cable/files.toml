@@ -15,9 +15,3 @@ env = { BAT_THEME = "ansi" }
 
 [keybindings]
 shortcut = "f1"
-shift-enter = "actions:edit"
-
-[actions.edit]
-description = "Open file in nvim"
-command = "NVIM_APPNAME=nvim_windows nvim '{}'"
-mode = "execute"
