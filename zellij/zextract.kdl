@@ -1,5 +1,18 @@
 log_level "warn"
 
+types {
+    url    { actions "copy"; default "copy" }
+    file   { actions "copy"; default "copy" }
+    diag   { actions "copy"; default "copy" }
+    sha    { actions "copy"; default "copy" }
+    ipv4   { actions "copy"; default "copy" }
+    ipv6   { actions "copy"; default "copy" }
+    uuid   { actions "copy"; default "copy" }
+    quote  { actions "copy"; default "copy" }
+    cmd    { actions "copy"; default "copy" }
+    secret { actions "copy"; default "copy" }
+}
+
 ui {
     preview "auto"
     preview_open_width "85%"
