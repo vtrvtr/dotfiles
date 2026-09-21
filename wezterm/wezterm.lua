@@ -42,9 +42,37 @@ config.font = wezterm.font_with_fallback({
 -- config.font = wezterm.font("VeraMono")
 config.hide_tab_bar_if_only_one_tab = true
 config.default_cursor_style = "BlinkingUnderline"
+
+local presentation_font_size = config.font_size * 2.4
+
+wezterm.on("presentation-mode", function(window)
+	local overrides = window:get_config_overrides() or {}
+	overrides.font_size = presentation_font_size
+	window:set_config_overrides(overrides)
+end)
+
+wezterm.on("normal-mode", function(window)
+	local overrides = window:get_config_overrides() or {}
+	overrides.font_size = nil
+	window:set_config_overrides(overrides)
+end)
+
 config.colors = {
 	cursor_border = "#AAAA00",
 }
+wezterm.on("augment-command-palette", function()
+	return {
+		{
+			brief = "Presentation mode",
+			action = wezterm.action.EmitEvent("presentation-mode"),
+		},
+		{
+			brief = "Normal mode",
+			action = wezterm.action.EmitEvent("normal-mode"),
+		},
+	}
+end)
+
 config.keys = {
 	{
 		key = "F11",
