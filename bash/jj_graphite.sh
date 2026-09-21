@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Track the current jj bookmark stack in Graphite and submit it.
+# Rebuild Graphite tracking from the current jj bookmark stack and submit it.
 #
 # Usage: jj_graphite.sh [<stop-at>] [gt-submit-args...]
 #   <stop-at>  bookmark or revision to stop the stack at, inclusive
@@ -29,19 +29,20 @@ jjg() (
 	fi
 
 	# `ancestors(<stop>)` is the downstack from trunk up to <stop>; with no stop,
-	# `reachable(@, ...)` is the whole connected stack around @ (both directions, so
-	# it doesn't matter where @ sits in the stack). Restrict to mutable() so trunk
-	# and anything already merged stays out.
+	# start at the current bookmark's commit. `mutable()` excludes landed history
+	# and bookmarks on shared ancestors from this stack.
 	if [ -n "$stop" ]; then
 	  revset="ancestors($stop) & mutable()"
 	else
-	  revset="reachable(@, mutable())"
+	  current_bookmark=$(jj log -r @- --no-graph -T 'if(bookmarks, bookmarks, "")')
+	  if [[ "$current_bookmark" == *" "* ]]; then
+	    echo "jj_graphite: current commit has multiple bookmarks ($current_bookmark); leave one." >&2
+	    exit 1
+	  fi
+	  revset="ancestors($current_bookmark) & mutable()"
 	fi
 
-	# Bookmarks in range, parents-first (topological order). jj lists bookmarks
-	# alphabetically by default, which mis-parents any stack whose branch names
-	# don't sort topologically; `--reversed` walks oldest-first so each branch is
-	# tracked after its parent.
+	# Bookmarks in range, parents-first (topological order).
 	branches_raw=$(
 	  jj log -r "$revset" --reversed --no-graph \
 	    -T 'if(bookmarks, bookmarks ++ "\n")'
@@ -52,20 +53,64 @@ jjg() (
 	  exit 0
 	fi
 
-	# Track each branch parents-first. `--force` parents it on the nearest already
-	# tracked ancestor (the real parent given topological order) and skips the
-	# interactive parent picker. Graphite needs one branch per commit, so bail
-	# clearly if a commit carries several (they arrive space-separated).
+	# Graphite needs one branch per commit, so bail clearly if a commit carries
+	# several bookmarks (they arrive space-separated).
+	mapfile -t branches <<< "$branches_raw"
 	tip=""
-	while IFS= read -r branch; do
+	for branch in "${branches[@]}"; do
 	  [ -z "$branch" ] && continue
 	  if [[ "$branch" == *" "* ]]; then
 	    echo "jj_graphite: a commit has multiple bookmarks ($branch); leave one." >&2
 	    exit 1
 	  fi
-	  HUSKY=0 gt track --force "$branch"
 	  tip="$branch"
-	done <<< "$branches_raw"
+	done
+
+	# Make jj authoritative without deleting its Git bookmarks. Clear Graphite's
+	# stack metadata and stale merged/closed PR cache entries for these branches.
+	for branch in "${branches[@]}"; do
+	  [ -n "$branch" ] && HUSKY=0 gt untrack --force "$branch"
+	done
+	python3 - "$(git rev-parse --git-path .graphite_pr_info)" "${branches[@]}" <<'PY'
+import json
+import os
+import sys
+
+path, *branches = sys.argv[1:]
+if not os.path.exists(path):
+    raise SystemExit(0)
+with open(path, encoding="utf-8") as file:
+    data = json.load(file)
+branch_set = set(branches)
+merged = {"CLOSED", "MERGED"}
+data["prInfos"] = [
+    pr for pr in data.get("prInfos", [])
+    if not (pr.get("headRefName") in branch_set and pr.get("state") in merged)
+]
+active_prs = {pr.get("prNumber") for pr in data["prInfos"]}
+data["mergeabilityStatuses"] = [
+    status for status in data.get("mergeabilityStatuses", [])
+    if status.get("prNumber") in active_prs
+]
+temporary_path = f"{path}.jjg"
+with open(temporary_path, "w", encoding="utf-8") as file:
+    json.dump(data, file)
+os.replace(temporary_path, path)
+PY
+
+	# Re-track parents-first. The first bookmark is the trunk child; each later
+	# bookmark is parented on its immediate jj ancestor rather than Graphite's
+	# prior metadata.
+	parent=""
+	for branch in "${branches[@]}"; do
+	  [ -z "$branch" ] && continue
+	  if [ -n "$parent" ]; then
+	    HUSKY=0 gt track --parent "$parent" "$branch"
+	  else
+	    HUSKY=0 gt track --force "$branch"
+	  fi
+	  parent="$branch"
+	done
 
 	# Park pending working-copy changes off the tip so checkout/submit act on the
 	# bookmarked commits rather than a dirty working copy.
