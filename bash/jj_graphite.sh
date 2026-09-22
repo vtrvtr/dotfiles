@@ -2,6 +2,7 @@
 # Mirror a linear jj bookmark stack into Graphite without rewriting jj history.
 # Source this file, then run: jjg [<stop-at>] [gt-submit-args...]
 # With no stop, include the connected stack around @. --dry-run previews only.
+# Force-updates existing PRs only. jj owns the selected remote branch tips.
 # Requires an initialized Graphite repository, gh authentication, and jq.
 
 jjg() (
@@ -81,20 +82,20 @@ jjg() (
 		exit 1
 	fi
 
-	new_branches=()
 	for branch in "${branches[@]}"; do
 		pr_numbers[$branch]=$(jq -r --arg branch "$branch" --arg repo "$repository" '
 			[.[] | select(.head.ref == $branch and .head.repo.full_name == $repo)]
 			| if length > 1 then error("multiple open PRs for " + $branch)
 			  else .[0].number // empty end' <<< "$open_prs")
 		if [ -z "${pr_numbers[$branch]}" ]; then
-			new_branches+=("$branch")
-			printf 'jjg: %s will get a new PR.\n' "$branch"
+			echo "jjg: $branch has no open PR. Refusing to create one." >&2
+			exit 1
 		fi
+		printf 'jjg: %s uses PR #%s.\n' "$branch" "${pr_numbers[$branch]}"
 	done
 
 	if "$preview"; then
-		echo "jjg: would protect existing PR bases with $trunk, submit through $tip, then restore the parents above."
+		echo "jjg: would protect PR bases with $trunk, force-update existing PRs through $tip, then restore the parents above."
 		exit 0
 	fi
 
@@ -111,38 +112,17 @@ jjg() (
 	trap 'echo "jjg: submit incomplete. PRs may still target trunk. Resolve the error and rerun jjg." >&2' ERR
 	for branch in "${branches[@]}"; do
 		number=${pr_numbers[$branch]}
-		[ -n "$number" ] || continue
 		base=$(jq -r --argjson number "$number" '.[] | select(.number == $number) | .base.ref' <<< "$open_prs")
 		[ "$base" != "$trunk" ] || continue
 		gh api --hostname "$host" --method PATCH "repos/$repository/pulls/$number" \
 			-f base="$trunk" --jq 'if .state == "open" then "PR #\(.number): base -> \(.base.ref)" else error("PR is no longer open") end'
 	done
 
-	# Graphite retains retired PR links even after branch deletion. Only detach
-	# terminal cache entries for branches verified to have no open PR above.
-	pr_cache=$(git rev-parse --git-path .graphite_pr_info)
-	if [ "${#new_branches[@]}" -gt 0 ] && [ -f "$pr_cache" ]; then
-		new_names=$(printf '%s\n' "${new_branches[@]}" | jq -Rsc 'split("\n")[:-1]')
-		cache_tmp=$(mktemp "$pr_cache.jjg.XXXXXX")
-		if jq --argjson names "$new_names" '
-			[.prInfos[] | select(.headRefName as $name | $names | index($name))
-			 | select(.state == "CLOSED" or .state == "MERGED") | .prNumber] as $retired
-			| .prInfos |= map(select(.prNumber as $n | $retired | index($n) | not))
-			| .mergeabilityStatuses |= map(select(.prNumber as $n | $retired | index($n) | not))
-		' "$pr_cache" > "$cache_tmp"; then
-			mv -- "$cache_tmp" "$pr_cache"
-		else
-			rm -- "$cache_tmp"
-			exit 1
-		fi
-	fi
-
-	gt submit --no-interactive --no-edit --no-stack --branch "$tip" "$@"
+	gt submit "$@" --force --update-only --no-interactive --no-edit --no-stack --branch "$tip"
 
 	# Graphite may report No-op from its cache even after we changed a remote base.
 	for branch in "${branches[@]}"; do
 		number=${pr_numbers[$branch]}
-		[ -n "$number" ] || continue
 		gh api --hostname "$host" --method PATCH "repos/$repository/pulls/$number" \
 			-f base="${parents[$branch]}" --jq 'if .state == "open" then "PR #\(.number): base -> \(.base.ref)" else error("PR is no longer open") end'
 	done
