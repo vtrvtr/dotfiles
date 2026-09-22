@@ -62,7 +62,8 @@ jjg() (
 	IFS=$'\t' read -r host repository <<< "$repo_info"
 	remote_trunk=$(gh api --hostname "$host" "repos/$repository/git/ref/heads/$trunk" --jq '.object.sha')
 	if [ "$remote_trunk" != "$trunk_commit" ]; then
-		echo "jjg: update local $trunk to match $remote before submitting." >&2
+		echo "jjg: local $trunk is out of sync with $remote/$trunk." >&2
+		echo "Fetch $remote, update local $trunk, then rebase your jj stack onto $trunk and rerun jjg." >&2
 		exit 1
 	fi
 	open_prs=$(gh api --hostname "$host" --paginate \
