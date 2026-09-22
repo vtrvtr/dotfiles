@@ -16,14 +16,20 @@ local requests = {}
 vim.system = function(cmd, opts, on_exit)
 	assert(cmd[1] == "gh", "Unexpected process: " .. cmd[1])
 	local variables = {}
-	for _, arg in ipairs(cmd) do
+	local host = (opts.env or {}).GH_HOST or "github.com"
+	for index, arg in ipairs(cmd) do
 		local key, value = arg:match("^(%w+)=(.*)$")
 		if key then
 			variables[key] = value
 		end
+		if arg == "--hostname" then
+			host = cmd[index + 1]
+		elseif arg:match("^--hostname=") then
+			host = arg:sub(#"--hostname=" + 1)
+		end
 	end
 	local request = {
-		host = (opts.env or {}).GH_HOST or "github.com",
+		host = host,
 		variables = variables,
 		on_exit = on_exit,
 		cancelled = false,
@@ -55,7 +61,7 @@ local function request_for(host)
 	local matches = vim.tbl_filter(function(request)
 		return request.host == host
 	end, requests)
-	equal(#matches, 1)
+	assert(#matches == 1, string.format("Expected one request to %s, got %d", host, #matches))
 	return matches[1]
 end
 
@@ -71,6 +77,7 @@ local function respond(request, numbers, cursor)
 				nodes = vim.tbl_map(function(number)
 					local repo = request.host == "github.com" and "personal/demo" or "nas/demo"
 					return {
+						id = request.host .. ":pr:" .. number,
 						number = number,
 						updatedAt = string.format("2026-01-%02dT00:00:00Z", number),
 						url = "https://" .. request.host .. "/" .. repo .. "/pull/" .. number,
@@ -142,6 +149,56 @@ local function run()
 	equal(cached, first)
 	equal(failure, nil)
 
+	---@class ApprovalCase
+	---@field pr GitHubPullRequest
+	---@field review PullsReview
+	---@field host AtlasGhHost
+	---@field mutation "addPullRequestReview"|"submitPullRequestReview"
+
+	---@type ApprovalCase[]
+	local approvals = {
+		{
+			pr = first.items[1],
+			review = { pending = false },
+			host = "netflix.ghe.com",
+			mutation = "addPullRequestReview",
+		},
+		{
+			pr = first.items[1],
+			review = { pending = true, id = "pending-review" },
+			host = "netflix.ghe.com",
+			mutation = "submitPullRequestReview",
+		},
+		{ pr = first.items[2], review = { pending = false }, host = "github.com", mutation = "addPullRequestReview" },
+	}
+	for _, case in ipairs(approvals) do
+		requests = {}
+		local approved, review_error
+		provider.capabilities.reviews.approve(case.pr, case.review, "", function(ok, err)
+			approved, review_error = ok, err
+		end)
+		local request = request_for(case.host)
+		equal(request.variables.event, "APPROVE")
+		equal(request.variables.pullRequestId or request.variables.reviewId, case.review.id or case.pr.node_id)
+		request.on_exit({
+			code = 0,
+			signal = 0,
+			stderr = "",
+			stdout = vim.json.encode({
+				data = { [case.mutation] = { pullRequestReview = { id = "submitted-review", state = "APPROVED" } } },
+			}),
+		})
+		assert(
+			vim.wait(1000, function()
+				return approved ~= nil
+			end),
+			"Approval timed out"
+		)
+		equal(approved, true)
+		equal(review_error, nil)
+	end
+
+	requests = {}
 	local details_done = false
 	api.get_pr("nas", "demo", 4, function(_, err)
 		equal(err, "offline")

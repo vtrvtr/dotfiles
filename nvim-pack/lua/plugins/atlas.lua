@@ -197,6 +197,29 @@ local function route_gh_to_remote_host()
 		return info
 	end
 
+	-- Node-ID mutations omit the slug from argv but retain it in request metadata.
+	---@param args string[]
+	---@param ctx { repo?: string }|nil
+	---@return string[]
+	local function api_args(args, ctx)
+		local host = ctx and host_by_slug[ctx.repo]
+		if args[1] ~= "api" or not host then
+			return args
+		end
+		for _, arg in ipairs(args) do
+			if arg == "--hostname" or arg:match("^--hostname=") then
+				return args
+			end
+		end
+		return vim.list_extend({ "api", "--hostname", host }, vim.list_slice(args, 2))
+	end
+
+	local client = require("atlas.providers.github.client")
+	local gh = client.gh
+	client.gh = function(args, callback, ctx)
+		return gh(api_args(args, ctx), callback, ctx)
+	end
+
 	vim.system = function(cmd, opts, on_exit)
 		if type(cmd) == "table" and cmd[1] == "gh" then
 			local host = forced_gh_host or host_for_command(cmd, host_by_slug)
