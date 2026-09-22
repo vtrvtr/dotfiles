@@ -81,19 +81,15 @@ jjg() (
 		exit 1
 	fi
 
+	new_branches=()
 	for branch in "${branches[@]}"; do
 		pr_numbers[$branch]=$(jq -r --arg branch "$branch" --arg repo "$repository" '
 			[.[] | select(.head.ref == $branch and .head.repo.full_name == $repo)]
 			| if length > 1 then error("multiple open PRs for " + $branch)
 			  else .[0].number // empty end' <<< "$open_prs")
 		if [ -z "${pr_numbers[$branch]}" ]; then
-			previous=$(gh api --hostname "$host" --method GET "repos/$repository/pulls" \
-				-f state=all -f head="${repository%%/*}:$branch" -f per_page=1 \
-				--jq '.[0].number // empty')
-			if [ -n "$previous" ]; then
-				echo "jjg: $branch has closed/merged PR #$previous. Use a new bookmark name for a new PR." >&2
-				exit 1
-			fi
+			new_branches+=("$branch")
+			printf 'jjg: %s will get a new PR.\n' "$branch"
 		fi
 	done
 
@@ -121,6 +117,25 @@ jjg() (
 		gh api --hostname "$host" --method PATCH "repos/$repository/pulls/$number" \
 			-f base="$trunk" --jq 'if .state == "open" then "PR #\(.number): base -> \(.base.ref)" else error("PR is no longer open") end'
 	done
+
+	# Graphite retains retired PR links even after branch deletion. Only detach
+	# terminal cache entries for branches verified to have no open PR above.
+	pr_cache=$(git rev-parse --git-path .graphite_pr_info)
+	if [ "${#new_branches[@]}" -gt 0 ] && [ -f "$pr_cache" ]; then
+		new_names=$(printf '%s\n' "${new_branches[@]}" | jq -Rsc 'split("\n")[:-1]')
+		cache_tmp=$(mktemp "$pr_cache.jjg.XXXXXX")
+		if jq --argjson names "$new_names" '
+			[.prInfos[] | select(.headRefName as $name | $names | index($name))
+			 | select(.state == "CLOSED" or .state == "MERGED") | .prNumber] as $retired
+			| .prInfos |= map(select(.prNumber as $n | $retired | index($n) | not))
+			| .mergeabilityStatuses |= map(select(.prNumber as $n | $retired | index($n) | not))
+		' "$pr_cache" > "$cache_tmp"; then
+			mv -- "$cache_tmp" "$pr_cache"
+		else
+			rm -- "$cache_tmp"
+			exit 1
+		fi
+	fi
 
 	gt submit --no-interactive --no-edit --no-stack --branch "$tip" "$@"
 
