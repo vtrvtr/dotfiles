@@ -211,10 +211,13 @@ local function route_gh_to_remote_host()
 	end
 end
 
--- Every PR view funnels through search_prs, and atlas gives it one host, so work
--- PRs on netflix.ghe.com never appear. Run each search once per host and merge.
--- The enterprise half is scoped to org:nas, which also keeps the two halves on
--- distinct cache keys, since atlas derives the key from the query string.
+-- Atlas cache keys omit the host. The enterprise org scope keeps them distinct.
+---@alias AtlasGhHost "github.com"|"netflix.ghe.com"
+---@class AtlasGhSearchTarget
+---@field host AtlasGhHost
+---@field scope string|nil
+
+---@type AtlasGhSearchTarget[]
 local GH_HOSTS = {
 	{ host = DEFAULT_GH_HOST },
 	{ host = "netflix.ghe.com", scope = "org:nas" },
@@ -355,57 +358,83 @@ end
 local function search_github_hosts()
 	local api = require("atlas.pulls.providers.github.api.pullrequests")
 	local request_scope = require("atlas.core.requests")
-	local search_prs = api.search_prs
+	local fetch_search = api.fetch_search
 
 	---@param pulls PullRequest[]
-	---@param host string
+	---@param host AtlasGhHost
 	local function remember_hosts(pulls, host)
 		if host == DEFAULT_GH_HOST then
 			return
 		end
 		for _, pr in ipairs(pulls) do
-			if pr.repo_full_name then
-				host_by_slug[pr.repo_full_name] = host
-			end
+			host_by_slug[pr.repo_full_name] = host
 		end
 	end
 
-	---@param batches table<string, PullRequest[]>
-	---@param limit integer
-	---@return PullRequest[]
-	local function merge(batches, limit)
-		local pulls = {}
-		for _, batch in pairs(batches) do
-			vim.list_extend(pulls, batch or {})
+	---@param batches table<AtlasGhHost, PullsPage>
+	---@return PullsPage
+	local function merge(batches)
+		local pulls, cursors = {}, {}
+		for host, page in pairs(batches) do
+			-- Truncation would discard rows already consumed by a host's cursor.
+			vim.list_extend(pulls, page.items)
+			if page.next_cursor then
+				cursors[host] = vim.json.encode(page.next_cursor)
+			end
 		end
-		-- Same sort atlas applies when it fans a view out over several queries.
 		table.sort(pulls, function(left, right)
 			if left.updated_on == right.updated_on then
-				return tostring(left.link.html) < tostring(right.link.html)
+				return left.link.html < right.link.html
 			end
 			return left.updated_on > right.updated_on
 		end)
-		while #pulls > limit do
-			table.remove(pulls)
-		end
-		return pulls
+		return { items = pulls, next_cursor = next(cursors) and cursors or nil }
 	end
 
-	api.search_prs = function(search, on_done, opts)
+	---@class AtlasGhSearchRequest
+	---@field host AtlasGhHost
+	---@field queries string[]
+	---@field opts PullsFetchOpts
+
+	---@param queries string[]
+	---@param opts PullsFetchOpts
+	---@return AtlasGhSearchRequest[]
+	local function host_requests(queries, opts)
+		return vim.iter(GH_HOSTS)
+			:filter(function(target)
+				-- A missing host on subsequent pages means it has been exhausted.
+				return opts.cursor == nil or opts.cursor[target.host] ~= nil
+			end)
+			:map(function(target)
+				local host_opts = vim.tbl_extend("force", {}, opts)
+				host_opts.cursor = opts.cursor and vim.json.decode(opts.cursor[target.host]) or nil
+				return {
+					host = target.host,
+					opts = host_opts,
+					queries = vim.tbl_map(function(query)
+						return target.scope and (query .. " " .. target.scope) or query
+					end, queries),
+				}
+			end)
+			:totable()
+	end
+
+	---@param queries string[]
+	---@param opts PullsFetchOpts
+	---@param on_done fun(page: PullsPage, errors: string[]|nil)
+	api.fetch_search = function(queries, opts, on_done)
 		local scope = request_scope.new()
 		local starts = {}
-		for _, target in ipairs(GH_HOSTS) do
-			local host, query = target.host, search
-			if target.scope then
-				query = query .. " " .. target.scope
-			end
+		for _, request in ipairs(host_requests(queries, opts)) do
+			local host = request.host
 			starts[host] = function(done)
+				local previous_host = forced_gh_host
 				forced_gh_host = host
-				local ok, handle = pcall(search_prs, query, function(pulls, errors)
-					remember_hosts(pulls or {}, host)
-					done(pulls or {}, errors and errors[1])
-				end, opts)
-				forced_gh_host = nil
+				local ok, handle = pcall(fetch_search, request.queries, request.opts, function(page, errors)
+					remember_hosts(page.items, host)
+					done(page, errors and table.concat(errors, ", "))
+				end)
+				forced_gh_host = previous_host
 				if not ok then
 					error(handle)
 				end
@@ -414,14 +443,11 @@ local function search_github_hosts()
 		end
 
 		scope.all(starts, function(values, errors)
-			local failures = {}
-			for host, err in pairs(errors) do
-				table.insert(failures, host .. ": " .. tostring(err))
-			end
-			-- A reachable host still has results worth showing, so a partial
-			-- failure reports alongside them rather than replacing them.
-			local limit = math.min(100, math.max(1, tonumber((opts or {}).limit) or 50))
-			on_done(merge(values, limit), #failures > 0 and failures or nil)
+			local failures = vim.tbl_map(function(host)
+				return host .. ": " .. errors[host]
+			end, vim.tbl_keys(errors))
+			table.sort(failures)
+			on_done(merge(values), #failures > 0 and failures or nil)
 		end)
 		return scope
 	end
