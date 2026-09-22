@@ -140,7 +140,16 @@ jjg() (
 		fi
 	fi
 
-	gt submit "$@" --force --no-interactive --no-edit --no-stack --branch "$tip"
+	submit_status=0
+	gt submit "$@" --force --no-interactive --no-edit --no-stack --branch "$tip" || submit_status=$?
+
+	# Record Graphite's pushes in jj before the next local rewrite, even if only
+	# part of a submit succeeded. Otherwise the next fetch can create divergence.
+	jj git fetch --remote "$remote" "${branches[@]/#/--branch=exact:}"
+	if [ "$submit_status" -ne 0 ]; then
+		echo "jjg: submit failed. Remote tracking refreshed. PRs may still target trunk." >&2
+		exit "$submit_status"
+	fi
 
 	# Graphite may report No-op from its cache even after we changed a remote base.
 	for branch in "${branches[@]}"; do
