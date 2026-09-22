@@ -12,11 +12,11 @@ jjg() (
 		stop="$1"
 		shift
 	fi
-	mode=submit
+	preview=false
 	for arg in "$@"; do
 		case "$arg" in
-			--dry-run|--dry-run=true) mode=preview ;;
-			--dry-run=false) mode=submit ;;
+			--dry-run|--dry-run=true) preview=true ;;
+			--dry-run=false) preview=false ;;
 			--restack*|--branch*|--stack*|-s|--target-trunk*|--update-only|-u)
 				echo "jjg: $arg overrides the jj-derived stack and is not supported." >&2
 				exit 1 ;;
@@ -97,7 +97,7 @@ jjg() (
 		fi
 	done
 
-	if [ "$mode" = preview ]; then
+	if "$preview"; then
 		echo "jjg: would protect existing PR bases with $trunk, submit through $tip, then restore the parents above."
 		exit 0
 	fi
