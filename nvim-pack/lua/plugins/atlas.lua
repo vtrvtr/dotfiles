@@ -433,6 +433,27 @@ local function search_github_hosts()
 	---@field queries string[]
 	---@field opts PullsFetchOpts
 
+	---@type table<string, true>
+	local searched = vim.iter(GH_HOSTS):fold({}, function(hosts, target)
+		hosts[target.host] = true
+		return hosts
+	end)
+
+	-- GitHub ORs `repo:` with `org:`, so scoping a repo query widens it to the
+	-- whole org. A repo lives on one host: send its query there alone, unscoped.
+	-- An unknown or unsearched host goes everywhere, so GitHub reports the miss.
+	---@param query string
+	---@param target AtlasGhSearchTarget
+	---@return string|nil query nil when the named repo lives on another host
+	local function query_for(query, target)
+		local slug = query:match("repo:(%S+)")
+		if not slug then
+			return target.scope and (query .. " " .. target.scope) or query
+		end
+		local host = host_by_slug[slug]
+		return (not searched[host] or host == target.host) and query or nil
+	end
+
 	---@param queries string[]
 	---@param opts PullsFetchOpts
 	---@return AtlasGhSearchRequest[]
@@ -443,15 +464,17 @@ local function search_github_hosts()
 				return opts.cursor == nil or opts.cursor[target.host] ~= nil
 			end)
 			:map(function(target)
+				local host_queries = vim.iter(queries)
+					:map(function(query)
+						return query_for(query, target)
+					end)
+					:totable()
+				if #host_queries == 0 then
+					return nil
+				end
 				local host_opts = vim.tbl_extend("force", {}, opts)
 				host_opts.cursor = opts.cursor and vim.json.decode(opts.cursor[target.host]) or nil
-				return {
-					host = target.host,
-					opts = host_opts,
-					queries = vim.tbl_map(function(query)
-						return target.scope and (query .. " " .. target.scope) or query
-					end, queries),
-				}
+				return { host = target.host, opts = host_opts, queries = host_queries }
 			end)
 			:totable()
 	end

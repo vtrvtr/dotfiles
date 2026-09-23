@@ -321,6 +321,20 @@ local function run()
 	equal(#partial.items, 1)
 	equal(failure, { "github.com: offline" })
 
+	for _, case in ipairs({
+		{ slug = "nas/demo", hosts = { "netflix.ghe.com" } },
+		{ slug = "personal/demo", hosts = { "github.com" } },
+		{ slug = "unknown/demo", hosts = { "github.com", "netflix.ghe.com" } },
+	}) do
+		requests = {}
+		local repo_query = "repo:" .. case.slug .. " " .. query
+		api.fetch_search({ repo_query }, { pagelen = 2, force_refresh = true }, function() end)
+		equal(#requests, #case.hosts)
+		for _, host in ipairs(case.hosts) do
+			equal(request_for(host).variables.query1, repo_query)
+		end
+	end
+
 	requests = {}
 	local completed = false
 	local scope = api.fetch_search({ query, "review-requested:@me" }, { pagelen = 2, force_refresh = true }, function()
