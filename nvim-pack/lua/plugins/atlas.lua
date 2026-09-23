@@ -165,7 +165,7 @@ local function route_gh_to_remote_host()
 	---@param known table<string, string>
 	---@return string|nil host
 	local function host_for_command(cmd, known)
-		local owner, repo
+		local owners, repos = {}, {}
 		for _, arg in ipairs(cmd) do
 			if type(arg) == "string" then
 				if known[arg] then
@@ -175,12 +175,25 @@ local function route_gh_to_remote_host()
 				if embedded and known[embedded] then
 					return known[embedded]
 				end
-				owner = arg:match("^owner=(.+)$") or owner
-				repo = arg:match("^repo=(.+)$") or arg:match("^name=(.+)$") or repo
+				local owner_index, owner = arg:match("^owner(%d*)=(.+)$")
+				if owner then
+					owners[owner_index] = owner
+				end
+				local repo_index, repo = arg:match("^repo(%d*)=(.+)$")
+				if repo then
+					repos[repo_index] = repo
+				end
+				local name = arg:match("^name=(.+)$")
+				if name then
+					repos[""] = name
+				end
 			end
 		end
-		if owner and repo then
-			return known[owner .. "/" .. repo]
+		for index, owner in pairs(owners) do
+			local repo = repos[index]
+			if repo and known[owner .. "/" .. repo] then
+				return known[owner .. "/" .. repo]
+			end
 		end
 		return nil
 	end
@@ -191,7 +204,7 @@ local function route_gh_to_remote_host()
 	local local_repository = git.local_repository
 	git.local_repository = function(cwd)
 		local info = local_repository(cwd)
-		if info and info.repo_full_name and info.host and info.host ~= DEFAULT_GH_HOST then
+		if info and info.repo_full_name and info.host then
 			host_by_slug[info.repo_full_name] = info.host
 		end
 		return info
@@ -218,6 +231,10 @@ local function route_gh_to_remote_host()
 	local gh = client.gh
 	client.gh = function(args, callback, ctx)
 		return gh(api_args(args, ctx), callback, ctx)
+	end
+	local gh_text = client.gh_text
+	client.gh_text = function(args, callback, ctx)
+		return gh_text(api_args(args, ctx), callback, ctx)
 	end
 
 	vim.system = function(cmd, opts, on_exit)
@@ -386,9 +403,6 @@ local function search_github_hosts()
 	---@param pulls PullRequest[]
 	---@param host AtlasGhHost
 	local function remember_hosts(pulls, host)
-		if host == DEFAULT_GH_HOST then
-			return
-		end
 		for _, pr in ipairs(pulls) do
 			host_by_slug[pr.repo_full_name] = host
 		end

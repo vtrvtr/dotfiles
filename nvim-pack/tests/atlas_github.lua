@@ -7,6 +7,7 @@ vim.env.XDG_CACHE_HOME = cache_dir
 
 ---@class PendingGhRequest
 ---@field host string
+---@field cmd string[]
 ---@field variables table<string, string>
 ---@field on_exit fun(result: vim.SystemCompleted)
 ---@field cancelled boolean
@@ -30,6 +31,7 @@ vim.system = function(cmd, opts, on_exit)
 	end
 	local request = {
 		host = host,
+		cmd = cmd,
 		variables = variables,
 		on_exit = on_exit,
 		cancelled = false,
@@ -100,6 +102,8 @@ local function run()
 	local public = request_for("github.com")
 	local enterprise = request_for("netflix.ghe.com")
 	equal(public.variables.query1, query)
+	equal(public.cmd[1], "gh")
+	equal(public.host, "github.com")
 	equal(enterprise.variables.query1, query .. " org:nas")
 	respond(enterprise, { 4, 2 }, "enterprise-next")
 	respond(public, { 3, 1 })
@@ -116,6 +120,93 @@ local function run()
 		end, first.items),
 		{ "4", "3", "2", "1" }
 	)
+
+	for _, case in ipairs({
+		{ slug = "personal/demo", host = "github.com" },
+		{ slug = "nas/demo", host = "netflix.ghe.com" },
+	}) do
+		requests = {}
+		local client = require("atlas.providers.github.client")
+		local api_result, api_error
+		client.api("GET", "repos/" .. case.slug, nil, function(result, err)
+			api_result, api_error = result, err
+		end, { repo = case.slug })
+		local api_request = request_for(case.host)
+		api_request.on_exit({ code = 0, signal = 0, stderr = "", stdout = "{}" })
+		assert(
+			vim.wait(1000, function()
+				return api_result ~= nil or api_error ~= nil
+			end),
+			"GitHub API request timed out"
+		)
+		equal(api_error, nil)
+
+		requests = {}
+		local text_result, text_error
+		client.gh_text({ "api", "repos/" .. case.slug .. "/archive" }, function(result, err)
+			text_result, text_error = result, err
+		end, { repo = case.slug })
+		local text_request = request_for(case.host)
+		text_request.on_exit({ code = 0, signal = 0, stderr = "", stdout = "archive" })
+		assert(
+			vim.wait(1000, function()
+				return text_result ~= nil or text_error ~= nil
+			end),
+			"GitHub text request timed out"
+		)
+		equal(text_error, nil)
+		equal(text_result, "archive")
+
+		requests = {}
+		local fetched, fetch_error
+		api.fetch_by_refs({ { repo_full_name = case.slug, id = 9 } }, {}, function(result, err)
+			fetched, fetch_error = result, err
+		end)
+		local fetch_request = request_for(case.host)
+		fetch_request.on_exit({
+			code = 0,
+			signal = 0,
+			stderr = "",
+			stdout = vim.json.encode({ data = { item1 = vim.NIL } }),
+		})
+		assert(
+			vim.wait(1000, function()
+				return fetched ~= nil or fetch_error ~= nil
+			end),
+			"Fetch PRs by refs timed out"
+		)
+		equal(fetch_error, nil)
+		equal(fetched, {})
+
+		requests = {}
+		local created, create_error
+		api.create_pr({
+			repo_slug = case.slug,
+			head = "feature",
+			base = "main",
+			title = "title",
+			body = "",
+			draft = false,
+		}, function(result, err)
+			created, create_error = result, err
+		end)
+		local request = request_for(case.host)
+		assert(vim.tbl_contains(request.cmd, case.slug), "Create PR did not target the repository")
+		request.on_exit({
+			code = 0,
+			signal = 0,
+			stderr = "",
+			stdout = "https://" .. case.host .. "/" .. case.slug .. "/pull/9\n",
+		})
+		assert(
+			vim.wait(1000, function()
+				return created ~= nil or create_error ~= nil
+			end),
+			"Create PR timed out"
+		)
+		equal(create_error, nil)
+		equal(created.id, 9)
+	end
 
 	requests = {}
 	local second
