@@ -3,6 +3,7 @@ source ~/.vtr_bash/devbox.sh
 source ~/.vtr_bash/devbox_flake_update.sh
 source ~/.vtr_bash/zoxide.sh
 source ~/.vtr_bash/aliases.sh
+source ~/.vtr_bash/jj_gh_stack.sh
 source ~/.vtr_bash/starship.sh
 source ~/.vtr_bash/atuin.sh
 source ~/.vtr_bash/tv.sh
