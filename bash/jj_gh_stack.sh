@@ -38,7 +38,31 @@ jjgh() (
 		esac
 	done
 
-	trunk=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name')
+	repo_slug() {
+		local url=${1#*://}
+		url=${url#*@}
+		[[ "$1" == *://* ]] || url=${url/:/\/}
+		url=${url%/}
+		echo "${url%.git}"
+	}
+
+	# Git proxies (insteadOf) are not API hosts. Map back to a gh host.
+	remote_url=$(git remote get-url "$remote")
+	gh_hosts=$(gh auth status --json hosts --jq '.hosts | keys[]')
+	GH_REPO=$(repo_slug "$remote_url")
+	while read -r key original; do
+		base=${key#url.}
+		base=${base%.insteadof}
+		[[ "$remote_url" == "$base"* ]] || continue
+		candidate=$(repo_slug "$original${remote_url#"$base"}")
+		if grep -qxF "${candidate%%/*}" <<< "$gh_hosts"; then
+			GH_REPO=$candidate
+			break
+		fi
+	done < <(git config --get-regexp '^url\..*\.insteadof$')
+	export GH_REPO
+
+	trunk=$(gh repo view "$GH_REPO" --json defaultBranchRef --jq '.defaultBranchRef.name')
 	trunk_commit=$(git rev-parse "refs/heads/$trunk")
 	if [ -n "$stop" ]; then
 		revset="ancestors($stop) ~ ancestors($trunk_commit)"
