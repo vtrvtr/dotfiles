@@ -63,7 +63,8 @@ jjgh() (
 	export GH_REPO
 
 	trunk=$(gh repo view "$GH_REPO" --json defaultBranchRef --jq '.defaultBranchRef.name')
-	trunk_commit=$(git rev-parse "refs/heads/$trunk")
+	# PRs target the remote trunk, which a stale local trunk may not contain.
+	trunk_commit=$(jj log -r "$trunk@$remote" --no-graph -T commit_id)
 	if [ -n "$stop" ]; then
 		revset="ancestors($stop) ~ ancestors($trunk_commit)"
 	else
@@ -77,18 +78,20 @@ jjgh() (
 	fi
 
 	mapfile -t branches <<< "$branches_raw"
-	parent="$trunk"
+	parent="$trunk@$remote"
+	parent_commit="$trunk_commit"
 	for branch in "${branches[@]}"; do
 		if [[ "$branch" == *" "* ]]; then
 			echo "jjgh: multiple bookmarks on one commit ($branch). Leave one." >&2
 			exit 1
 		fi
-		if ! git merge-base --is-ancestor "$parent" "$branch"; then
+		if ! git merge-base --is-ancestor "$parent_commit" "$branch"; then
 			echo "jjgh: $parent -> $branch is not a linear stack. Select a stop-at revision." >&2
 			exit 1
 		fi
 		printf 'jjgh: %s -> %s\n' "$parent" "$branch"
 		parent="$branch"
+		parent_commit="$branch"
 	done
 
 	# jj rewrites history, so push with jj's lease check. gh stack link only fast-forwards.
