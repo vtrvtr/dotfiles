@@ -48,14 +48,13 @@ jjgh() (
 
 	# Git proxies (insteadOf) are not API hosts. Map back to a gh host.
 	remote_url=$(git remote get-url "$remote")
-	gh_hosts=$(gh auth status --json hosts --jq '.hosts | keys[]')
 	GH_REPO=$(repo_slug "$remote_url")
 	while read -r key original; do
 		base=${key#url.}
 		base=${base%.insteadof}
 		[[ "$remote_url" == "$base"* ]] || continue
 		candidate=$(repo_slug "$original${remote_url#"$base"}")
-		if grep -qxF "${candidate%%/*}" <<< "$gh_hosts"; then
+		if gh auth token --hostname "${candidate%%/*}" >/dev/null 2>&1; then
 			GH_REPO=$candidate
 			break
 		fi
