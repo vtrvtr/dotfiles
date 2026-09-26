@@ -70,31 +70,50 @@ jjgh() (
 	else
 		revset="reachable(@, $trunk_commit..)"
 	fi
-	branches_raw=$(jj log -r "$revset" --reversed --no-graph \
-		-T 'if(local_bookmarks, local_bookmarks.map(|b| b.name()).join(" ") ++ "\n")')
-	if [ -z "$branches_raw" ]; then
+	# Untracked remote bookmarks are others' branches: stack on them, never push them.
+	stack_raw=$(jj log -r "$revset" --reversed --no-graph -T 'commit_id ++ " " ++ separate(" ",
+		local_bookmarks.map(|b| b.name()),
+		remote_bookmarks.filter(|b| b.remote() == "'"$remote"'" && !b.tracked()).map(|b| b.name() ++ "@" ++ b.remote())) ++ "\n"' |
+		awk 'NF > 1')
+	if [ -z "$stack_raw" ]; then
 		echo "jjgh: no bookmarks to submit (${stop:-current stack})."
 		exit 0
 	fi
 
-	mapfile -t branches <<< "$branches_raw"
+	mapfile -t stack <<< "$stack_raw"
 	parent="$trunk@$remote"
 	parent_commit="$trunk_commit"
-	for branch in "${branches[@]}"; do
+	owned=()
+	links=()
+	for entry in "${stack[@]}"; do
+		read -r commit branch <<< "$entry"
 		if [[ "$branch" == *" "* ]]; then
 			echo "jjgh: multiple bookmarks on one commit ($branch). Leave one." >&2
 			exit 1
 		fi
-		if ! git merge-base --is-ancestor "$parent_commit" "$branch"; then
+		if ! git merge-base --is-ancestor "$parent_commit" "$commit"; then
 			echo "jjgh: $parent -> $branch is not a linear stack. Select a stop-at revision." >&2
 			exit 1
 		fi
+		if [[ "$branch" == *"@$remote" ]]; then
+			url=$(gh pr list --head "${branch%"@$remote"}" --state open --json url --jq '.[0].url // empty')
+			if [ -z "$url" ]; then
+				echo "jjgh: $branch is not yours and has no open PR to stack on." >&2
+				exit 1
+			fi
+			links+=("$url")
+		else
+			owned+=("$branch")
+			links+=("$branch")
+		fi
 		printf 'jjgh: %s -> %s\n' "$parent" "$branch"
 		parent="$branch"
-		parent_commit="$branch"
+		parent_commit="$commit"
 	done
 
 	# jj rewrites history, so push with jj's lease check. gh stack link only fast-forwards.
-	jj git push --remote "$remote" "${branches[@]/#/--bookmark=exact:}"
-	gh stack link --base "$trunk" --remote "$remote" "${branches[@]}" "${link_args[@]}"
+	if [ "${#owned[@]}" -gt 0 ]; then
+		jj git push --remote "$remote" "${owned[@]/#/--bookmark=exact:}"
+	fi
+	gh stack link --base "$trunk" --remote "$remote" "${links[@]}" "${link_args[@]}"
 )
