@@ -3,10 +3,6 @@ assert(vim.fn.isdirectory(atlas_path) == 1, "Set ATLAS_NVIM_PATH to an installed
 vim.opt.runtimepath:append(atlas_path)
 
 local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h")
-package.preload["atlas.issues.providers.jira.api.service"] = function()
-	return require("atlas.providers.jira.client")
-end
-
 local spec = dofile(root .. "/lua/plugins/atlas.lua")
 spec.config(nil, spec.opts)
 
@@ -25,15 +21,22 @@ local issue = {
 local keys = vim.tbl_map(function(column)
 	return column.key
 end, jira.columns("plain"))
-assert(vim.deep_equal(keys, { "icon", "name", "assignee", "created", "updated", "status" }), vim.inspect(keys))
+assert(
+	vim.deep_equal(keys, { "icon", "name", "assignee", "reporter", "status", "created_at", "updated_at" }),
+	vim.inspect(keys)
+)
 
 local row = jira.values(issue, false, "plain")
-assert(type(row.created) == "string" and row.created ~= "", "Created value missing")
-assert(type(row.updated) == "string" and row.updated ~= "", "Updated value missing")
+assert(type(row.created_at) == "string" and row.created_at ~= "", "Created value missing")
+assert(type(row.updated_at) == "string" and row.updated_at ~= "", "Updated value missing")
 assert(row.status:find("spin", 1, true), "Render options were not preserved")
 
-local spans = jira.highlights(row, { key = "created" }, { padded = row.created, text = row.created, width = #row.created })
-assert(spans[1].hl_group == "AtlasTextMuted", "Created timestamp is not muted")
+local spans = jira.highlights(
+	row,
+	{ key = "created_at" },
+	{ padded = row.created_at, text = row.created_at, width = #row.created_at }
+)
+assert(vim.deep_equal(spans, {}), "Created timestamp should use default styling")
 
 local github = displays.get("github", opts)
 assert(vim.tbl_contains(vim.tbl_map(function(column)

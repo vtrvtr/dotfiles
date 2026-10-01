@@ -51,38 +51,51 @@ local ANSWERED = "numberOfComments > 0"
 local UNANSWERED = "numberOfComments = 0"
 local INVOLVED = "(commentedBy = currentUser() OR comment ~ currentUser())"
 
--- The Jira dashboard ships Assignee/Reporter but no Created/Updated columns
--- (upstream has them for GitHub only, and only in compact layout). The search
--- already requests both timestamps and the mapper exposes them on the issue, so
--- swapping Reporter for the two dates is purely a display change: mutate the
--- provider's display table in place, which is what the dashboard reads per render.
+-- Jira issues expose timestamps, but its list omits them. The provider builds a
+-- fresh display per render, so decorate the factory rather than one display.
 local function add_timestamp_columns()
 	local displays = require("atlas.issues.ui.components.issue_list.providers")
 	local icons = require("atlas.ui.shared.icons")
 	local utils = require("atlas.ui.shared.utils")
 	local get = displays.get
 
-	-- TODO(human): Wrap displays.get so each fresh Jira display includes Created
-	--   and Updated columns, values, and muted highlights. Preserve every argument
-	--   and return value for non-Jira providers. Do not cache Jira displays because
-	--   render options carry live reload state.
-	--   Depends on it: atlas.issues.ui.components.issue_list calls get per render.
-	--   see: nvim-pack/lua/plugins/atlas.lua:59
-	--   verify: nvim-pack/tests/atlas_jira_columns.lua
-	--   run: ATLAS_NVIM_PATH="$HOME/.local/share/nvim-pack/site/pack/core/opt/atlas.nvim" nvim -u NONE --headless -l nvim-pack/tests/atlas_jira_columns.lua
-	-- displays.get = function(provider_id, opts)
-	-- 	display = get(provider_id, opts)
-	-- 	if provider_id ~= "jira" then
-	-- 		return display
-	-- 	end
-	-- 	columns = display.columns()
-	-- 	display.columns = function() end
-	-- 	values = display.values()
-	-- 	display.values = function() end
-	-- 	highlights = display.highlights()
-	-- 	display.highlights = function() end
-	-- end
-	_ = { icons, utils, get }
+	displays.get = function(provider_id, opts)
+		local display = get(provider_id, opts)
+		if provider_id ~= "jira" then
+			return display
+		end
+		local columns = display.columns
+		display.columns = function(...)
+			local default = columns(...)
+			table.insert(default, {
+				key = "created_at",
+				name = string.format("%s Created At", icons.general("created")),
+				can_grow = false,
+			})
+			table.insert(default, {
+				key = "updated_at",
+				name = string.format("%s Updated At", icons.general("updated")),
+				can_grow = false,
+			})
+			return default
+		end
+		local values = display.values
+		display.values = function(issue, ...)
+			local default = values(issue, ...)
+			default.created_at = utils.relative_time(issue.created_at)
+			default.updated_at = utils.relative_time(issue.updated_at)
+			return default
+		end
+		local highlights = display.highlights
+		display.highlights = function(table_row, col, ctx, ...)
+			if col.key == "created_at" or col.key == "updated_at" then
+				return {}
+			end
+			return highlights(table_row, col, ctx, ...)
+		end
+
+		return display
+	end
 end
 
 -- atlas 0.7.3 hardcodes `parsed.host ~= "github.com"` in the GitHub resolver, so
@@ -258,7 +271,7 @@ local function prompt_required_jira_fields()
 
 	local create_issue = issues_api.create_issue
 	local picker = require("atlas.ui.picker")
-	local service = require("atlas.issues.providers.jira.api.service")
+	local service = require("atlas.providers.jira.client")
 
 	---@param field table
 	---@return string
