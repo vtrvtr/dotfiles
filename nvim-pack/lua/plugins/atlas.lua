@@ -57,45 +57,32 @@ local INVOLVED = "(commentedBy = currentUser() OR comment ~ currentUser())"
 -- swapping Reporter for the two dates is purely a display change: mutate the
 -- provider's display table in place, which is what the dashboard reads per render.
 local function add_timestamp_columns()
-	local displays = require("atlas.issues.ui.dashboard.providers")
+	local displays = require("atlas.issues.ui.components.issue_list.providers")
 	local icons = require("atlas.ui.shared.icons")
 	local utils = require("atlas.ui.shared.utils")
+	local get = displays.get
 
-	local jira = displays.get("jira")
-	local values, highlights = jira.values, jira.highlights
-
-	-- table_tree deepcopies opts.columns, so one shared list is safe to reuse.
-	local COLUMNS = {
-		{ key = "icon", name = "", can_grow = false, align = "center" },
-		{ key = "name", name = "Issue" },
-		{
-			key = "assignee",
-			name = string.format("%s Assignee", icons.general("user")),
-			max_width = 22,
-			can_grow = false,
-		},
-		{ key = "created", name = icons.general("created"), can_grow = false },
-		{ key = "updated", name = icons.general("updated"), can_grow = false },
-		{ key = "status", name = " Status", can_grow = false },
-	}
-
-	jira.columns = function()
-		return COLUMNS
-	end
-
-	jira.values = function(issue, is_child, layout)
-		local row = values(issue, is_child, layout)
-		row.created = utils.relative_time(issue.created_at)
-		row.updated = utils.relative_time(issue.updated_at)
-		return row
-	end
-
-	jira.highlights = function(row, col, ctx)
-		if col.key == "created" or col.key == "updated" then
-			return { { start_col = 0, end_col = #ctx.padded, hl_group = "AtlasTextMuted" } }
-		end
-		return highlights(row, col, ctx)
-	end
+	-- TODO(human): Wrap displays.get so each fresh Jira display includes Created
+	--   and Updated columns, values, and muted highlights. Preserve every argument
+	--   and return value for non-Jira providers. Do not cache Jira displays because
+	--   render options carry live reload state.
+	--   Depends on it: atlas.issues.ui.components.issue_list calls get per render.
+	--   see: nvim-pack/lua/plugins/atlas.lua:59
+	--   verify: nvim-pack/tests/atlas_jira_columns.lua
+	--   run: ATLAS_NVIM_PATH="$HOME/.local/share/nvim-pack/site/pack/core/opt/atlas.nvim" nvim -u NONE --headless -l nvim-pack/tests/atlas_jira_columns.lua
+	-- displays.get = function(provider_id, opts)
+	-- 	display = get(provider_id, opts)
+	-- 	if provider_id ~= "jira" then
+	-- 		return display
+	-- 	end
+	-- 	columns = display.columns()
+	-- 	display.columns = function() end
+	-- 	values = display.values()
+	-- 	display.values = function() end
+	-- 	highlights = display.highlights()
+	-- 	display.highlights = function() end
+	-- end
+	_ = { icons, utils, get }
 end
 
 -- atlas 0.7.3 hardcodes `parsed.host ~= "github.com"` in the GitHub resolver, so
@@ -282,16 +269,19 @@ local function prompt_required_jira_fields()
 	---@param field table
 	---@return { id: string, label: string, value: { id: string } }[]
 	local function options(field)
-		return vim.tbl_map(function(value)
-			local id = tostring(value.id or "")
-			return {
-				id = id,
-				label = tostring(value.value or value.name or id),
-				value = { id = id },
-			}
-		end, vim.tbl_filter(function(value)
-			return tostring(value.id or "") ~= ""
-		end, field.allowedValues or {}))
+		return vim.tbl_map(
+			function(value)
+				local id = tostring(value.id or "")
+				return {
+					id = id,
+					label = tostring(value.value or value.name or id),
+					value = { id = id },
+				}
+			end,
+			vim.tbl_filter(function(value)
+				return tostring(value.id or "") ~= ""
+			end, field.allowedValues or {})
+		)
 	end
 
 	---@param fields table[]
@@ -379,7 +369,8 @@ local function prompt_required_jira_fields()
 					return
 				end
 				local required = vim.tbl_filter(function(field)
-					return field.required == true and tostring(field.fieldId or field.key or ""):match("^customfield_") ~= nil
+					return field.required == true
+						and tostring(field.fieldId or field.key or ""):match("^customfield_") ~= nil
 				end, result.fields or {})
 				prompt(required, fields, function(prompt_err)
 					if prompt_err then
@@ -563,22 +554,20 @@ local function resolve_jj_bookmarks()
 		-- @ is typically an empty working-copy commit, so walk back to the
 		-- closest ancestor that carries a bookmark. --ignore-working-copy keeps
 		-- this read-only: no snapshot, no operation-log entry.
-		local res = vim
-			.system({
-				"jj",
-				"--repository",
-				root,
-				"--ignore-working-copy",
-				"--color",
-				"never",
-				"bookmark",
-				"list",
-				"-r",
-				"heads(::@ & bookmarks())",
-				"-T",
-				'name ++ "\n"',
-			}, { text = true })
-			:wait()
+		local res = vim.system({
+			"jj",
+			"--repository",
+			root,
+			"--ignore-working-copy",
+			"--color",
+			"never",
+			"bookmark",
+			"list",
+			"-r",
+			"heads(::@ & bookmarks())",
+			"-T",
+			'name ++ "\n"',
+		}, { text = true }):wait()
 		if res.code ~= 0 then
 			local stderr = tostring(res.stderr or ""):gsub("%s+", " "):match("^%s*(.-)%s*$")
 			return nil, stderr ~= "" and stderr or ("jj exited with code " .. tostring(res.code))
@@ -765,10 +754,10 @@ return {
 							format = function(value)
 								return type(value) == "table" and value.value or nil
 							end,
-						hl_group = "AtlasTextWarning",
-						display = "table",
+							hl_group = "AtlasTextWarning",
+							display = "table",
+						},
 					},
-				},
 				},
 			},
 		},
