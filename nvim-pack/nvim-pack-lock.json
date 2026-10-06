@@ -66,6 +66,10 @@
       "rev": "c39bbe1c60eec06ad7d141bd09bb910fac4d2436",
       "src": "https://github.com/clabby/difftastic.nvim"
     },
+    "diffundo.nvim": {
+      "rev": "3bab048eeca0776d97d2a4247b210b0955a16524",
+      "src": "https://github.com/dsummersl/diffundo.nvim"
+    },
     "diffview-plus.nvim": {
       "rev": "be86a001f13b4d307814bd6e06eac429a2777ae8",
       "src": "https://github.com/dlyongemallo/diffview-plus.nvim"
@@ -305,6 +309,19 @@
     "trouble.nvim": {
       "rev": "bd67efe408d4816e25e8491cc5ad4088e708a69a",
       "src": "https://github.com/folke/trouble.nvim"
+    },
+    "undo-glow.nvim": {
+      "rev": "ac70916caa2f4e57419bb4c1a2e303cdb7bb57e2",
+      "src": "https://github.com/y3owk1n/undo-glow.nvim",
+      "version": ">=0.0.0"
+    },
+    "undotree": {
+      "rev": "a6a8b1a67fc6275ed343703101384eff290b70c0",
+      "src": "https://github.com/jiaoshijie/undotree"
+    },
+    "vim-repeat": {
+      "rev": "65846025c15494983dafe5e3b46c8f88ab2e9635",
+      "src": "https://github.com/tpope/vim-repeat"
     },
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
