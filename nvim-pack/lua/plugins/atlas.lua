@@ -15,6 +15,15 @@ local function board_jql(clause, order)
 	return PIPE_BOARD .. " AND " .. clause .. " ORDER BY " .. order
 end
 
+local NON_TERMINAL = "statusCategory != Done"
+
+---@param clause string
+---@param order string
+---@return string
+local function personal_jql(clause, order)
+	return clause .. " AND " .. NON_TERMINAL .. " ORDER BY " .. order
+end
+
 -- Views read newest-first. `created`, not `updated`: an automation or field bump
 -- would otherwise float an old ticket above genuinely new arrivals.
 local BY_RECENT = "created DESC"
@@ -629,7 +638,7 @@ return {
 		---@type AtlasProvidersConfig
 		providers = {
 			---@type AtlasGitHubConfig
-			github = {},
+			github = { hostname = DEFAULT_GH_HOST },
 			---@type AtlasJiraConfig
 			jira = {
 				token = vim.env.JIRA_TOKEN,
@@ -683,13 +692,13 @@ return {
 						name = "Mine",
 						key = "2",
 						layout = "plain",
-						jql = board_jql("assignee = currentUser()", BY_RECENT),
+						jql = personal_jql("assignee = currentUser()", BY_RECENT),
 					},
 					{
 						name = "Involved",
 						key = "3",
 						layout = "plain",
-						jql = board_jql(INVOLVED, BY_RECENT),
+						jql = personal_jql(INVOLVED, BY_RECENT),
 					},
 					{
 						name = "Triage",
