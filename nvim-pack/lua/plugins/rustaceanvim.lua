@@ -22,11 +22,16 @@ return {
 				end,
 				settings = {
 					["rust-analyzer"] = {
-						-- checkOnSave = true,
-						checkOnSave = {
-							allFeatures = true,
+						checkOnSave = true,
+						check = {
 							command = "clippy",
+							allTargets = false,
+							workspace = false,
+							features = {},
 							extraArgs = { "--no-deps" },
+							extraEnv = {
+								CARGO_BUILD_JOBS = "2",
+							},
 						},
 						diagnostics = {
 							enableExperimental = true,
