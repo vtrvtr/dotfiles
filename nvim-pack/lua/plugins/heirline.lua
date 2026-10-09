@@ -322,78 +322,176 @@ return {
 			hl = { fg = "orange", bold = true },
 		}
 
-		local VersionControl = {
-			init = function(self)
-				local now = vim.uv and vim.uv.now() or vim.loop.now()
+		local jj_icon = " " .. vim.fn.nr2char(0xf062c) -- 󰘬 jujutsu icon
 
-				-- Cache for 5 seconds
-				if not self._cache or (now - self._cache.time) > 5000 then
-					local text = ""
-					local has_jj = false
+		---@param output string
+		---@return string
+		local function format_jj_label(output)
+			local newline = output:find("\n", 1, true)
+			local bookmark = newline and output:sub(1, newline - 1) or output
+			local description = newline and output:sub(newline + 1) or ""
 
-					local jj_check = io.popen("jj root 2>/dev/null")
-					if jj_check then
-						local jj_root = jj_check:read("*a")
-						jj_check:close()
+			bookmark = bookmark:gsub("^%s+", ""):gsub("%s+$", "")
+			if bookmark == "(no bookmarks set)" or bookmark == "" then
+				bookmark = nil
+			end
+			description = description:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
 
-						if jj_root and jj_root ~= "" then
-							has_jj = true
-							text = " " .. vim.fn.nr2char(0xf062c) -- 󰘬 jujutsu icon
+			local text = jj_icon
+			if bookmark then
+				text = text .. " " .. bookmark
+			end
+			if description ~= "" then
+				local max_desc_len = bookmark and 20 or 30
+				if #description > max_desc_len then
+					description = description:sub(1, max_desc_len - 3) .. "..."
+				end
+				text = text .. (bookmark and ": " or " ") .. description
+			elseif not bookmark then
+				text = text .. " (new change)"
+			end
+			return text .. " "
+		end
 
-							local handle = io.popen(
-								"jj log -r @ --no-graph --template 'concat(bookmarks, \"\\n\", description.first_line())' 2>/dev/null"
-							)
-							if handle then
-								local output = handle:read("*a")
-								handle:close()
-								if output and output ~= "" then
-									local lines = {}
-									for line in output:gmatch("[^\n]+") do
-										table.insert(lines, line)
-									end
+		---@alias VersionControlState "idle"|"refreshing"|"ready"|"no_repository"|"error"
+		---@class VersionControlCache
+		---@field generation integer
+		---@field state VersionControlState
+		---@field refreshed_at number
+		---@field text string
+		---@field has_jj boolean
+		---@field root string?
 
-									local bookmark = lines[1] or ""
-									local description = lines[2] or ""
+		---@type table<string, VersionControlCache>
+		local version_control_cache = {}
+		---@type table<string, string>
+		local last_good_by_root = {}
 
-									bookmark = bookmark:gsub("^%s+", ""):gsub("%s+$", "")
-									if bookmark == "(no bookmarks set)" or bookmark == "" then
-										bookmark = nil
-									end
+		local function redraw_status()
+			vim.schedule(function()
+				vim.cmd("redrawstatus")
+			end)
+		end
 
-									description = description:gsub("^%s+", ""):gsub("%s+$", "")
+		---@param message string
+		local function report_jj_error(message)
+			vim.schedule(function()
+				vim.notify("jj statusline: " .. message, vim.log.levels.WARN)
+			end)
+		end
 
-									if bookmark then
-										text = text .. " " .. bookmark
-									end
-									if description ~= "" then
-										local max_desc_len = bookmark and 20 or 30
-										if #description > max_desc_len then
-											description = description:sub(1, max_desc_len - 3) .. "..."
-										end
+		---@param cwd string
+		---@param args string[]
+		---@param callback fun(result: vim.SystemCompleted)
+		---@return boolean started
+		---@return boolean unavailable
+		local function run_jj(cwd, args, callback)
+			local command = { "jj", "--ignore-working-copy", "--color", "never" }
+			vim.list_extend(command, args)
+			local ok, err = pcall(vim.system, command, { cwd = cwd, text = true }, callback)
+			if not ok then
+				local spawn_error = tostring(err):lower()
+				if spawn_error:find("enoent", 1, true) or spawn_error:find("no such file or directory", 1, true) then
+					return false, true
+				end
+				report_jj_error(tostring(err))
+				return false, false
+			end
+			return true, false
+		end
 
-										if bookmark then
-											text = text .. ": " .. description
-										else
-											text = text .. " " .. description
-										end
-									elseif not bookmark then
-										text = text .. " (new change)"
-									end
-								end
-							end
-							text = text .. " "
-						end
+		---@param cwd string
+		---@param entry VersionControlCache
+		local function refresh_version_control(cwd, entry)
+			entry.generation = entry.generation + 1
+			local generation = entry.generation
+			entry.state = "refreshing"
+
+			local started, unavailable = run_jj(cwd, { "root" }, function(root_result)
+				if version_control_cache[cwd] ~= entry or entry.generation ~= generation then
+					return
+				end
+				local stderr = root_result.stderr or ""
+				if root_result.code ~= 0 then
+					local no_repository = root_result.code == 127
+						or stderr:lower():find("no jj repo", 1, true)
+						or stderr:lower():find("not a jj repo", 1, true)
+						or stderr:lower():find("there is no jj repo", 1, true)
+					entry.state = no_repository and "no_repository" or "error"
+					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
+					if no_repository then
+						entry.has_jj = false
+						entry.text = ""
+					else
+						entry.has_jj = entry.root ~= nil
+						entry.text = (entry.root and last_good_by_root[entry.root]) or entry.text
+						report_jj_error(stderr ~= "" and stderr or ("root exited " .. root_result.code))
 					end
-
-					self._cache = {
-						time = now,
-						text = text,
-						has_jj = has_jj,
-					}
+					redraw_status()
+					return
 				end
 
-				self.has_jj = self._cache.has_jj
-				self.text = self._cache.text
+				local root = (root_result.stdout or ""):gsub("%s+$", "")
+				entry.root = root
+				entry.has_jj = true
+				entry.text = last_good_by_root[root] or jj_icon .. " "
+				local log_started = run_jj(cwd, {
+					"log",
+					"-r",
+					"@",
+					"--no-graph",
+					"--template",
+					'concat(bookmarks, "\\n", description.first_line())',
+				}, function(log_result)
+					if version_control_cache[cwd] ~= entry or entry.generation ~= generation then
+						return
+					end
+					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
+					if log_result.code == 0 then
+						entry.text = format_jj_label(log_result.stdout or "")
+						last_good_by_root[root] = entry.text
+						entry.state = "ready"
+					else
+						entry.text = last_good_by_root[root] or entry.text
+						entry.state = "error"
+						report_jj_error((log_result.stderr ~= "" and log_result.stderr) or ("log exited " .. log_result.code))
+					end
+					redraw_status()
+				end)
+				if not log_started then
+					entry.state = "error"
+					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
+					redraw_status()
+				end
+			end)
+
+			if not started then
+				entry.state = unavailable and "no_repository" or "error"
+				entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
+				if unavailable then
+					entry.has_jj = false
+					entry.text = ""
+				else
+					entry.has_jj = entry.root ~= nil
+					entry.text = (entry.root and last_good_by_root[entry.root]) or entry.text
+				end
+			end
+		end
+
+		local VersionControl = {
+			init = function(self)
+				local cwd = vim.uv.cwd()
+				local now = vim.uv and vim.uv.now() or vim.loop.now()
+				local entry = version_control_cache[cwd]
+				if not entry then
+					entry = { generation = 0, state = "idle", refreshed_at = 0, text = "", has_jj = false }
+					version_control_cache[cwd] = entry
+				end
+				if entry.state ~= "refreshing" and (entry.state == "idle" or (now - entry.refreshed_at) > 5000) then
+					refresh_version_control(cwd, entry)
+				end
+				self.has_jj = entry.has_jj
+				self.text = entry.text
 			end,
 			provider = function(self)
 				if self.has_jj then
