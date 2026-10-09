@@ -37,15 +37,7 @@ return {
 		{ "<leader>d", desc = "Dap" },
 	},
 	config = function(_, opts)
-		-- Register lldb adapter for rustaceanvim and launch.json. Deferred here
-		-- (was an eager `init`) so the blocking `rustc --print sysroot` call no
-		-- longer runs on every startup / file open — only when DAP loads.
 		local dap = require("dap")
-
-		-- Get Rust sysroot for LLDB formatters
-		local handle = io.popen("rustc --print sysroot")
-		local rustc_sysroot = handle:read("*a"):gsub("[\n\r]", "")
-		handle:close()
 
 		-- Absolute path is required: lldb-vscode's runInTerminal reverse-request
 		-- echoes back argv[0] resolved against the debuggee cwd, so a bare name
@@ -63,6 +55,42 @@ return {
 			if config.type ~= "lldb" then
 				return config
 			end
+
+			local cwd = config.cwd
+			if type(cwd) ~= "string" or cwd == "" or cwd:find("${", 1, true) or vim.fn.isdirectory(cwd) ~= 1 then
+				cwd = vim.fn.getcwd()
+			end
+
+			local co = assert(coroutine.running(), "on_config runs in a coroutine")
+			local ok, process = pcall(vim.system, { "rustc", "--print", "sysroot" }, { cwd = cwd, text = true }, function(res)
+				vim.schedule(function()
+					local resumed, err = coroutine.resume(co, res)
+					if not resumed then
+						vim.notify("rustc sysroot resolution failed: " .. tostring(err), vim.log.levels.ERROR)
+					end
+				end)
+			end)
+			if not ok then
+				error("Unable to start `rustc --print sysroot`: " .. tostring(process), 0)
+			end
+
+			local res = coroutine.yield()
+			local rustc_sysroot = vim.trim(res.stdout or "")
+			if res.code ~= 0 or rustc_sysroot == "" then
+				local detail = vim.trim((res.stderr or "") .. (res.stdout or ""))
+				if detail == "" then
+					detail = "rustc returned no sysroot"
+				end
+				error(
+					("Unable to resolve Rust sysroot in %s (exit %s), not launching:\n%s"):format(
+						cwd,
+						tostring(res.code),
+						detail
+					),
+					0
+				)
+			end
+
 			-- The stock rust formatters render enums as raw `$variants$`/`$discr$`
 			-- trees; the prettifier turns them into `Some(7)` / `Kind::Tagged(9)`.
 			-- Neither covers third-party string types, hence compact_str.
