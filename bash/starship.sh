@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # VTR collection of configurations — Starship init
 
-set -euo pipefail
-
 # Optional override if you ever want to force a path:
 # export STARSHIP_BIN_OVERRIDE="/root/.local/share/devbox/global/default/.devbox/nix/profile/default/bin/starship"
 

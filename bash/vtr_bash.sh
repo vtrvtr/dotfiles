@@ -1,12 +1,14 @@
+[[ ${VTR_BASH_INITIALIZED-} == true ]] && return 0
+
 [ -f ~/.vtr_bash/ld_preload_guard.sh ] && source ~/.vtr_bash/ld_preload_guard.sh
 source ~/.vtr_bash/devbox.sh
 source ~/.vtr_bash/devbox_flake_update.sh
-source ~/.vtr_bash/zoxide.sh
+[[ $(type -t __zoxide_hook) == "function" ]] || source ~/.vtr_bash/zoxide.sh
 source ~/.vtr_bash/aliases.sh
 source ~/.vtr_bash/jj_gh_stack.sh
-source ~/.vtr_bash/starship.sh
-source ~/.vtr_bash/atuin.sh
-source ~/.vtr_bash/tv.sh
+[[ $(type -t starship_precmd) == "function" ]] || source ~/.vtr_bash/starship.sh
+[[ ${__atuin_initialized-} == true ]] || source ~/.vtr_bash/atuin.sh
+[[ $(type -t tv_smart_autocomplete) == "function" ]] || source ~/.vtr_bash/tv.sh
 
 tw() {
     local target
@@ -16,3 +18,5 @@ tw() {
 }
 
 [ -f ~/.vtr_bash/pi_mcp.sh ] && source ~/.vtr_bash/pi_mcp.sh
+
+VTR_BASH_INITIALIZED=true
