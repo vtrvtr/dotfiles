@@ -532,6 +532,7 @@ end
 -- detection is broken: resolve the name via jj and the existing git plumbing
 -- (commit_range, push, ls-remote) keeps working untouched.
 local function resolve_jj_bookmarks()
+	local async = require("atlas.core.async")
 	local git = require("atlas.core.git")
 	local detect_branch = git.current_branch
 
@@ -576,7 +577,7 @@ local function resolve_jj_bookmarks()
 		-- @ is typically an empty working-copy commit, so walk back to the
 		-- closest ancestor that carries a bookmark. --ignore-working-copy keeps
 		-- this read-only: no snapshot, no operation-log entry.
-		local res = vim.system({
+		local res = async.system({
 			"jj",
 			"--repository",
 			root,
@@ -589,7 +590,7 @@ local function resolve_jj_bookmarks()
 			"heads(::@ & bookmarks())",
 			"-T",
 			'name ++ "\n"',
-		}, { text = true }):wait()
+		}, { text = true })
 		if res.code ~= 0 then
 			local stderr = tostring(res.stderr or ""):gsub("%s+", " "):match("^%s*(.-)%s*$")
 			return nil, stderr ~= "" and stderr or ("jj exited with code " .. tostring(res.code))
