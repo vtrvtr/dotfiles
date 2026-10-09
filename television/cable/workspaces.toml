@@ -1,0 +1,22 @@
+[metadata]
+name = "workspaces"
+description = "Navigate Jujutsu workspaces and Git worktrees"
+requirements = ["jj", "git"]
+
+[source]
+command = "${XDG_CONFIG_HOME:-$HOME/.config}/television/cable/workspaces.sh"
+display = "{split:\t:1}  {split:\t:2}  {split:\t:0}"
+output = "{split:\t:0}"
+no_sort = true
+frecency = false
+
+[preview]
+command = "cd '{split:\t:0}' && git log --oneline -10 --color=always && echo && git status --short"
+
+[keybindings]
+enter = "actions:cd"
+
+[actions.cd]
+description = "Change to the selected workspace"
+command = "cd '{split:\t:0}' && $SHELL"
+mode = "execute"
