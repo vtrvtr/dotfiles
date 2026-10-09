@@ -7,4 +7,12 @@ source ~/.vtr_bash/jj_gh_stack.sh
 source ~/.vtr_bash/starship.sh
 source ~/.vtr_bash/atuin.sh
 source ~/.vtr_bash/tv.sh
+
+tw() {
+    local target
+    target=$(tv workspaces) || return
+    target=${target#$'\e[?u\e[c'}
+    [[ -n "$target" ]] && builtin cd -- "$target"
+}
+
 [ -f ~/.vtr_bash/pi_mcp.sh ] && source ~/.vtr_bash/pi_mcp.sh

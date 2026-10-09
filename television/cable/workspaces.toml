@@ -13,10 +13,3 @@ frecency = false
 [preview]
 command = "cd '{split:\t:0}' && git log --oneline -10 --color=always && echo && git status --short"
 
-[keybindings]
-enter = "actions:cd"
-
-[actions.cd]
-description = "Change to the selected workspace"
-command = "cd '{split:\t:0}' && $SHELL"
-mode = "execute"
