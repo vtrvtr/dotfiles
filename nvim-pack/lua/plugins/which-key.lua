@@ -70,7 +70,7 @@ return {
 			vim.lsp.buf.rename()
 		end, "Rename symbol")
 		map("n", "<leader>lf", function()
-			require("conform").format()
+			require("conform").format({ async = true })
 		end, "Formatttt buffer")
 		map("n", "gd", function()
 			vim.lsp.buf.definition()
