@@ -230,7 +230,7 @@ return {
 		-- heirline runs `condition` and `provider` on every redraw, so the read
 		-- and the rendered string are cached and refreshed from autocmds plus the
 		-- User GmChanged event.
-		local gm_icon = vim.fn.nr2char(0xf02e) -- 
+		local gm_icon = vim.fn.nr2char(0xf02e) --
 		local gm_marks = {}
 		local gm_rendered = ""
 
@@ -353,20 +353,38 @@ return {
 			return text .. " "
 		end
 
+		---@param output string
+		---@return string
+		local function format_jj_workspace(output)
+			local workspace_name = vim.fs.basename(output)
+			return "📁" .. workspace_name
+		end
+
 		---@alias VersionControlState "idle"|"refreshing"|"ready"|"no_repository"|"error"
 		---@class VersionControlCache
 		---@field generation integer
 		---@field state VersionControlState
 		---@field refreshed_at number
-		---@field text string
 		---@field has_jj boolean
 		---@field root string?
+		---@field workspace string?
+		---@field bookmark string?
 
 		---@type table<string, VersionControlCache>
 		local version_control_cache = {}
 		---@type table<string, string>
 		local last_good_by_root = {}
 
+		local function format_entry(entry)
+			local formatted = ""
+			if entry.workspace then
+				formatted = entry.workspace
+			end
+			if entry.bookmark then
+				formatted = entry.workspace .. " " .. jj_icon .. " " .. entry.bookmark
+			end
+			return formatted
+		end
 		local function redraw_status()
 			vim.schedule(function()
 				vim.cmd("redrawstatus")
@@ -406,6 +424,7 @@ return {
 			entry.generation = entry.generation + 1
 			local generation = entry.generation
 			entry.state = "refreshing"
+			entry.workspace = ""
 
 			local started, unavailable = run_jj(cwd, { "root" }, function(root_result)
 				if version_control_cache[cwd] ~= entry or entry.generation ~= generation then
@@ -448,21 +467,51 @@ return {
 					end
 					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
 					if log_result.code == 0 then
-						entry.text = format_jj_label(log_result.stdout or "")
-						last_good_by_root[root] = entry.text
+						entry.bookmark = format_jj_label(log_result.stdout or "")
+						last_good_by_root[root] = format_entry(entry)
 						entry.state = "ready"
 					else
-						entry.text = last_good_by_root[root] or entry.text
+						entry.bookmark = last_good_by_root[root] or entry.bookmark
 						entry.state = "error"
-						report_jj_error((log_result.stderr ~= "" and log_result.stderr) or ("log exited " .. log_result.code))
+						report_jj_error(
+							(log_result.stderr ~= "" and log_result.stderr) or ("log exited " .. log_result.code)
+						)
 					end
-					redraw_status()
+					-- redraw_status()
 				end)
 				if not log_started then
 					entry.state = "error"
 					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
-					redraw_status()
 				end
+				local workspace_started = run_jj(cwd, {
+					"workspace",
+					"root",
+					"--quiet",
+				}, function(log_result)
+					if version_control_cache[cwd] ~= entry or entry.generation ~= generation then
+						return
+					end
+					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
+					if log_result.code == 0 then
+						local workspace = format_jj_workspace(log_result.stdout or "")
+						entry.workspace = workspace
+						print("DEBUGPRINT[92]: heirline.lua:503: entry.text=" .. vim.inspect(entry.text))
+						last_good_by_root[root] = format_entry(entry)
+						entry.state = "ready"
+					else
+						entry.text = last_good_by_root[root] or entry.text
+						entry.state = "error"
+						report_jj_error(
+							(log_result.stderr ~= "" and log_result.stderr) or ("log exited " .. log_result.code)
+						)
+					end
+					-- redraw_status()
+				end)
+				if not workspace_started then
+					entry.state = "error"
+					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
+				end
+				redraw_status()
 			end)
 
 			if not started then
@@ -491,10 +540,11 @@ return {
 					refresh_version_control(cwd, entry)
 				end
 				self.has_jj = entry.has_jj
-				self.text = entry.text
+				self.text = format_entry(entry)
 			end,
 			provider = function(self)
 				if self.has_jj then
+					print("DEBUGPRINT[91]: heirline.lua:559: self.text=" .. vim.inspect(self.text))
 					return self.text
 				else
 					local signs = vim.b.gitsigns_status_dict

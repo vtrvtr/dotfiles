@@ -12,7 +12,7 @@ source ~/.vtr_bash/jj_gh_stack.sh
 
 tw() {
     local target
-    target=$(tv workspaces) || return
+    target=$(tv workspaces --inline) || return
     target=${target#$'\e[?u\e[c'}
     [[ -n "$target" ]] && builtin cd -- "$target"
 }

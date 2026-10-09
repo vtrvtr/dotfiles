@@ -9,13 +9,11 @@ for command_name in jj git; do
     }
 done
 
-jj root >/dev/null
-git rev-parse --show-toplevel >/dev/null
-
-current_root=$(jj workspace root)
+current_root=$(jj --ignore-working-copy root)
+git_dir=$(jj --ignore-working-copy git root)
 jj_output=$(jj workspace list --ignore-working-copy --color=never \
     -T 'name ++ "\t" ++ if(root, root.absolute(), "<missing>") ++ "\t" ++ target.commit_id().short() ++ "\t" ++ target.current_working_copy() ++ "\n"')
-git_output=$(git worktree list --porcelain)
+git_output=$(git --git-dir="$git_dir" worktree list --porcelain)
 
 declare -a paths=()
 declare -A sources=()
