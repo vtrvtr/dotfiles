@@ -9,7 +9,6 @@ return {
 	config = function()
 		local heirline = require("heirline")
 		local conditions = require("heirline.conditions")
-		local utils = require("heirline.utils")
 
 		local theme_colors = require("theme.colors").dark
 
@@ -201,7 +200,7 @@ return {
 				provider = function(self)
 					return self.warnings > 0 and (vim.fn.nr2char(0xf071) .. " " .. self.warnings .. " ") or ""
 				end,
-				hl = { fg = "yellow" },
+				hl = { fg = "yellow", bold = true },
 			},
 			{
 				provider = function(self)
@@ -322,11 +321,11 @@ return {
 			hl = { fg = "orange", bold = true },
 		}
 
-		local jj_icon = " " .. vim.fn.nr2char(0xf062c) -- 󰘬 jujutsu icon
+		local jj_icon = vim.fn.nr2char(0xf062c) -- 󰘬 jujutsu icon
 
 		---@param output string
 		---@return string
-		local function format_jj_label(output)
+		local function format_jj_change(output)
 			local newline = output:find("\n", 1, true)
 			local bookmark = newline and output:sub(1, newline - 1) or output
 			local description = newline and output:sub(newline + 1) or ""
@@ -337,54 +336,44 @@ return {
 			end
 			description = description:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
 
-			local text = jj_icon
-			if bookmark then
-				text = text .. " " .. bookmark
-			end
+			local text = bookmark or ""
 			if description ~= "" then
 				local max_desc_len = bookmark and 20 or 30
 				if #description > max_desc_len then
 					description = description:sub(1, max_desc_len - 3) .. "..."
 				end
-				text = text .. (bookmark and ": " or " ") .. description
+				text = text .. (bookmark and ": " or "") .. description
 			elseif not bookmark then
-				text = text .. " (new change)"
+				text = "(new change)"
 			end
-			return text .. " "
+			return text
 		end
 
 		---@param output string
 		---@return string
 		local function format_jj_workspace(output)
-			local workspace_name = vim.fs.basename(output)
-			return "📁" .. workspace_name
+			local root = output:gsub("%s+$", "")
+			return "🌳🌴🌲" .. vim.fs.basename(root)
 		end
 
 		---@alias VersionControlState "idle"|"refreshing"|"ready"|"no_repository"|"error"
-		---@class VersionControlCache
+		---@class VersionControlSnapshot
+		---@field workspace string?
+		---@field change string?
+		---@class VersionControlCache: VersionControlSnapshot
 		---@field generation integer
 		---@field state VersionControlState
 		---@field refreshed_at number
 		---@field has_jj boolean
 		---@field root string?
-		---@field workspace string?
-		---@field bookmark string?
+		---@field pending integer
+		---@field failed boolean
 
 		---@type table<string, VersionControlCache>
 		local version_control_cache = {}
-		---@type table<string, string>
+		---@type table<string, VersionControlSnapshot>
 		local last_good_by_root = {}
 
-		local function format_entry(entry)
-			local formatted = ""
-			if entry.workspace then
-				formatted = entry.workspace
-			end
-			if entry.bookmark then
-				formatted = entry.workspace .. " " .. jj_icon .. " " .. entry.bookmark
-			end
-			return formatted
-		end
 		local function redraw_status()
 			vim.schedule(function()
 				vim.cmd("redrawstatus")
@@ -418,13 +407,33 @@ return {
 			return true, false
 		end
 
+		---@param entry VersionControlCache
+		---@param root string
+		local function settle_version_control(entry, root)
+			-- TODO(human): define how the two parallel jj queries publish their result.
+			--   Decide whether partial success should replace only its field immediately,
+			--   or whether the previous snapshot remains visible until both queries settle.
+			--   Invariants: decrement pending once; preserve the last good field on failure;
+			--   derive ready/error only when pending reaches zero; redraw when visible data changes.
+			--   Depends on it: both callbacks in refresh_version_control and format_entry.
+			--   see: nvim-pack/lua/plugins/heirline.lua, rg -n "settle_version_control|pending|failed" nvim-pack/lua/plugins/heirline.lua
+			--   verify: /tmp/heirline_workspace_handoff.lua
+			--   run: nvim --headless -u NONE -l /tmp/heirline_workspace_handoff.lua
+			entry.pending = entry.pending - 1
+			if entry.pending == 0 then
+				entry.state = "ready"
+				redraw_status()
+			end
+		end
+
 		---@param cwd string
 		---@param entry VersionControlCache
 		local function refresh_version_control(cwd, entry)
 			entry.generation = entry.generation + 1
 			local generation = entry.generation
 			entry.state = "refreshing"
-			entry.workspace = ""
+			entry.pending = 0
+			entry.failed = false
 
 			local started, unavailable = run_jj(cwd, { "root" }, function(root_result)
 				if version_control_cache[cwd] ~= entry or entry.generation ~= generation then
@@ -438,12 +447,8 @@ return {
 						or stderr:lower():find("there is no jj repo", 1, true)
 					entry.state = no_repository and "no_repository" or "error"
 					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
-					if no_repository then
-						entry.has_jj = false
-						entry.text = ""
-					else
-						entry.has_jj = entry.root ~= nil
-						entry.text = (entry.root and last_good_by_root[entry.root]) or entry.text
+					entry.has_jj = not no_repository and entry.root ~= nil
+					if not no_repository then
 						report_jj_error(stderr ~= "" and stderr or ("root exited " .. root_result.code))
 					end
 					redraw_status()
@@ -453,7 +458,11 @@ return {
 				local root = (root_result.stdout or ""):gsub("%s+$", "")
 				entry.root = root
 				entry.has_jj = true
-				entry.text = last_good_by_root[root] or jj_icon .. " "
+				local previous = last_good_by_root[root]
+				entry.workspace = previous and previous.workspace or entry.workspace
+				entry.change = previous and previous.change or entry.change
+				entry.pending = 2
+
 				local log_started = run_jj(cwd, {
 					"log",
 					"-r",
@@ -465,96 +474,112 @@ return {
 					if version_control_cache[cwd] ~= entry or entry.generation ~= generation then
 						return
 					end
-					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
 					if log_result.code == 0 then
-						entry.bookmark = format_jj_label(log_result.stdout or "")
-						last_good_by_root[root] = format_entry(entry)
-						entry.state = "ready"
+						entry.change = format_jj_change(log_result.stdout or "")
 					else
-						entry.bookmark = last_good_by_root[root] or entry.bookmark
-						entry.state = "error"
+						entry.failed = true
 						report_jj_error(
 							(log_result.stderr ~= "" and log_result.stderr) or ("log exited " .. log_result.code)
 						)
 					end
-					-- redraw_status()
+					settle_version_control(entry, root)
 				end)
 				if not log_started then
-					entry.state = "error"
-					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
+					entry.failed = true
+					settle_version_control(entry, root)
 				end
-				local workspace_started = run_jj(cwd, {
-					"workspace",
-					"root",
-					"--quiet",
-				}, function(log_result)
+
+				local workspace_started = run_jj(cwd, { "workspace", "root", "--quiet" }, function(workspace_result)
 					if version_control_cache[cwd] ~= entry or entry.generation ~= generation then
 						return
 					end
-					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
-					if log_result.code == 0 then
-						local workspace = format_jj_workspace(log_result.stdout or "")
-						entry.workspace = workspace
-						print("DEBUGPRINT[92]: heirline.lua:503: entry.text=" .. vim.inspect(entry.text))
-						last_good_by_root[root] = format_entry(entry)
-						entry.state = "ready"
+					if workspace_result.code == 0 then
+						entry.workspace = format_jj_workspace(workspace_result.stdout or "")
 					else
-						entry.text = last_good_by_root[root] or entry.text
-						entry.state = "error"
+						entry.failed = true
 						report_jj_error(
-							(log_result.stderr ~= "" and log_result.stderr) or ("log exited " .. log_result.code)
+							(workspace_result.stderr ~= "" and workspace_result.stderr)
+								or ("workspace root exited " .. workspace_result.code)
 						)
 					end
-					-- redraw_status()
+					settle_version_control(entry, root)
 				end)
 				if not workspace_started then
-					entry.state = "error"
-					entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
+					entry.failed = true
+					settle_version_control(entry, root)
 				end
-				redraw_status()
 			end)
 
 			if not started then
 				entry.state = unavailable and "no_repository" or "error"
 				entry.refreshed_at = (vim.uv and vim.uv.now() or vim.loop.now())
-				if unavailable then
-					entry.has_jj = false
-					entry.text = ""
-				else
-					entry.has_jj = entry.root ~= nil
-					entry.text = (entry.root and last_good_by_root[entry.root]) or entry.text
-				end
+				entry.has_jj = not unavailable and entry.root ~= nil
 			end
 		end
 
-		local VersionControl = {
+		---@return VersionControlCache
+		local function current_version_control()
+			local cwd = vim.uv.cwd()
+			local now = vim.uv and vim.uv.now() or vim.loop.now()
+			local entry = version_control_cache[cwd]
+			if not entry then
+				entry = {
+					generation = 0,
+					state = "idle",
+					refreshed_at = 0,
+					has_jj = false,
+					pending = 0,
+					failed = false,
+				}
+				version_control_cache[cwd] = entry
+			end
+			if entry.state ~= "refreshing" and (entry.state == "idle" or (now - entry.refreshed_at) > 5000) then
+				refresh_version_control(cwd, entry)
+			end
+			return entry
+		end
+
+		local Workspace = {
 			init = function(self)
-				local cwd = vim.uv.cwd()
-				local now = vim.uv and vim.uv.now() or vim.loop.now()
-				local entry = version_control_cache[cwd]
-				if not entry then
-					entry = { generation = 0, state = "idle", refreshed_at = 0, text = "", has_jj = false }
-					version_control_cache[cwd] = entry
-				end
-				if entry.state ~= "refreshing" and (entry.state == "idle" or (now - entry.refreshed_at) > 5000) then
-					refresh_version_control(cwd, entry)
-				end
+				local entry = current_version_control()
+				self.text = entry.has_jj and entry.workspace or nil
+			end,
+			provider = function(self)
+				return self.text and (self.text .. " ") or ""
+			end,
+			-- TODO(human): choose the workspace highlight independently from Change.
+			--   Use named theme colors from setup_colors; keep the widgets visibly distinct.
+			--   Depends on it: StatusLine ordering below.
+			--   see: nvim-pack/lua/plugins/heirline.lua:14, rg -n "fg =" nvim-pack/lua/plugins/heirline.lua
+			--   verify: /tmp/heirline_workspace_handoff.lua
+			--   run: nvim --headless -u NONE -l /tmp/heirline_workspace_handoff.lua
+
+			hl = { fg = "green" },
+		}
+
+		local Change = {
+			init = function(self)
+				local entry = current_version_control()
 				self.has_jj = entry.has_jj
-				self.text = format_entry(entry)
+				self.text = entry.change
 			end,
 			provider = function(self)
 				if self.has_jj then
-					print("DEBUGPRINT[91]: heirline.lua:559: self.text=" .. vim.inspect(self.text))
-					return self.text
-				else
-					local signs = vim.b.gitsigns_status_dict
-					if signs and signs.head then
-						return " " .. vim.fn.nr2char(0xf1d3) .. " " .. signs.head .. " " --  git branch icon
-					end
-					return ""
+					return self.text and (jj_icon .. " " .. self.text .. " ") or ""
 				end
+				local signs = vim.b.gitsigns_status_dict
+				if signs and signs.head then
+					return " " .. vim.fn.nr2char(0xf1d3) .. " " .. signs.head .. " " --  git branch icon
+				end
+				return ""
 			end,
-			hl = { fg = "violet", bold = true },
+			-- TODO(human): choose the change highlight independently from Workspace.
+			--   The two fg values must differ; bold may be chosen independently.
+			--   Depends on it: Workspace above and StatusLine ordering below.
+			--   see: nvim-pack/lua/plugins/heirline.lua:14, rg -n "fg =" nvim-pack/lua/plugins/heirline.lua
+			--   verify: /tmp/heirline_workspace_handoff.lua
+			--   run: nvim --headless -u NONE -l /tmp/heirline_workspace_handoff.lua
+			hl = { fg = "magenta", bold = true },
 		}
 
 		local mode_colors_map = {
@@ -610,7 +635,8 @@ return {
 			Diagnostics,
 			Grapple,
 			FurnaceContext,
-			VersionControl,
+			Workspace,
+			Change,
 		}
 
 		-- Statusline for ignored buffers
