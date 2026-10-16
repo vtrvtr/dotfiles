@@ -60,34 +60,28 @@ local ANSWERED = "numberOfComments > 0"
 local UNANSWERED = "numberOfComments = 0"
 local INVOLVED = "(commentedBy = currentUser() OR comment ~ currentUser())"
 
--- Jira issues expose timestamps, but its list omits them. The provider builds a
--- fresh display per render, so decorate the factory rather than one display.
 local function add_timestamp_columns()
-	local displays = require("atlas.issues.ui.components.issue_list.providers")
+	-- Insight: Atlas now owns provider definitions per layout. Decorating both
+	-- preserves timestamps across our plain and compact Jira views.
+	local layouts = {
+		require("atlas.issues.ui.layouts.plain"),
+		require("atlas.issues.ui.layouts.compact"),
+	}
+
 	local icons = require("atlas.ui.shared.icons")
 	local utils = require("atlas.ui.shared.utils")
-	local get = displays.get
-
-	displays.get = function(provider_id, opts)
-		local display = get(provider_id, opts)
-		if provider_id ~= "jira" then
-			return display
-		end
-		local columns = display.columns
-		display.columns = function(...)
-			local default = columns(...)
-			table.insert(default, {
-				key = "created_at",
-				name = string.format("%s Created At", icons.general("created")),
-				can_grow = false,
-			})
-			table.insert(default, {
-				key = "updated_at",
-				name = string.format("%s Updated At", icons.general("updated")),
-				can_grow = false,
-			})
-			return default
-		end
+	for _, layout in ipairs(layouts) do
+		local display = layout.jira
+		table.insert(display.columns, {
+			key = "created_at",
+			name = string.format("%s Created At", icons.get("created")),
+			can_grow = false,
+		})
+		table.insert(display.columns, {
+			key = "updated_at",
+			name = string.format("%s Updated At", icons.get("updated")),
+			can_grow = false,
+		})
 		local values = display.values
 		display.values = function(issue, ...)
 			local default = values(issue, ...)
@@ -98,12 +92,10 @@ local function add_timestamp_columns()
 		local highlights = display.highlights
 		display.highlights = function(table_row, col, ctx, ...)
 			if col.key == "created_at" or col.key == "updated_at" then
-				return {}
+				return "AtlasTextMuted"
 			end
 			return highlights(table_row, col, ctx, ...)
 		end
-
-		return display
 	end
 end
 
