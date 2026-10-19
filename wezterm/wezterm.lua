@@ -16,8 +16,8 @@ end
 
 -- This is where you actually apply your config choices
 
-wezterm.on("gui-startup", function()
-	local _, _, window = mux.spawn_window({})
+wezterm.on("gui-startup", function(cmd)
+	local _, _, window = mux.spawn_window(cmd or {})
 	window:gui_window():maximize()
 end)
 
