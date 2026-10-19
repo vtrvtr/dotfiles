@@ -61,8 +61,6 @@ local UNANSWERED = "numberOfComments = 0"
 local INVOLVED = "(commentedBy = currentUser() OR comment ~ currentUser())"
 
 local function add_timestamp_columns()
-	-- Insight: Atlas now owns provider definitions per layout. Decorating both
-	-- preserves timestamps across our plain and compact Jira views.
 	local layouts = {
 		require("atlas.issues.ui.layouts.plain"),
 		require("atlas.issues.ui.layouts.compact"),
@@ -561,6 +559,17 @@ local function resolve_jj_bookmarks()
 		return names[1], nil
 	end
 
+	---@param res vim.SystemCompleted
+	---@return string[]|nil names
+	---@return string|nil err
+	local function bookmark_result(res)
+		if res.code == 0 then
+			return parse_bookmark_names(res.stdout or ""), nil
+		end
+		local stderr = tostring(res.stderr or ""):gsub("%s+", " "):match("^%s*(.-)%s*$")
+		return nil, stderr ~= "" and stderr or ("jj exited with code " .. tostring(res.code))
+	end
+
 	---@param root string
 	---@param on_done fun(names: string[]|nil, err: string|nil)
 	---@return vim.SystemObj
@@ -583,12 +592,7 @@ local function resolve_jj_bookmarks()
 			'name ++ "\n"',
 		}, { text = true }, function(res)
 			vim.schedule(function()
-				if res.code ~= 0 then
-					local stderr = tostring(res.stderr or ""):gsub("%s+", " "):match("^%s*(.-)%s*$")
-					on_done(nil, stderr ~= "" and stderr or ("jj exited with code " .. tostring(res.code)))
-					return
-				end
-				on_done(parse_bookmark_names(res.stdout or ""), nil)
+				on_done(bookmark_result(res))
 			end)
 		end)
 	end
@@ -626,7 +630,10 @@ local function resolve_jj_bookmarks()
 				cancelled = true
 				detected.cancel()
 				if request then
-					pcall(request.kill, request, 9)
+					local ok, err = pcall(request.kill, request, 9)
+					if not ok then
+						vim.notify("Failed to cancel jj bookmark lookup: " .. tostring(err), vim.log.levels.ERROR)
+					end
 				end
 			end,
 		}
