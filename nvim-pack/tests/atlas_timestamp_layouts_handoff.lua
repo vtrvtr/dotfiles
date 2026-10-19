@@ -3,7 +3,6 @@ assert(vim.fn.isdirectory(atlas_path) == 1, "Set ATLAS_NVIM_PATH to an installed
 vim.opt.runtimepath:append(atlas_path)
 
 local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h")
-package.loaded["atlas.core.async"] = { system = function() error("Unexpected jj process") end }
 local spec = dofile(root .. "/lua/plugins/atlas.lua")
 spec.config(nil, spec.opts)
 

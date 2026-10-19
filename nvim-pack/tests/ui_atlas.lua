@@ -55,11 +55,10 @@ package.loaded["atlas.core.notify"] = {
 local git = require("atlas.core.git")
 
 -- Pure Git takes the ordinary branch and never invokes jj.
-local async = require("atlas.core.async")
 local git_result
-async.run(function()
-	git_result = { git.current_branch("/pure-git") }
-end)()
+git.current_branch("/pure-git", function(branch, err)
+	git_result = { branch, err }
+end)
 respond(shift("rev-parse"), 0, "feature/git\n")
 wait_for(function() return git_result ~= nil end)
 equal(git_result, { "feature/git", nil }, "pure Git branch")
@@ -117,7 +116,9 @@ vim.fn.isdirectory = function(path)
 end
 local function jj_case(stdout, code, stderr)
 	local result
-	async.run(function() result = { git.current_branch("/jj-repo") } end)()
+	git.current_branch("/jj-repo", function(branch, err)
+		result = { branch, err }
+	end)
 	respond(shift("rev-parse"), 0, "HEAD\n")
 	local request = shift("jj --repository /jj-repo --ignore-working-copy --color never bookmark list")
 	equal(request.cmd[#request.cmd], 'name ++ "\n"', "jj template")

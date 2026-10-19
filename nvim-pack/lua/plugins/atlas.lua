@@ -203,12 +203,13 @@ local function route_gh_to_remote_host()
 	-- touches, which is where the slug -> host mapping becomes known.
 	local git = require("atlas.core.git")
 	local local_repository = git.local_repository
-	git.local_repository = function(cwd)
-		local info = local_repository(cwd)
-		if info and info.repo_full_name and info.host then
-			host_by_slug[info.repo_full_name] = info.host
-		end
-		return info
+	git.local_repository = function(cwd, on_done)
+		return local_repository(cwd, function(info, err)
+			if info and info.repo_full_name and info.host then
+				host_by_slug[info.repo_full_name] = info.host
+			end
+			on_done(info, err)
+		end)
 	end
 
 	-- Node-ID mutations omit the slug from argv but retain it in request metadata.
@@ -524,7 +525,6 @@ end
 -- detection is broken: resolve the name via jj and the existing git plumbing
 -- (commit_range, push, ls-remote) keeps working untouched.
 local function resolve_jj_bookmarks()
-	local async = require("atlas.core.async")
 	local git = require("atlas.core.git")
 	local detect_branch = git.current_branch
 
@@ -562,14 +562,13 @@ local function resolve_jj_bookmarks()
 	end
 
 	---@param root string
-	---@return string[]|nil names Bookmarks on the nearest bookmarked ancestor of
-	--- @, or nil when jj itself failed.
-	---@return string|nil err
-	local function bookmarks_at_head(root)
+	---@param on_done fun(names: string[]|nil, err: string|nil)
+	---@return vim.SystemObj
+	local function bookmarks_at_head(root, on_done)
 		-- @ is typically an empty working-copy commit, so walk back to the
 		-- closest ancestor that carries a bookmark. --ignore-working-copy keeps
 		-- this read-only: no snapshot, no operation-log entry.
-		local res = async.system({
+		return vim.system({
 			"jj",
 			"--repository",
 			root,
@@ -582,30 +581,55 @@ local function resolve_jj_bookmarks()
 			"heads(::@ & bookmarks())",
 			"-T",
 			'name ++ "\n"',
-		}, { text = true })
-		if res.code ~= 0 then
-			local stderr = tostring(res.stderr or ""):gsub("%s+", " "):match("^%s*(.-)%s*$")
-			return nil, stderr ~= "" and stderr or ("jj exited with code " .. tostring(res.code))
-		end
-		return parse_bookmark_names(res.stdout or ""), nil
+		}, { text = true }, function(res)
+			vim.schedule(function()
+				if res.code ~= 0 then
+					local stderr = tostring(res.stderr or ""):gsub("%s+", " "):match("^%s*(.-)%s*$")
+					on_done(nil, stderr ~= "" and stderr or ("jj exited with code " .. tostring(res.code)))
+					return
+				end
+				on_done(parse_bookmark_names(res.stdout or ""), nil)
+			end)
+		end)
 	end
 
 	---@param root string
-	---@return string|nil branch, string|nil err
-	git.current_branch = function(root)
-		local branch, err = detect_branch(root)
-		if branch then
-			return branch, nil
+	---@param on_done fun(branch: string|nil, err: string|nil)
+	---@return { cancel: fun() }
+	git.current_branch = function(root, on_done)
+		local request
+		local cancelled = false
+		local function finish(branch, err)
+			if not cancelled then
+				on_done(branch, err)
+			end
 		end
-		if vim.fn.executable("jj") ~= 1 or vim.fn.isdirectory(root .. "/.jj") ~= 1 then
-			return nil, err
-		end
-
-		local names, jj_err = bookmarks_at_head(root)
-		if not names then
-			return nil, "jj bookmark lookup failed: " .. tostring(jj_err)
-		end
-		return pick_bookmark(names)
+		local detected = detect_branch(root, function(branch, err)
+			if branch then
+				finish(branch, nil)
+				return
+			end
+			if vim.fn.executable("jj") ~= 1 or vim.fn.isdirectory(root .. "/.jj") ~= 1 then
+				finish(nil, err)
+				return
+			end
+			request = bookmarks_at_head(root, function(names, jj_err)
+				if not names then
+					finish(nil, "jj bookmark lookup failed: " .. tostring(jj_err))
+					return
+				end
+				finish(pick_bookmark(names))
+			end)
+		end)
+		return {
+			cancel = function()
+				cancelled = true
+				detected.cancel()
+				if request then
+					pcall(request.kill, request, 9)
+				end
+			end,
+		}
 	end
 end
 
