@@ -100,8 +100,6 @@ calls[git_root_call].callback({ code = 1, stdout = "", stderr = 'Error: There is
 git = call_for(fixtures .. "/git")
 assert(git:provider():find("main", 1, true), "no-jj state did not use Git fallback")
 
--- A genuine command error is reported. When the root has a known good label,
--- a later log failure for that root preserves the good text.
 local error_instance = call_for(fixtures .. "/error")
 local error_root_call = #calls
 calls[error_root_call].callback({ code = 0, stdout = "/shared/repo\n", stderr = "" })

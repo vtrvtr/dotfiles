@@ -321,7 +321,7 @@ return {
 			hl = { fg = "orange", bold = true },
 		}
 
-		local jj_icon = vim.fn.nr2char(0xf062c) -- 󰘬 jujutsu icon
+		local jj_icon = vim.fn.nr2char(0xf062c)
 
 		---@param output string
 		---@return string
@@ -569,7 +569,7 @@ return {
 				end
 				local signs = vim.b.gitsigns_status_dict
 				if signs and signs.head then
-					return " " .. vim.fn.nr2char(0xf1d3) .. " " .. signs.head .. " " --  git branch icon
+					return " " .. vim.fn.nr2char(0xf1d3) .. " " .. signs.head .. " "
 				end
 				return ""
 			end,
