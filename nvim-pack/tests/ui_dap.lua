@@ -33,13 +33,27 @@ local dap = {
   listeners = { on_config = {} },
 }
 package.loaded.dap = dap
+local mason_opts
 package.preload["mason-nvim-dap"] = function()
-  return { setup = function() end }
+  return {
+    setup = function(opts)
+      mason_opts = opts
+    end,
+  }
 end
 
 local spec = dofile("nvim-pack/lua/plugins/dap.lua")
-spec.config(nil, {})
+eq("python", spec.ft, "Python buffers do not load the adapter owner")
+eq({ "DapShowLog" }, spec.dependencies[1].cmd, "DapShowLog does not load nvim-dap")
+spec.config(nil, spec.opts)
 eq(0, vim.fn.filereadable(calls_file), "plugin load spawned rustc")
+
+assert(mason_opts.handlers.python)
+mason_opts.handlers.python({})
+eq(vim.fn.exepath("python"), dap.adapters.python.command, "python adapter bypassed the active environment wrapper")
+eq({ "-m", "debugpy.adapter" }, dap.adapters.python.args, "python adapter command changed")
+eq(nil, dap.adapters.python.options, "python adapter overrides the active process environment")
+eq(vim.fn.exepath("python"), dap.configurations.python[1].pythonPath(), "debuggee bypassed the active environment wrapper")
 
 local on_config = assert(dap.listeners.on_config["rust.lldb_formatters"])
 local untouched = { type = "python", marker = {} }

@@ -1,7 +1,10 @@
 return {
 	"jay-babu/mason-nvim-dap.nvim",
 	dependencies = {
-		"mfussenegger/nvim-dap",
+		{
+			"mfussenegger/nvim-dap",
+			cmd = { "DapShowLog" },
+		},
 		{
 			"igorlfs/nvim-dap-view",
 			config = function()
@@ -33,6 +36,7 @@ return {
 		-- { "theHamsta/nvim-dap-virtual-text", opts = {} },
 	},
 	lazy = true,
+	ft = "python",
 	keys = {
 		{ "<leader>d", desc = "Dap" },
 	},
@@ -305,9 +309,12 @@ return {
 		handlers = {
 			python = function(config)
 				local dap = require("dap")
+				local python = vim.fn.exepath("python")
+				assert(python ~= "", "Python is not available on PATH")
+
 				dap.adapters.python = {
 					type = "executable",
-					command = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python",
+					command = python,
 					args = { "-m", "debugpy.adapter" },
 				}
 				dap.adapters.debugpy = dap.adapters.python
@@ -318,7 +325,7 @@ return {
 						name = "Launch file",
 						program = "${file}",
 						pythonPath = function()
-							return "/usr/bin/python3"
+							return python
 						end,
 					},
 				}
