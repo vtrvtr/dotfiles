@@ -7,6 +7,8 @@ return {
 		local lsp = vim.lsp
 
 		local capabilities = lsp.protocol.make_client_capabilities()
+		capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
+
 		local ok_blink, blink = pcall(require, "blink.cmp")
 		if ok_blink then
 			capabilities = blink.get_lsp_capabilities(capabilities)
