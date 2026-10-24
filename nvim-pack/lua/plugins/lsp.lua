@@ -14,6 +14,25 @@ return {
 			capabilities = blink.get_lsp_capabilities(capabilities)
 		end
 
+		vim.keymap.set("n", "<leader>ls", function()
+			local names = vim.iter(lsp.get_clients())
+				:map(function(client)
+					return client.name
+				end)
+				:filter(lsp.is_enabled)
+				:totable()
+			table.sort(names)
+			names = vim.fn.uniq(names)
+			if #names == 0 then
+				return
+			end
+
+			lsp.enable(names, false)
+			vim.schedule(function()
+				lsp.enable(names)
+			end)
+		end, { desc = "Restart active LSPs" })
+
 		local on_attach = function(_, bufnr)
 			local map = function(mode, lhs, rhs, desc)
 				vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
