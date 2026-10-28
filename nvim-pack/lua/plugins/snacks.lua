@@ -64,28 +64,6 @@ return {
 			sections = {
 				{ section = "keys", gap = 1, padding = 1 },
 				{ pane = 2, icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
-				{ pane = 2, icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
-				function()
-					local ok, state = pcall(require, "zpack.state")
-					local total = ok and #state.registered_plugins or 0
-					local unloaded = 0
-					if ok then
-						for _ in pairs(state.unloaded_plugin_names) do
-							unloaded = unloaded + 1
-						end
-					end
-					local loaded = total - unloaded
-					local ms = math.floor((vim.g.ui_enter_ms or 0) * 100 + 0.5) / 100
-					return {
-						align = "center",
-						text = {
-							{ "⚡ Neovim loaded ", hl = "footer" },
-							{ ("%d/%d"):format(loaded, total), hl = "special" },
-							{ " plugins in ", hl = "footer" },
-							{ ("%s ms"):format(ms), hl = "special" },
-						},
-					}
-				end,
 				-- {
 				--   pane = 2,
 				--   icon = " ",

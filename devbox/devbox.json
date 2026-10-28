@@ -29,8 +29,7 @@
     "hyperfine@latest",
     "pipx@1.7.1",
     "neovim@latest",
-    "nodejs_24@latest",
-    "nodejs_22@latest",
+    "nodejs_26@latest",
     "basedpyright@latest",
     "ast-grep@latest",
     "mermaid-cli@latest",
@@ -49,8 +48,8 @@
     "github:sadjow/claude-code-nix",
     "github:NixOS/nixpkgs/nixpkgs-unstable#brush",
     "github:NixOS/nixpkgs/nixpkgs-unstable#wild",
-    "github:earendil-works/pi",
-    "lldb@latest"
+    "lldb@latest",
+    "path:/home/users/vitorh/.local/share/devbox/pi-1.5.0-nix-fix"
   ],
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
