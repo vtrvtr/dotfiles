@@ -106,18 +106,25 @@ local function resolve_github_enterprise()
 	local resolver = require("atlas.providers.github.resolve")
 	local resolve = resolver.resolve
 	local DEFAULT_HOST = "github.com"
+	local HOST_ALIASES = { ["git.netflix.io"] = "netflix.ghe.com" }
 
 	---@param host string
-	---@return boolean
-	local function is_enterprise(host)
-		return host ~= DEFAULT_HOST and (host:find("github", 1, true) or host:find(".ghe.com", 1, true)) ~= nil
+	---@return string|nil
+	local function enterprise_host(host)
+		if HOST_ALIASES[host] then
+			return HOST_ALIASES[host]
+		end
+		if host ~= DEFAULT_HOST and (host:find("github", 1, true) or host:find(".ghe.com", 1, true)) then
+			return host
+		end
+		return nil
 	end
 
 	resolver.resolve = function(value, parsed)
-		if parsed == nil or not is_enterprise(parsed.host) then
+		local host = parsed and enterprise_host(parsed.host)
+		if not host then
 			return resolve(value, parsed)
 		end
-		local host = parsed.host
 		local target, err = resolve(value, vim.tbl_extend("force", parsed, { host = DEFAULT_HOST }))
 		if not target then
 			return nil, err

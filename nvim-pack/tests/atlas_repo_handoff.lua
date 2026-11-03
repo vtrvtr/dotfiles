@@ -29,6 +29,15 @@ assert(vim.wait(1000, function() return completed end), "Repo view resolution ti
 local expected = "repo:vtrvtr/dotfiles is:pr archived:false sort:updated-desc is:open"
 assert(queries and queries[1] == expected, string.format("Repo view is not scoped\nexpected: %s\nactual:   %s", expected, vim.inspect(queries)))
 
+local resolver = require("atlas.providers.github.resolve")
+local enterprise = assert(resolver.resolve("https://git.netflix.io/nas/vortexLibrary.git", {
+	host = "git.netflix.io",
+	path = "/nas/vortexLibrary.git",
+	remote = true,
+}))
+assert(enterprise.repo_full_name == "nas/vortexLibrary", vim.inspect(enterprise))
+assert(enterprise.host == "netflix.ghe.com", vim.inspect(enterprise))
+
 vim.fn.delete(outside, "d")
 print("Atlas Repo view follows the active buffer repository")
 vim.cmd("qa!")
