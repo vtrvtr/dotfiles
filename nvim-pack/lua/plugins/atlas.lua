@@ -399,6 +399,44 @@ local function prompt_required_jira_fields()
 	issues_api.required_custom_fields_prompted = true
 end
 
+-- Atlas resolves `current_repo` from Neovim's cwd. That can belong to a
+-- different repo than the active buffer, while its git helper already defines
+-- the active buffer directory as the default repository context.
+local function resolve_current_github_repo()
+	local provider = require("atlas.pulls.providers.github")
+	local fetch = provider.capabilities.core.fetch_pullrequests
+	local git = require("atlas.core.git")
+
+	provider.capabilities.core.fetch_pullrequests = function(view, opts, on_done)
+		if not view.current_repo then
+			return fetch(view, opts, on_done)
+		end
+
+		local active
+		local cancelled = false
+		local lookup = git.local_repository(git.default_cwd(), function(target)
+			if cancelled then
+				return
+			end
+			local resolved = vim.tbl_extend("force", {}, view, { current_repo = false })
+			if target and target.provider == "github" then
+				local additional = view.search and view.search ~= "" and (" " .. view.search) or ""
+				resolved.search = string.format("repo:%s%s", target.repo_full_name, additional)
+			end
+			active = fetch(resolved, opts, on_done)
+		end)
+		return {
+			cancel = function()
+				cancelled = true
+				lookup.cancel()
+				if active then
+					active.cancel()
+				end
+			end,
+		}
+	end
+end
+
 local function search_github_hosts()
 	local api = require("atlas.pulls.providers.github.api.pullrequests")
 	local request_scope = require("atlas.core.requests")
@@ -815,6 +853,7 @@ return {
 		resolve_github_enterprise()
 		resolve_jj_bookmarks()
 		route_gh_to_remote_host()
+		resolve_current_github_repo()
 		search_github_hosts()
 	end,
 }
