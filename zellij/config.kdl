@@ -521,6 +521,9 @@ pane_frame_style "titles"
 // 
 // stacked_resize false
  
+// Otherwise a pane left scrolled re-enters Scroll mode whenever any pane closes
+scroll_mode_sync false
+ 
 // Whether to show tips on startup
 // Default: true
 // 
