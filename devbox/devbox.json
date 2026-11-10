@@ -49,7 +49,7 @@
     "github:NixOS/nixpkgs/nixpkgs-unstable#brush",
     "github:NixOS/nixpkgs/nixpkgs-unstable#wild",
     "lldb@latest",
-    "path:/home/users/vitorh/.local/share/devbox/pi-1.5.0-nix-fix"
+    "github:earendil-works/pi",
   ],
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
