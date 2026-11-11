@@ -25,8 +25,6 @@ export XDG_STATE_HOME=$state_root/state
 export XDG_CACHE_HOME=$state_root/cache
 export PATH=$home_path/bin:$PATH
 
-mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"
-
 # Prepare the isolated config tree before WezTerm reads it.
 VTR_NIX_SHELL=bash "$REPO_ROOT/scripts/nix-shell.sh" "$profile" -c true
 

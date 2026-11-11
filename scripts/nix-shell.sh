@@ -14,54 +14,91 @@ require_profile "$profile"
 shift
 
 state_root=${VTR_NIX_ROOT:-$HOME/.local/share/vtr-nix/$profile}
-home_files=$(nix build "$(home_files_ref "$profile")" --no-link --print-out-paths)
-home_path=$(nix build "$(home_path_ref "$profile")" --no-link --print-out-paths)
-
 config_home=$state_root/config
 data_home=$state_root/data
 state_home=$state_root/state
 cache_home=$state_root/cache
+marker=$state_root/.vtr-nix
+marker_content=$(printf 'version=1\nprofile=%s' "$profile")
+
+# Claim the root before anything (including nix's cache) can write into it.
+if [[ -e "$marker" ]]; then
+  [[ -f "$marker" && $(<"$marker") == "$marker_content" ]] || usage_error "invalid isolated state marker: $marker"
+elif [[ -d "$state_root" && -n $(find "$state_root" -mindepth 1 -maxdepth 1 -print -quit) ]]; then
+  usage_error "unmarked isolated state exists: $state_root"
+else
+  mkdir -p "$state_root"
+  printf '%s\n' "$marker_content" >"$marker.tmp"
+  mv -- "$marker.tmp" "$marker"
+fi
+
+home_files=$(nix build "$(home_files_ref "$profile")" --no-link --print-out-paths)
+home_path=$(nix build "$(home_path_ref "$profile")" --no-link --print-out-paths)
 mkdir -p "$config_home" "$data_home" "$state_home" "$cache_home"
 
-link_config() {
-  local source=$1
-  local target=$2
+conflict() {
+  printf 'isolated config target already exists: %s\n' "$1" >&2
+  exit 1
+}
 
-  mkdir -p "$(dirname -- "$target")"
-  if [[ -e "$target" || -L "$target" ]]; then
-    [[ -L "$target" && $(readlink -- "$target") == "$source" ]] && return
-    printf 'isolated config target already exists: %s\n' "$target" >&2
-    exit 1
+# Store links on the path are replaced, so an older whole-directory link becomes a real directory.
+ensure_dir() {
+  local dir=$config_home part
+  local -a parts
+
+  IFS=/ read -ra parts <<<"$1"
+  for part in "${parts[@]}"; do
+    dir=$dir/$part
+    if [[ -L "$dir" ]]; then
+      [[ $(readlink -- "$dir") == /nix/store/* ]] || conflict "$dir"
+      rm -- "$dir"
+    fi
+    [[ -e "$dir" && ! -d "$dir" ]] && conflict "$dir"
+    [[ -d "$dir" ]] || mkdir -- "$dir"
+  done
+}
+
+link_config() {
+  local relative=$1
+  local source=$home_files/.config/$relative
+  local target=$config_home/$relative
+  local current
+
+  [[ "$relative" == */* ]] && ensure_dir "${relative%/*}"
+  if [[ -L "$target" ]]; then
+    current=$(readlink -- "$target")
+    [[ "$current" == "$source" ]] && return
+    [[ "$current" == /nix/store/* ]] || conflict "$target"
+    rm -- "$target"
+  elif [[ -e "$target" ]]; then
+    conflict "$target"
   fi
   ln -s -- "$source" "$target"
 }
 
-# Link generated configuration while keeping runtime state under the isolated root.
+# Mirror the generation like Home Manager: real directories, one store link per leaf.
+# Directories stay writable for runtime state such as nvim-pack-lock.json and jj/repos.
 while IFS= read -r -d '' source; do
   relative=${source#"$home_files/.config/"}
-  [[ "$relative" == "atuin" ]] && continue
-  link_config "$source" "$config_home/$relative"
-done < <(find "$home_files/.config" -mindepth 1 -maxdepth 1 -print0)
+  [[ "$relative" == atuin/* ]] && continue
+  link_config "$relative"
+done < <(find "$home_files/.config" -mindepth 1 ! -type d -print0)
 
-jj_config=$config_home/jj
-if [[ -L "$jj_config" ]]; then
-  rm -- "$jj_config"
-  mkdir -p "$jj_config"
-  cp -R --no-preserve=mode -- "$home_files/.config/jj/." "$jj_config/"
-  find "$jj_config" -type d -exec chmod u+rwx {} +
-  find "$jj_config" -type f -exec chmod u+rw {} +
-fi
+# Drop links into earlier generations and the directories they leave empty.
+mapfile -d '' links < <(find "$config_home" -type l -print0)
+for link in "${links[@]}"; do
+  current=$(readlink -- "$link")
+  [[ "$current" == /nix/store/* && "$current" != "$home_files"/* ]] || continue
+  rm -- "$link"
+  dir=${link%/*}
+  while [[ "$dir" != "$config_home" && -z $(ls -A -- "$dir") ]]; do
+    rmdir -- "$dir"
+    dir=${dir%/*}
+  done
+done
 
 if [[ ! -e "$config_home/nvim/nvim-pack-lock.json" ]]; then
-  nvim_config=$config_home/nvim
-  if [[ -L "$nvim_config" ]]; then
-    rm -- "$nvim_config"
-    mkdir -p "$nvim_config"
-    cp -R --no-preserve=mode -- "$home_files/.config/nvim/." "$nvim_config/"
-    find "$nvim_config" -type d -exec chmod u+rwx {} +
-    find "$nvim_config" -type f -exec chmod u+rw {} +
-  fi
-  cp -- "$REPO_ROOT/nvim-pack/nvim-pack-lock.json" "$nvim_config/nvim-pack-lock.json"
+  cp -- "$REPO_ROOT/nvim-pack/nvim-pack-lock.json" "$config_home/nvim/nvim-pack-lock.json"
 fi
 
 shell=${VTR_NIX_SHELL:-${SHELL##*/}}
