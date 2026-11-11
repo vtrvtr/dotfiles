@@ -37,6 +37,8 @@ This keeps `HOME` unchanged so `~/.al_env`, credentials, certificates, and proje
 
 Set `VTR_NIX_ROOT` to use another state root. Removing that directory resets the isolated environment, including its snapshot of the host `.bashrc`.
 
+Machine-local values are declared in `config/private-vars.conf`. The launcher inherits them from the host environment first. `~/.config/vtr/private.env`, based on `config/private.env.example`, is optional and overrides only values that differ on a machine. The launcher reports any required value still missing after both sources are loaded.
+
 Activate a profile permanently with Home Manager only when desired:
 
 ```bash

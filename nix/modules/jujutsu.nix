@@ -3,17 +3,6 @@
   programs.jujutsu = {
     enable = true;
     settings = {
-      user = {
-        name = "Vitor Hugo";
-        email = "Vitor.Hugo@al.com.au";
-      };
-
-      signing = {
-        behavior = "own";
-        backend = "ssh";
-        key = "~/.ssh/id_ed25519.pub";
-      };
-
       ui = {
         editor = "nvim";
         diff-formatter = [

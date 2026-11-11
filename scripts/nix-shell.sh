@@ -72,6 +72,9 @@ if [[ "$profile" == al && ! -e "$host_bashrc" ]]; then
   cp --no-preserve=mode -- "$HOME/.bashrc" "$host_bashrc"
 fi
 
+jj_user=${JJ_USER:-$(jj config get user.name 2>/dev/null || true)}
+jj_email=${JJ_EMAIL:-$(jj config get user.email 2>/dev/null || true)}
+
 readonly forwarded=(
   ALL_PROXY CURL_CA_BUNDLE COLORTERM DBUS_SESSION_BUS_ADDRESS DISPLAY GIT_ASKPASS
   GIT_SSL_CAINFO KRB5CCNAME LANG LC_ALL NO_PROXY REQUESTS_CA_BUNDLE SSH_AGENT_PID
@@ -94,6 +97,9 @@ child=(
   "VTR_NIX_HOME_PATH=$home_path"
   "VTR_NIX_HOST_BASHRC=$host_bashrc"
   "VTR_NIX_REPO_ROOT=$REPO_ROOT"
+  "VTR_PRIVATE_CONFIG=${VTR_PRIVATE_CONFIG:-$HOME/.config/vtr/private.env}"
+  "JJ_USER=$jj_user"
+  "JJ_EMAIL=$jj_email"
 )
 
 for name in "${forwarded[@]}"; do
