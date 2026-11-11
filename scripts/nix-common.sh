@@ -34,3 +34,11 @@ flake_ref() {
 activation_ref() {
   printf '%s#homeConfigurations."%s".activationPackage' "$REPO_ROOT" "$USER_NAME@$1"
 }
+
+home_files_ref() {
+  printf '%s#homeConfigurations."%s".config.home-files' "$REPO_ROOT" "$USER_NAME@$1"
+}
+
+home_path_ref() {
+  printf '%s#homeConfigurations."%s".config.home.path' "$REPO_ROOT" "$USER_NAME@$1"
+}
