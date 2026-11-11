@@ -26,7 +26,6 @@ in
         ".config/fish/config.fish"
         ".config/gh-dash"
         ".config/nvim"
-        ".config/nvim-pack"
         ".config/starship.toml"
         ".config/television"
         ".config/yazi"

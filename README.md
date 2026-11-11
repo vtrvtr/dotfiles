@@ -35,7 +35,7 @@ Change the profile name for another host. After the first activation, `home-mana
 home-manager --flake '.#vitorh@al' switch
 ```
 
-`nix/hosts/` selects each target. `nix/profiles/` holds host behavior, `nix/modules/` holds shared Home Manager modules, and ordinary shell/Lua sources live under `nix/config/`.
+`nix/hosts/` selects each target. `nix/profiles/` holds host behavior, `nix/modules/` holds shared Home Manager modules, and ordinary shell/Lua sources live under `nix/config/`. Home Manager deploys `nvim-pack/` as the default `~/.config/nvim` configuration.
 
 Validate every profile with:
 

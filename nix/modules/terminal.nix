@@ -14,8 +14,7 @@ let
     };
 
   mutableLocks = {
-    "nvim/lazy-lock.json" = ../../nvim/lazy-lock.json;
-    "nvim-pack/nvim-pack-lock.json" = ../../nvim-pack/nvim-pack-lock.json;
+    "nvim/nvim-pack-lock.json" = ../../nvim-pack/nvim-pack-lock.json;
   };
 in
 {
@@ -32,11 +31,7 @@ in
   xdg.configFile = {
     "gh-dash/config.yml".source = ../../gh-dash/config.yml;
     "nvim" = {
-      source = withoutLock "nvim-config" ../../nvim "lazy-lock.json";
-      recursive = true;
-    };
-    "nvim-pack" = {
-      source = withoutLock "nvim-pack-config" ../../nvim-pack "nvim-pack-lock.json";
+      source = withoutLock "nvim-config" ../../nvim-pack "nvim-pack-lock.json";
       recursive = true;
     };
     "television/config.toml".source = ../../television/config.toml;
