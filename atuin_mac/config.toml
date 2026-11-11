@@ -30,7 +30,7 @@ auto_sync = false
 update_check = false
 
 ## address of the sync server
-# sync_address = "http://va1wse0062.van.animallogic.ca:8888"
+# sync_address = "https://atuin.example.com"
 
 ## how often to sync history. note that this is only triggered when a command
 ## is ran, so sync intervals may well be longer

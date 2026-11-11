@@ -39,23 +39,7 @@ link_config() {
 # Link generated configuration while keeping runtime state under the isolated root.
 while IFS= read -r -d '' source; do
   relative=${source#"$home_files/.config/"}
-  if [[ "$relative" == "atuin" ]]; then
-    mkdir -p "$config_home/atuin"
-    cp --no-preserve=mode -- "$home_files/.config/atuin/config.toml" "$config_home/atuin/config.toml"
-    sed -i \
-      -e '/^db_path =/d' \
-      -e '/^key_path =/d' \
-      -e '/^session_path =/d' \
-      -e '/^sync_address =/d' \
-      "$config_home/atuin/config.toml"
-    cat >> "$config_home/atuin/config.toml" <<EOF
-
-db_path = "$data_home/atuin/history.db"
-key_path = "$data_home/atuin/key"
-session_path = "$data_home/atuin/session"
-EOF
-    continue
-  fi
+  [[ "$relative" == "atuin" ]] && continue
   link_config "$source" "$config_home/$relative"
 done < <(find "$home_files/.config" -mindepth 1 -maxdepth 1 -print0)
 
@@ -100,6 +84,7 @@ child=(
   "VTR_NIX_HOME_FILES=$home_files"
   "VTR_NIX_HOME_PATH=$home_path"
   "VTR_NIX_HOST_BASHRC=$host_bashrc"
+  "VTR_NIX_REPO_ROOT=$REPO_ROOT"
 )
 
 for name in "${forwarded[@]}"; do

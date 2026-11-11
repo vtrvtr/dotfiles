@@ -3,4 +3,5 @@ cache.toml
 cache/
 *nfs*
 pi/
+.claude/settings.local.json
 .workspaces/
