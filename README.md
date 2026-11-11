@@ -27,7 +27,9 @@ Start an isolated profile shell without changing normal home configuration:
 ./scripts/nix-shell.sh al
 ```
 
-This keeps `HOME` unchanged so `~/.al_env`, credentials, certificates, and project files remain available. It redirects XDG configuration, data, state, and cache into `~/.local/share/vtr-nix/<profile>/`. Set `VTR_NIX_ROOT` to use another state root. Removing that directory resets the isolated environment.
+This keeps `HOME` unchanged so `~/.al_env`, credentials, certificates, and project files remain available. The child starts with a clean environment, loads system-wide shell configuration, and, for `al`, snapshots and loads the existing `.bashrc` plus AL environment. Parent Devbox state is not inherited; Devbox may initialize normally through the AL startup, after which the flake profile takes PATH precedence. XDG configuration, data, state, and cache live under `~/.local/share/vtr-nix/<profile>/`.
+
+Set `VTR_NIX_ROOT` to use another state root. Removing that directory resets the isolated environment, including its snapshot of the host `.bashrc`.
 
 Activate a profile permanently with Home Manager only when desired:
 
