@@ -55,6 +55,13 @@ return function(profile)
   config.font_size = profile.font_size or 16
   config.default_domain = profile.default_domain
   config.default_prog = profile.default_prog
+
+  local isolated_launcher = os.getenv("VTR_NIX_WEZTERM_LAUNCHER")
+  local isolated_profile = os.getenv("VTR_NIX_WEZTERM_PROFILE")
+  if isolated_launcher and isolated_profile then
+    config.default_prog = { isolated_launcher, isolated_profile }
+  end
+
   configure_presentation_mode(config.font_size)
   return config
 end
