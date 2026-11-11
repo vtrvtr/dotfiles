@@ -6,7 +6,7 @@
 }:
 let
   system = pkgs.stdenv.hostPlatform.system;
-  packageFrom = input: input.packages.${system}.default;
+  packageFrom = input: fallback: lib.attrByPath [ system "default" ] fallback input.packages;
 
   commonPackages = with pkgs; [
     ast-grep
@@ -15,6 +15,7 @@ let
     bat
     binsider
     bottom
+    brush
     cargo-nextest
     cargo-workspaces
     chafa
@@ -28,6 +29,7 @@ let
     gh-dash
     hyperfine
     jless
+    jujutsu
     jjui
     just
     lla
@@ -46,6 +48,7 @@ let
     tree-sitter
     uv
     watchexec
+    wild
     yazi
     zellij
     zoxide
@@ -65,14 +68,14 @@ in
 
   home.packages =
     commonPackages
-    ++ lib.optionals pkgs.stdenv.isLinux linuxPackages
-    ++ lib.optionals (!pkgs.stdenv.isDarwin || system == "aarch64-darwin") [
-      (packageFrom inputs.claude-code)
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxPackages
+    ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin || system == "aarch64-darwin") [
+      (packageFrom inputs.claude-code pkgs.claude-code)
     ]
     ++ graphicalPackages
     ++ [
-      (packageFrom inputs.jj-ryu)
-      (packageFrom inputs.pi)
-      (packageFrom inputs.television)
+      (packageFrom inputs.jj-ryu pkgs.jj-ryu)
+      (packageFrom inputs.pi pkgs.pi)
+      (packageFrom inputs.television pkgs.television)
     ];
 }

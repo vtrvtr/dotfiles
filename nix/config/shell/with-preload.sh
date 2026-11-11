@@ -1,0 +1,1 @@
+LD_PRELOAD="${VTR_HOST_LD_PRELOAD-}" exec "$@"

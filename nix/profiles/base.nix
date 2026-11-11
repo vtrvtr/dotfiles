@@ -7,4 +7,5 @@
   };
 
   programs.home-manager.enable = true;
+  vtr.migration.enable = true;
 }
