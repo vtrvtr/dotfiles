@@ -3,3 +3,4 @@ cache.toml
 cache/
 *nfs*
 pi/
+.workspaces/
