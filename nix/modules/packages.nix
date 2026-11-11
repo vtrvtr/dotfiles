@@ -47,6 +47,7 @@ let
     starship
     tree-sitter
     uv
+    watchman
     watchexec
     wild
     yazi
