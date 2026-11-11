@@ -49,7 +49,6 @@ let
     uv
     watchman
     watchexec
-    wild
     yazi
     zellij
     zoxide
@@ -62,6 +61,7 @@ let
 
   linuxPackages = with pkgs; [
     simplescreenrecorder
+    wild
   ];
 in
 {
