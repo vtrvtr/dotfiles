@@ -37,7 +37,6 @@ let
     mermaid-cli
     neovim
     nodejs_24
-    oxker
     pik
     pipx
     presenterm
@@ -60,6 +59,7 @@ let
   ];
 
   linuxPackages = with pkgs; [
+    oxker
     simplescreenrecorder
     wild
   ];
