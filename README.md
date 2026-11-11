@@ -14,18 +14,17 @@ Profiles:
 | `vitorh@macos` | Apple Silicon macOS |
 | `vitorh@macos-intel` | Intel macOS |
 
-Preview a profile without changing the home directory:
+List and build profiles without changing the home directory:
 
 ```bash
-nix build '.#homeConfigurations."vitorh@al".activationPackage'
+./scripts/nix-build.sh --list
+./scripts/nix-build.sh al
 ```
 
-Activate it with Home Manager:
+Activate a profile with Home Manager:
 
 ```bash
-nix run github:nix-community/home-manager -- \
-  --flake '.#vitorh@al' \
-  switch
+./scripts/nix-switch.sh al
 ```
 
 On the first activation, the profile moves conflicting Dotter links and shell files to adjacent `.dotter-backup` paths before Home Manager links its generation. It refuses to overwrite an existing backup. The legacy repo configuration is not deleted, so Dotter can be restored after moving the Home Manager links aside.
@@ -41,10 +40,16 @@ home-manager --flake '.#vitorh@al' switch
 Validate every profile with:
 
 ```bash
-nix flake check --all-systems
+./scripts/nix-check.sh
 ```
 
-Update pinned tools with `nix flake update`, validate, then activate the intended profile.
+Update pinned tools and validate the result with:
+
+```bash
+./scripts/nix-update.sh
+```
+
+Arguments after the profile or command are forwarded to Nix or Home Manager.
 
 ## Legacy setup
 
