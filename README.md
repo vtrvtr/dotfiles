@@ -1,6 +1,52 @@
 # vtr dotfiles
 
-## Just do it 
+## Nix flake
+
+The Home Manager flake is an opt-in replacement for package and dotfile deployment. The existing Devbox and Dotter setup remains available.
+
+Profiles:
+
+| Profile | Target |
+| --- | --- |
+| `vitorh@generic-linux` | Portable x86_64 Linux |
+| `vitorh@al` | Animal Logic Linux with internal Atuin storage |
+| `vitorh@trpc` | trpc Linux/WSL with its WezTerm defaults |
+| `vitorh@macos` | Apple Silicon macOS |
+| `vitorh@macos-intel` | Intel macOS |
+
+Preview a profile without changing the home directory:
+
+```bash
+nix build '.#homeConfigurations."vitorh@al".activationPackage'
+```
+
+Activate it with Home Manager:
+
+```bash
+nix run github:nix-community/home-manager -- \
+  --flake '.#vitorh@al' \
+  switch
+```
+
+On the first activation, the profile moves conflicting Dotter links and shell files to adjacent `.dotter-backup` paths before Home Manager links its generation. It refuses to overwrite an existing backup. The legacy repo configuration is not deleted, so Dotter can be restored after moving the Home Manager links aside.
+
+Change the profile name for another host. After the first activation, `home-manager` is installed in the managed profile:
+
+```bash
+home-manager --flake '.#vitorh@al' switch
+```
+
+`nix/hosts/` selects each target. `nix/profiles/` holds host behavior, `nix/modules/` holds shared Home Manager modules, and ordinary shell/Lua sources live under `nix/config/`.
+
+Validate every profile with:
+
+```bash
+nix flake check --all-systems
+```
+
+Update pinned tools with `nix flake update`, validate, then activate the intended profile.
+
+## Legacy setup
 
 1. Run `install.sh` for bash.
 2. Run `install.fish` for fish.
