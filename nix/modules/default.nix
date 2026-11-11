@@ -2,6 +2,7 @@
 {
   imports = [
     ./container.nix
+    ./jujutsu.nix
     ./migration.nix
     ./packages.nix
     ./shells.nix

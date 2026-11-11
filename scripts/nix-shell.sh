@@ -43,6 +43,15 @@ while IFS= read -r -d '' source; do
   link_config "$source" "$config_home/$relative"
 done < <(find "$home_files/.config" -mindepth 1 -maxdepth 1 -print0)
 
+jj_config=$config_home/jj
+if [[ -L "$jj_config" ]]; then
+  rm -- "$jj_config"
+  mkdir -p "$jj_config"
+  cp -R --no-preserve=mode -- "$home_files/.config/jj/." "$jj_config/"
+  find "$jj_config" -type d -exec chmod u+rwx {} +
+  find "$jj_config" -type f -exec chmod u+rw {} +
+fi
+
 if [[ ! -e "$config_home/nvim/nvim-pack-lock.json" ]]; then
   nvim_config=$config_home/nvim
   if [[ -L "$nvim_config" ]]; then

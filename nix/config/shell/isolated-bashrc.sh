@@ -20,6 +20,7 @@ export XDG_STATE_HOME="$VTR_NIX_STATE_HOME"
 export XDG_CACHE_HOME="$VTR_NIX_CACHE_HOME"
 export PATH="$VTR_NIX_HOME_PATH/bin:$PATH"
 
+source "$VTR_NIX_HOME_PATH/etc/profile.d/hm-session-vars.sh"
 source "$VTR_NIX_REPO_ROOT/nix/config/shell/atuin-private.sh"
 source "$VTR_NIX_HOME_FILES/.bashrc"
 
