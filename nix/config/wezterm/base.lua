@@ -54,12 +54,12 @@ return function(profile)
   profile = profile or {}
   config.font_size = profile.font_size or 16
   config.default_domain = profile.default_domain
-  config.default_prog = profile.default_prog
+  config.default_prog = profile.default_prog or { "zellij" }
 
   local isolated_launcher = os.getenv("VTR_NIX_WEZTERM_LAUNCHER")
   local isolated_profile = os.getenv("VTR_NIX_WEZTERM_PROFILE")
   if isolated_launcher and isolated_profile then
-    config.default_prog = { isolated_launcher, isolated_profile }
+    config.default_prog = { isolated_launcher, isolated_profile, "-c", "exec zellij" }
   end
 
   configure_presentation_mode(config.font_size)
