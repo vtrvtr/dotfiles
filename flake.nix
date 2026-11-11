@@ -26,12 +26,21 @@
         "aarch64-darwin"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      pkgsFor =
-        system:
-        if system == "x86_64-darwin" then
-          inputs.nixpkgs-darwin-x64.legacyPackages.${system}
-        else
-          nixpkgs.legacyPackages.${system};
+      nixpkgsFor = system: if system == "x86_64-darwin" then inputs.nixpkgs-darwin-x64 else nixpkgs;
+      pkgsFor = system: (nixpkgsFor system).legacyPackages.${system};
+      mkHome =
+        {
+          host,
+          system,
+        }:
+        inputs.home-manager.lib.homeManagerConfiguration {
+          pkgs = pkgsFor system;
+          extraSpecialArgs = { inherit inputs; };
+          modules = [
+            ./nix/modules
+            ./nix/hosts/${host}.nix
+          ];
+        };
     in
     {
       formatter = forAllSystems (system: (pkgsFor system).nixfmt-tree);
@@ -44,6 +53,29 @@
           ];
         };
       });
+
+      homeConfigurations = {
+        "vitorh@generic-linux" = mkHome {
+          host = "generic-linux";
+          system = "x86_64-linux";
+        };
+        "vitorh@al" = mkHome {
+          host = "al";
+          system = "x86_64-linux";
+        };
+        "vitorh@trpc" = mkHome {
+          host = "trpc";
+          system = "x86_64-linux";
+        };
+        "vitorh@macos" = mkHome {
+          host = "macos";
+          system = "aarch64-darwin";
+        };
+        "vitorh@macos-intel" = mkHome {
+          host = "macos";
+          system = "x86_64-darwin";
+        };
+      };
 
       homeModules = {
         default = ./nix/modules;
