@@ -85,8 +85,12 @@ while IFS= read -r -d '' source; do
 done < <(find "$home_files/.config" -mindepth 1 ! -type d -print0)
 
 # Drop links into earlier generations and the directories they leave empty.
-mapfile -d '' links < <(find "$config_home" -type l -print0)
-for link in "${links[@]}"; do
+# Collected first so removals cannot disturb the walk.
+links=()
+while IFS= read -r -d '' link; do
+  links+=("$link")
+done < <(find "$config_home" -type l -print0)
+for link in ${links[@]+"${links[@]}"}; do
   current=$(readlink -- "$link")
   [[ "$current" == /nix/store/* && "$current" != "$home_files"/* ]] || continue
   rm -- "$link"
@@ -106,7 +110,7 @@ shell=${VTR_NIX_SHELL:-${SHELL##*/}}
 
 host_bashrc=$state_root/host-bashrc
 if [[ "$profile" == al && ! -e "$host_bashrc" ]]; then
-  cp --no-preserve=mode -- "$HOME/.bashrc" "$host_bashrc"
+  cat -- "$HOME/.bashrc" >"$host_bashrc"
 fi
 
 jj_user=${JJ_USER:-$(jj config get user.name 2>/dev/null || true)}
@@ -140,7 +144,7 @@ child=(
 )
 
 for name in "${forwarded[@]}"; do
-  [[ -v $name ]] && child+=("$name=${!name}")
+  [[ -n ${!name+x} ]] && child+=("$name=${!name}")
 done
 while IFS='=' read -r name value; do
   child+=("$name=$value")
