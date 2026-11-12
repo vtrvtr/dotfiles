@@ -56,10 +56,17 @@ let
 
   graphicalPackages = [ (withHostGpu pkgs.neovide [ "neovide" ]) ];
 
+  # Only the wild entry points: the package also ships an ld wrapper and propagates glibc's
+  # tools, which would shadow the host's ld, ldd and friends. Projects opt in per config.toml.
+  wildEntryPoints = pkgs.runCommand "wild-bin" { } ''
+    mkdir -p "$out/bin"
+    ln -s ${pkgs.wild}/bin/wild ${pkgs.wild}/bin/ld.wild "$out/bin/"
+  '';
+
   linuxPackages = with pkgs; [
     oxker
     simplescreenrecorder
-    wild
+    wildEntryPoints
   ];
 in
 {
