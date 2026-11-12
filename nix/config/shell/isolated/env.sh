@@ -9,10 +9,7 @@ if [[ ${VTR_NIX_PROFILE-} == al && -r ${VTR_NIX_HOST_BASHRC-} ]]; then
   export VTR_AL_ENV_INITIALIZED=true
 fi
 
-for name in ${!DEVBOX_@} ${!__DEVBOX@}; do
-  unset "$name"
-done
-PATH=$(printf '%s' "$PATH" | tr ':' '\n' | grep -vi devbox | awk 'NF && !seen[$0]++' | paste -sd: -)
+source "$VTR_NIX_REPO_ROOT/nix/config/shell/drop-devbox.sh"
 
 source "$VTR_NIX_REPO_ROOT/scripts/load-private-config.sh" \
   "$VTR_NIX_PROFILE" \

@@ -17,7 +17,8 @@
 
   programs.bash = {
     bashrcExtra = ''. "${config.home.sessionVariablesPackage}/etc/profile.d/hm-session-vars.sh"'';
-    initExtra = builtins.readFile ../config/shell/al-site.sh;
+    initExtra =
+      builtins.readFile ../config/shell/al-site.sh + builtins.readFile ../config/shell/drop-devbox.sh;
   };
 
   programs.atuin.settings.sync_frequency = "10m";
