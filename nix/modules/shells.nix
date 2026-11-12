@@ -38,7 +38,7 @@ in
       };
       initExtra = ''
         source ${tvInit "bash"}/init
-        source ${../../bash/jj_gh_stack.sh}
+        ${builtins.readFile ../config/shell/jj-gh-stack.sh}
         ${builtins.readFile ../config/shell/bash.sh}
         ${builtins.readFile ../config/shell/github-mcp.sh}
       '';
