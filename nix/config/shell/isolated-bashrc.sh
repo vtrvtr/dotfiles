@@ -34,9 +34,6 @@ export PATH="$vtr_nix_home_path/bin:$PATH"
 
 source "$vtr_nix_home_path/etc/profile.d/hm-session-vars.sh"
 source "$vtr_nix_repo_root/nix/config/shell/atuin-private.sh"
-"$vtr_nix_repo_root/scripts/render-jj-config.sh" \
-  "$XDG_CONFIG_HOME/jj/config.toml" \
-  "$XDG_CONFIG_HOME/jj/config.toml"
 export JJ_CONFIG="$XDG_CONFIG_HOME/jj/config.toml"
 source "$vtr_nix_home_files/.bashrc"
 
