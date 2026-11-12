@@ -16,6 +16,8 @@
   vtr.migration.dotterTargets = lib.remove ".bash_profile" options.vtr.migration.dotterTargets.default;
 
   programs.bash = {
+    # rez environments and containers run bash by name, and Nix's bash cannot load their glibc.
+    package = null;
     bashrcExtra = ''. "${config.home.sessionVariablesPackage}/etc/profile.d/hm-session-vars.sh"'';
     initExtra =
       builtins.readFile ../config/shell/al-site.sh + builtins.readFile ../config/shell/drop-devbox.sh;

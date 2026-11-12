@@ -32,8 +32,14 @@ else
   mv -- "$marker.tmp" "$marker"
 fi
 
-home_files=$(nix build "$(home_files_ref "$profile")" --no-link --print-out-paths)
-home_path=$(nix build "$(home_path_ref "$profile")" --no-link --print-out-paths)
+# One build call; the profile may omit bash, so the launcher brings its own.
+paths=$(nix build "$(home_files_ref "$profile")" "$(home_path_ref "$profile")" "$(bash_ref "$profile")" \
+  --no-link --print-out-paths)
+{
+  read -r home_files
+  read -r home_path
+  read -r bash_package
+} <<<"$paths"
 mkdir -p "$config_home" "$data_home" "$state_home" "$cache_home"
 
 conflict() {
@@ -107,9 +113,9 @@ fi
 
 shell=${VTR_NIX_SHELL:-${SHELL##*/}}
 isolated=$REPO_ROOT/nix/config/shell/isolated
-shell_env=("SHELL=$home_path/bin/$shell")
 case "$shell" in
   bash)
+    shell_env=("SHELL=$bash_package/bin/bash")
     launch=(--rcfile "$isolated/bashrc.sh" -i)
     ;;
   zsh)
@@ -120,7 +126,7 @@ case "$shell" in
       [[ $(readlink -- "$zdotdir/$file") == "$home_files/$file" ]] ||
         ln -sfn -- "$home_files/$file" "$zdotdir/$file"
     done
-    shell_env+=("ZDOTDIR=$zdotdir")
+    shell_env=("SHELL=$home_path/bin/zsh" "ZDOTDIR=$zdotdir")
     launch=(--norc "$isolated/zsh.sh" -i)
     ;;
   *)
@@ -170,4 +176,4 @@ while IFS='=' read -r name value; do
   child+=("$name=$value")
 done < <(env | grep -E '^(APPTAINER|SINGULARITY)_' || true)
 
-exec env -i "${child[@]}" "$home_path/bin/bash" --noprofile "${launch[@]}" "$@"
+exec env -i "${child[@]}" "$bash_package/bin/bash" --noprofile "${launch[@]}" "$@"

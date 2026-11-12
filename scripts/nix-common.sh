@@ -42,3 +42,7 @@ home_files_ref() {
 home_path_ref() {
   printf '%s#homeConfigurations."%s".config.home.path' "$REPO_ROOT" "$USER_NAME@$1"
 }
+
+bash_ref() {
+  printf '%s#homeConfigurations."%s".pkgs.bashInteractive^out' "$REPO_ROOT" "$USER_NAME@$1"
+}
