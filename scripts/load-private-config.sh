@@ -11,7 +11,9 @@ repo_root=${contract%/config/private-vars.conf}
 private_file=${VTR_PRIVATE_CONFIG:-$HOME/.config/vtr/private.env}
 
 if [[ -r "$private_file" ]]; then
+  set -a
   source "$private_file"
+  set +a
 fi
 
 missing=()
