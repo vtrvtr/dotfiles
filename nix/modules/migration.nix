@@ -37,38 +37,37 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # Activation steps share one script, so this must not exit early once migrated.
     home.activation.backupDotterLinks = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
-      if [[ -e ${lib.escapeShellArg marker} ]]; then
-        exit 0
+      if [[ ! -e ${lib.escapeShellArg marker} ]]; then
+        for target in ${targetList}; do
+          if [[ -L "$target" ]]; then
+            resolved=$(${pkgs.coreutils}/bin/readlink -f -- "$target")
+            [[ "$resolved" == /nix/store/* ]] && continue
+          elif [[ ! -e "$target" ]]; then
+            continue
+          fi
+
+          backup="$target.dotter-backup"
+          if [[ -e "$backup" || -L "$backup" ]]; then
+            echo "Cannot migrate $target: $backup already exists" >&2
+            exit 1
+          fi
+        done
+
+        for target in ${targetList}; do
+          if [[ -L "$target" ]]; then
+            resolved=$(${pkgs.coreutils}/bin/readlink -f -- "$target")
+            [[ "$resolved" == /nix/store/* ]] && continue
+          elif [[ ! -e "$target" ]]; then
+            continue
+          fi
+          run ${pkgs.coreutils}/bin/mv -- "$target" "$target.dotter-backup"
+        done
+
+        run ${pkgs.coreutils}/bin/mkdir -p -- ${lib.escapeShellArg (builtins.dirOf marker)}
+        run ${pkgs.coreutils}/bin/touch -- ${lib.escapeShellArg marker}
       fi
-
-      for target in ${targetList}; do
-        if [[ -L "$target" ]]; then
-          resolved=$(${pkgs.coreutils}/bin/readlink -f -- "$target")
-          [[ "$resolved" == /nix/store/* ]] && continue
-        elif [[ ! -e "$target" ]]; then
-          continue
-        fi
-
-        backup="$target.dotter-backup"
-        if [[ -e "$backup" || -L "$backup" ]]; then
-          echo "Cannot migrate $target: $backup already exists" >&2
-          exit 1
-        fi
-      done
-
-      for target in ${targetList}; do
-        if [[ -L "$target" ]]; then
-          resolved=$(${pkgs.coreutils}/bin/readlink -f -- "$target")
-          [[ "$resolved" == /nix/store/* ]] && continue
-        elif [[ ! -e "$target" ]]; then
-          continue
-        fi
-        run ${pkgs.coreutils}/bin/mv -- "$target" "$target.dotter-backup"
-      done
-
-      run ${pkgs.coreutils}/bin/mkdir -p -- ${lib.escapeShellArg (builtins.dirOf marker)}
-      run ${pkgs.coreutils}/bin/touch -- ${lib.escapeShellArg marker}
     '';
   };
 }
