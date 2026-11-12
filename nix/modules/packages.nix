@@ -39,6 +39,7 @@ let
     pik
     pipx
     presenterm
+    python3Packages.debugpy
     ripgrep
     ruff
     rustup
