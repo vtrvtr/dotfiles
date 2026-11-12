@@ -1,4 +1,5 @@
-if command -v gh >/dev/null && gh auth status >/dev/null 2>&1; then
-  GITHUB_MCP_TOKEN=$(gh auth token)
-  export GITHUB_MCP_TOKEN
+# gh auth token reads local state only; gh auth status would hit the network on every shell.
+if command -v gh >/dev/null && vtr_gh_token=$(gh auth token 2>/dev/null); then
+  export GITHUB_MCP_TOKEN=$vtr_gh_token
 fi
+unset vtr_gh_token
