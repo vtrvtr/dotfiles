@@ -56,6 +56,15 @@ return function(profile)
   config.default_domain = profile.default_domain
   config.default_prog = profile.default_prog or { "zellij" }
 
+  -- Panes get back the library and EGL driver paths that the host-gpu wrapper replaced.
+  local host_egl_vendor_dirs = os.getenv("VTR_HOST_EGL_VENDOR_DIRS")
+  if host_egl_vendor_dirs then
+    config.set_environment_variables = {
+      __EGL_VENDOR_LIBRARY_DIRS = host_egl_vendor_dirs,
+      LD_LIBRARY_PATH = os.getenv("VTR_HOST_LD_LIBRARY_PATH"),
+    }
+  end
+
   local isolated_launcher = os.getenv("VTR_NIX_WEZTERM_LAUNCHER")
   local isolated_profile = os.getenv("VTR_NIX_WEZTERM_PROFILE")
   if isolated_launcher and isolated_profile then

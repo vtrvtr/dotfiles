@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  pkgs,
+  withHostGpu,
   ...
 }:
 let
@@ -18,6 +20,10 @@ in
 
   config.programs.wezterm = {
     enable = true;
+    package = withHostGpu pkgs.wezterm [
+      "wezterm"
+      "wezterm-gui"
+    ];
     extraConfig = rendered;
   };
 }

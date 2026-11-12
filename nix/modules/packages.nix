@@ -2,6 +2,7 @@
   inputs,
   lib,
   pkgs,
+  withHostGpu,
   ...
 }:
 let
@@ -53,10 +54,7 @@ let
     zoxide
   ];
 
-  graphicalPackages = with pkgs; [
-    neovide
-    wezterm
-  ];
+  graphicalPackages = [ (withHostGpu pkgs.neovide [ "neovide" ]) ];
 
   linuxPackages = with pkgs; [
     oxker

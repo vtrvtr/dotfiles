@@ -2,6 +2,7 @@
 {
   imports = [
     ./container.nix
+    ./host-gpu.nix
     ./jujutsu.nix
     ./migration.nix
     ./packages.nix
