@@ -25,6 +25,7 @@ in
         ".config/atuin"
         ".config/fish/config.fish"
         ".config/gh-dash"
+        ".config/jj/config.toml"
         ".config/nvim"
         ".config/starship.toml"
         ".config/television"

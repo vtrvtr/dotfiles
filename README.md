@@ -47,7 +47,7 @@ Activate a profile permanently with Home Manager only when desired:
 ./scripts/nix-switch.sh al
 ```
 
-On the first activation, the profile moves conflicting Dotter links and shell files to adjacent `.dotter-backup` paths before Home Manager links its generation. It refuses to overwrite an existing backup.
+On the first activation, the profile moves conflicting Dotter links and shell files to adjacent `.dotter-backup` paths before Home Manager links its generation. It refuses to overwrite an existing backup. Home Manager owns `~/.config/jj/config.toml`, so keep per-machine jj settings such as `[user]` or `[signing]` in `~/.config/jj/conf.d/*.toml`.
 
 Change the profile name for another host. After the first activation, `home-manager` is installed in the managed profile:
 
