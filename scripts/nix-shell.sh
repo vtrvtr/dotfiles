@@ -106,7 +106,27 @@ if [[ ! -e "$config_home/nvim/nvim-pack-lock.json" ]]; then
 fi
 
 shell=${VTR_NIX_SHELL:-${SHELL##*/}}
-[[ "$shell" == bash ]] || usage_error "clean launcher currently supports bash; requested '$shell'"
+isolated=$REPO_ROOT/nix/config/shell/isolated
+shell_env=("SHELL=$home_path/bin/$shell")
+case "$shell" in
+  bash)
+    launch=(--rcfile "$isolated/bashrc.sh" -i)
+    ;;
+  zsh)
+    # A writable ZDOTDIR so compinit can keep its dump beside the generated startup files.
+    zdotdir=$state_root/zsh
+    mkdir -p -- "$zdotdir"
+    for file in .zshenv .zshrc; do
+      [[ $(readlink -- "$zdotdir/$file") == "$home_files/$file" ]] ||
+        ln -sfn -- "$home_files/$file" "$zdotdir/$file"
+    done
+    shell_env+=("ZDOTDIR=$zdotdir")
+    launch=(--norc "$isolated/zsh.sh" -i)
+    ;;
+  *)
+    usage_error "isolated shells are bash and zsh; requested '$shell'"
+    ;;
+esac
 
 host_bashrc=$state_root/host-bashrc
 if [[ "$profile" == al && ! -e "$host_bashrc" ]]; then
@@ -126,7 +146,7 @@ child=(
   "HOME=$HOME"
   "USER=${USER:-$(id -un)}"
   "LOGNAME=${LOGNAME:-${USER:-$(id -un)}}"
-  "SHELL=$home_path/bin/bash"
+  "${shell_env[@]}"
   "PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
   "VTR_NIX_ISOLATED=1"
   "VTR_NIX_PROFILE=$profile"
@@ -150,5 +170,4 @@ while IFS='=' read -r name value; do
   child+=("$name=$value")
 done < <(env | grep -E '^(APPTAINER|SINGULARITY)_' || true)
 
-exec env -i "${child[@]}" \
-  "$home_path/bin/bash" --noprofile --rcfile "$REPO_ROOT/nix/config/shell/isolated/bashrc.sh" -i "$@"
+exec env -i "${child[@]}" "$home_path/bin/bash" --noprofile "${launch[@]}" "$@"

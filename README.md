@@ -27,6 +27,8 @@ Start an isolated profile shell without changing normal home configuration:
 ./scripts/nix-shell.sh al
 ```
 
+It starts bash or zsh, following `$SHELL`; set `VTR_NIX_SHELL=bash` or `VTR_NIX_SHELL=zsh` to choose.
+
 Launch WezTerm with every new tab and pane entering that isolated profile:
 
 ```bash
