@@ -2,7 +2,7 @@
 
 ## Nix flake
 
-The Home Manager flake is an opt-in replacement for package and dotfile deployment. The existing Devbox and Dotter setup remains available.
+A Home Manager flake deploys packages and dotfiles.
 
 Profiles:
 
@@ -45,7 +45,7 @@ Activate a profile permanently with Home Manager only when desired:
 ./scripts/nix-switch.sh al
 ```
 
-On the first activation, the profile moves conflicting Dotter links and shell files to adjacent `.dotter-backup` paths before Home Manager links its generation. It refuses to overwrite an existing backup. The legacy repo configuration is not deleted, so Dotter can be restored after moving the Home Manager links aside.
+On the first activation, the profile moves conflicting Dotter links and shell files to adjacent `.dotter-backup` paths before Home Manager links its generation. It refuses to overwrite an existing backup.
 
 Change the profile name for another host. After the first activation, `home-manager` is installed in the managed profile:
 
@@ -68,21 +68,3 @@ Update pinned tools and validate the result with:
 ```
 
 Arguments after the profile or command are forwarded to Nix or Home Manager.
-
-## Legacy setup
-
-1. Run `install.sh` for bash.
-2. Run `install.fish` for fish.
-
-## Manual Install
-
-1. `curl -fsSL https://get.jetify.com/devbox | bash` (or other shell)
-  * Add to your rc file: `eval "$(devbox global shellenv --init-hook)"`. If bash. Others [here](https://www.jetify.com/docs/devbox/devbox_global/).
-2. `devbox add dotter`
-3. `dotter deploy`. This should be run from the repository root folder.
-4. Incredibly, that's all.
-
----
-`devbox` tries to install `nix` by itself. Depending on the platform, that won't be possible. [More info here](https://www.jetify.com/docs/devbox/installing_devbox/). [Determine Nix](htps://github.com/DeterminateSystems/nix-installer)] usually works
-
----

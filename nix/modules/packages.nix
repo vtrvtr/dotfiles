@@ -20,7 +20,6 @@ let
     cargo-workspaces
     chafa
     difftastic
-    dotter
     dust
     erdtree
     fd
