@@ -37,6 +37,7 @@ in
         reload = "exec bash";
       };
       initExtra = ''
+        ${builtins.readFile ../config/shell/private-env.sh}
         source ${tvInit "bash"}/init
         ${builtins.readFile ../config/shell/jj-gh-stack.sh}
         ${builtins.readFile ../config/shell/bash.sh}
@@ -54,6 +55,7 @@ in
         vim = "nvim";
       };
       interactiveShellInit = ''
+        ${builtins.readFile ../config/shell/private-env.fish}
         source ${tvInit "fish"}/init
         ${builtins.readFile ../config/shell/fish.fish}
       '';
@@ -66,6 +68,7 @@ in
         reload = "exec zsh";
       };
       initContent = lib.mkOrder 1200 ''
+        ${builtins.readFile ../config/shell/private-env.sh}
         source ${tvInit "zsh"}/init
         ${builtins.readFile ../config/shell/zsh.sh}
       '';
