@@ -21,16 +21,21 @@ let
   script = builtins.readFile ../config/shell/host-gpu.sh;
   hostGpu = pkgs.writeShellApplication {
     name = "host-gpu";
-    runtimeInputs = with pkgs; [
-      coreutils
-      gnused
-      patchelf
-    ];
     text = ''
       readonly nix_runpath=${runpath}
       readonly mesa_vendor_dir=${pkgs.mesa}/share/glvnd/egl_vendor.d
       readonly mesa_glx_dir=${mesaGlx}
       readonly cache_key=${builtins.substring 0 12 (builtins.hashString "sha256" (runpath + script))}
+      readonly tools=${
+        lib.makeBinPath (
+          with pkgs;
+          [
+            coreutils
+            gnused
+            patchelf
+          ]
+        )
+      }
     ''
     + script;
   };

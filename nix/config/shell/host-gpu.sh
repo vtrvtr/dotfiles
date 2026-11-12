@@ -33,7 +33,8 @@ nvidia_driver() {
   printf '%s\n' "$driver"
 }
 
-driver=$(nvidia_driver)
+# The wrapped program inherits this environment, so the tools stay inside the subshell.
+driver=$(PATH="$tools:$PATH" nvidia_driver)
 export __EGL_VENDOR_LIBRARY_DIRS=${driver:-$mesa_vendor_dir}
 export LD_LIBRARY_PATH=${driver:-$mesa_glx_dir}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 exec "$@"
