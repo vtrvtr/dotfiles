@@ -16,6 +16,9 @@ shift
 state_root=${VTR_NIX_ROOT:-$HOME/.local/share/vtr-nix/$profile}
 home_path=$(nix build "$(home_path_ref "$profile")" --no-link --print-out-paths)
 
+# Resolve the jj identity from the host config before XDG points at the isolated root.
+export JJ_USER=${JJ_USER:-$(jj config get user.name 2>/dev/null || true)}
+export JJ_EMAIL=${JJ_EMAIL:-$(jj config get user.email 2>/dev/null || true)}
 export VTR_NIX_ROOT=$state_root
 export VTR_NIX_WEZTERM_LAUNCHER=$REPO_ROOT/scripts/nix-shell.sh
 export VTR_NIX_WEZTERM_PROFILE=$profile
