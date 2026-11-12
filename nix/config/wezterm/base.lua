@@ -54,7 +54,23 @@ return function(profile)
   profile = profile or {}
   config.font_size = profile.font_size or 16
   config.default_domain = profile.default_domain
-  config.default_prog = profile.default_prog or { "zellij" }
+
+  local default_prog = profile.default_prog or { "zellij" }
+  local isolated_launcher = os.getenv("VTR_NIX_WEZTERM_LAUNCHER")
+  local isolated_profile = os.getenv("VTR_NIX_WEZTERM_PROFILE")
+  if isolated_launcher and isolated_profile then
+    default_prog = { isolated_launcher, isolated_profile, "-c", "exec zellij" }
+  end
+
+  -- Nix's glibc cannot look up directory-service accounts, so WezTerm replaces SHELL with /bin/sh
+  -- before this config runs, and set_environment_variables cannot override it. Ask the host
+  -- (getent is absent on macOS, where WezTerm's own lookup works).
+  local ok, found, passwd = pcall(wezterm.run_child_process, { "getent", "passwd", os.getenv("USER") or "" })
+  local shell = ok and found and passwd:match(":([^:\n]+)%s*$")
+  if shell then
+    default_prog = { "env", "SHELL=" .. shell, table.unpack(default_prog) }
+  end
+  config.default_prog = default_prog
 
   -- Panes get back the library and EGL driver paths that the host-gpu wrapper replaced.
   local host_egl_vendor_dirs = os.getenv("VTR_HOST_EGL_VENDOR_DIRS")
@@ -63,12 +79,6 @@ return function(profile)
       __EGL_VENDOR_LIBRARY_DIRS = host_egl_vendor_dirs,
       LD_LIBRARY_PATH = os.getenv("VTR_HOST_LD_LIBRARY_PATH"),
     }
-  end
-
-  local isolated_launcher = os.getenv("VTR_NIX_WEZTERM_LAUNCHER")
-  local isolated_profile = os.getenv("VTR_NIX_WEZTERM_PROFILE")
-  if isolated_launcher and isolated_profile then
-    config.default_prog = { isolated_launcher, isolated_profile, "-c", "exec zellij" }
   end
 
   configure_presentation_mode(config.font_size)
