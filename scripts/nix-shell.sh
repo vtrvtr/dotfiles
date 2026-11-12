@@ -151,4 +151,4 @@ while IFS='=' read -r name value; do
 done < <(env | grep -E '^(APPTAINER|SINGULARITY)_' || true)
 
 exec env -i "${child[@]}" \
-  "$home_path/bin/bash" --noprofile --rcfile "$REPO_ROOT/nix/config/shell/isolated-bashrc.sh" -i "$@"
+  "$home_path/bin/bash" --noprofile --rcfile "$REPO_ROOT/nix/config/shell/isolated/bashrc.sh" -i "$@"
