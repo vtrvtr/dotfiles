@@ -40,10 +40,12 @@ in
     # Activation steps share one script, so this must not exit early once migrated.
     home.activation.backupDotterLinks = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
       if [[ ! -e ${lib.escapeShellArg marker} ]]; then
+        # One-level readlink: Home Manager links point into the store, and Dotter links
+        # may dangle once their repo files are gone, which readlink -f rejects.
+        migrate=()
         for target in ${targetList}; do
           if [[ -L "$target" ]]; then
-            resolved=$(${pkgs.coreutils}/bin/readlink -f -- "$target")
-            [[ "$resolved" == /nix/store/* ]] && continue
+            [[ $(${pkgs.coreutils}/bin/readlink -- "$target") == /nix/store/* ]] && continue
           elif [[ ! -e "$target" ]]; then
             continue
           fi
@@ -53,15 +55,10 @@ in
             echo "Cannot migrate $target: $backup already exists" >&2
             exit 1
           fi
+          migrate+=("$target")
         done
 
-        for target in ${targetList}; do
-          if [[ -L "$target" ]]; then
-            resolved=$(${pkgs.coreutils}/bin/readlink -f -- "$target")
-            [[ "$resolved" == /nix/store/* ]] && continue
-          elif [[ ! -e "$target" ]]; then
-            continue
-          fi
+        for target in "''${migrate[@]}"; do
           run ${pkgs.coreutils}/bin/mv -- "$target" "$target.dotter-backup"
         done
 
