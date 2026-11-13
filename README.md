@@ -12,7 +12,6 @@ Profiles:
 | `vitorh@al` | Animal Logic Linux with internal Atuin storage |
 | `vitorh@trpc` | trpc Linux/WSL with its WezTerm defaults |
 | `vitorh@macos` | Apple Silicon macOS |
-| `vitorh@macos-intel` | Intel macOS |
 
 List and build profiles without changing the home directory:
 

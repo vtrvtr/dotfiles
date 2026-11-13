@@ -75,11 +75,9 @@ in
   home.packages =
     commonPackages
     ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxPackages
-    ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin || system == "aarch64-darwin") [
-      (packageFrom inputs.claude-code pkgs.claude-code)
-    ]
     ++ graphicalPackages
     ++ [
+      (packageFrom inputs.claude-code pkgs.claude-code)
       (packageFrom inputs.jj-ryu pkgs.jj-ryu)
       (packageFrom inputs.pi pkgs.pi)
       (packageFrom inputs.television pkgs.television)

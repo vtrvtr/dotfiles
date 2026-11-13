@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-darwin-x64.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -22,12 +21,10 @@
       systems = [
         "x86_64-linux"
         "aarch64-linux"
-        "x86_64-darwin"
         "aarch64-darwin"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      nixpkgsFor = system: if system == "x86_64-darwin" then inputs.nixpkgs-darwin-x64 else nixpkgs;
-      pkgsFor = system: (nixpkgsFor system).legacyPackages.${system};
+      pkgsFor = system: nixpkgs.legacyPackages.${system};
       mkHome =
         {
           host,
@@ -70,10 +67,6 @@
         "vitorh@macos" = mkHome {
           host = "macos";
           system = "aarch64-darwin";
-        };
-        "vitorh@macos-intel" = mkHome {
-          host = "macos";
-          system = "x86_64-darwin";
         };
       };
 

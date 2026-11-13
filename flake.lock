@@ -130,22 +130,6 @@
     },
     "nixpkgs-darwin-x64": {
       "locked": {
-        "lastModified": 1793976852,
-        "narHash": "sha256-bWDN3JZcE9ovYoaD0/6WYbMtXYpUu0vd5onpK0pc/SE=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "57f1c8965649ce5bcac5118a0d2e41f1fbdc56e5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixpkgs-26.05-darwin",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs-darwin-x64_2": {
-      "locked": {
         "lastModified": 1788334797,
         "narHash": "sha256-nskSa8kDimM7F0VFSP8IdoSNo4G0vKzOtxwvOFpoGDI=",
         "owner": "NixOS",
@@ -258,7 +242,7 @@
     "pi": {
       "inputs": {
         "nixpkgs": "nixpkgs_5",
-        "nixpkgs-darwin-x64": "nixpkgs-darwin-x64_2"
+        "nixpkgs-darwin-x64": "nixpkgs-darwin-x64"
       },
       "locked": {
         "lastModified": 1794414365,
@@ -280,7 +264,6 @@
         "home-manager": "home-manager",
         "jj-ryu": "jj-ryu",
         "nixpkgs": "nixpkgs_4",
-        "nixpkgs-darwin-x64": "nixpkgs-darwin-x64",
         "pi": "pi",
         "television": "television"
       }

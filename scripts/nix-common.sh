@@ -5,7 +5,7 @@ set -euo pipefail
 REPO_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 readonly REPO_ROOT
 readonly USER_NAME=vitorh
-readonly PROFILES=(generic-linux al trpc macos macos-intel)
+readonly PROFILES=(generic-linux al trpc macos)
 
 usage_error() {
   printf '%s\n' "$1" >&2
