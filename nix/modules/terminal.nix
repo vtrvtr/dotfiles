@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  withHostGpu,
   ...
 }:
 let
@@ -16,11 +17,39 @@ let
   mutableLocks = {
     "nvim/nvim-pack-lock.json" = ../../nvim-pack/nvim-pack-lock.json;
   };
+
+  zellijWithTerminalLibraries = pkgs.symlinkJoin {
+    name = "${pkgs.zellij.name}-terminal";
+    paths = [ pkgs.zellij ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/zellij" \
+        --prefix LD_LIBRARY_PATH : ${
+          lib.makeLibraryPath (
+            with pkgs;
+            [
+              fontconfig
+              freetype
+              libglvnd
+              libX11
+              libXcursor
+              libXi
+              libxkbcommon
+              libXrandr
+            ]
+          )
+        }
+    '';
+    inherit (pkgs.zellij) meta version;
+  };
 in
 {
   programs = {
     zellij = {
       enable = true;
+      package = (withHostGpu zellijWithTerminalLibraries [ "zellij" ]) // {
+        inherit (pkgs.zellij) version;
+      };
       enableBashIntegration = false;
       enableFishIntegration = false;
       enableZshIntegration = false;

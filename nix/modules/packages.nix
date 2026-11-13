@@ -50,7 +50,6 @@ let
     watchman
     watchexec
     yazi
-    zellij
     zoxide
   ];
 
