@@ -291,7 +291,7 @@ keybinds {
 // changing these requires a restart to take effect
 plugins {
     about location="zellij:about"
-    zellij_nav location="file:~/.config/zellij/plugins/zellij_nav.wasm"
+    zellij_nav location="file:@zellij_nav@"
     zextract location="https://github.com/codingfragments/zellij-zextract/releases/latest/download/zextract.wasm"
     zjstatus location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm"
     zjhints location="https://github.com/myah-mitchell/zjhints/releases/download/zellij-0.45/zjstatus-hints.wasm" {

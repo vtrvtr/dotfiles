@@ -6,6 +6,8 @@
   ...
 }:
 let
+  zellijNav = pkgs.callPackage ../packages/zellij-nav.nix { };
+
   withoutLock =
     name: source: lockFile:
     builtins.path {
@@ -43,7 +45,9 @@ in
     "television/default_channels.toml".source = ../../television/default_channels.toml;
     "television/cable".source = ../../television/cable;
     "yazi/yazi.toml".source = ../../yazi/yazi.toml;
-    "zellij/config.kdl".source = ../../zellij/config.kdl;
+    "zellij/config.kdl".source = pkgs.replaceVars ../../zellij/config.kdl {
+      zellij_nav = "${zellijNav}/share/zellij/plugins/zellij_nav.wasm";
+    };
     "zellij/layouts".source = ../../zellij/layouts;
     "zellij/zextract.kdl".source = ../../zellij/zextract.kdl;
   };

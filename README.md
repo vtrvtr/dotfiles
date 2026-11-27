@@ -56,6 +56,8 @@ home-manager --flake '.#vitorh@al' switch
 
 `nix/hosts/` selects each target. `nix/profiles/` holds host behavior, `nix/modules/` holds shared Home Manager modules, and ordinary shell/Lua sources live under `nix/config/`. Home Manager deploys `nvim-pack/` as the default `~/.config/nvim` configuration.
 
+Home Manager builds the Zellij pane picker from `zellij/zellij-nav/` and points the `Ctrl p` binding at the resulting WASM. No manual plugin installation is needed. To build just the plugin, run `nix build .#zellij-nav`; the artifact is `result/share/zellij/plugins/zellij_nav.wasm`. Start a new Zellij session after switching profiles or updating the plugin. Zellij may ask for permission when the plugin path changes.
+
 Validate every profile with:
 
 ```bash

@@ -42,6 +42,10 @@
     {
       formatter = forAllSystems (system: (pkgsFor system).nixfmt-tree);
 
+      packages = forAllSystems (system: {
+        zellij-nav = (pkgsFor system).callPackage ./nix/packages/zellij-nav.nix { };
+      });
+
       devShells = forAllSystems (system: {
         default = (pkgsFor system).mkShellNoCC {
           packages = [
